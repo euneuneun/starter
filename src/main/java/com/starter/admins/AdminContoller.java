@@ -26,7 +26,7 @@ public class AdminContoller {
     //기능
 
     /**
-     * 관리자 생성 API
+     * 관리자 회원가입 API
      */
 
     @PostMapping("/signup")
