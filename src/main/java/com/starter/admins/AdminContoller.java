@@ -4,7 +4,7 @@ import com.starter.admins.dto.requestDto.AdminCreateRequestDto;
 import com.starter.admins.dto.requestDto.AdminLoginRequestDto;
 import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
 import com.starter.admins.dto.responseDto.AdminResponseDto;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +51,7 @@ public class AdminContoller {
     @PostMapping("/login")
     public ResponseEntity<AdminLoginResponseDto> login(
             @RequestBody @Valid AdminLoginRequestDto requestDto,
-            @Valid HttpServletRequest request
+            @Valid HttpSession request
             ) {
         // 1. 서비스 처리 - 로그인
         AdminLoginResponseDto responseDto = adminService.loginAdmin(requestDto, request);
@@ -68,9 +68,9 @@ public class AdminContoller {
      */
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpSession session) {
         // 1. 서비스 처리 - 로그아웃
-        adminService.logoutAdmin(request);
+        adminService.logoutAdmin(session);
 
         // 2. 생성 ResponseEntity
         ResponseEntity<String> response = new ResponseEntity<>("로그아웃 되었습니다.", HttpStatus.OK);
