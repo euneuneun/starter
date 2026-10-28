@@ -1,9 +1,12 @@
-package com.starter.Admins.Entity;
+package com.starter.admins.entity;
 
+import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -11,12 +14,27 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "admins")
-public class Admins {
+public class Admin extends BaseEntity {
+
+    //Enum정의
+    // 관리자 역할
+    public enum AdminRole {
+        SUPER_ADMIN, // 슈퍼 관리자
+        OPERATION_ADMIN, // 운영 관리자
+        CS_ADMIN // CS관리자
+    }
+
+    //관리자 상태
+    public enum AdminStatus {
+        PENDING,   // 승인 대기
+        APPROVED,  // 승인 완료
+        REJECTED   // 반려됨
+    }
 
     //속성
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long adminid;
 
     @Column(nullable = false, length = 20)
     private String name;
@@ -31,10 +49,15 @@ public class Admins {
     private String phone;
 
     @Column(nullable = false, length = 30)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private AdminRole role;
+
 
     @Column(nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private AdminStatus status;
 
     @Column(nullable = true, length = 200)
     private String rejectReason;
@@ -42,42 +65,22 @@ public class Admins {
     @Column(nullable = true)
     private LocalDateTime approvedAt;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime rejectedAt;
 
     //생성자
-    public Admins(
-            Long id,
+    public Admin(
             String name,
             String email,
             String password,
             String phone,
-            String role,
-            String status,
-            String rejectReason,
-            LocalDateTime approvedAt,
-            LocalDateTime rejectedAt
+            AdminRole role
     ) {
-        this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.phone = phone;
         this.role = role;
-        this.status = status;
-        this.rejectReason = rejectReason;
-        this.approvedAt = approvedAt;
-        this.rejectedAt = rejectedAt;
+        this.status = AdminStatus.PENDING;
     }
-
-
-
-
-
-
-
-
-
-
-
 }
