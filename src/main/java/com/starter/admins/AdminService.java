@@ -19,6 +19,10 @@ public class AdminService {
     //생성자
 
     //기능
+
+    /**
+     * 관리자 회원가입 API
+     */
     @Transactional
     public AdminResponseDto createAdmin(AdminCreateRequestDto createRequestDto) {
         // 1. 데이터 준비
@@ -31,7 +35,7 @@ public class AdminService {
         // 2. 데이터 검증
         // 2-1. 중복된 이메일 확인 (가입된 이메일이 존재하면 예외처리)
         if (adminRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다: " + email);
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다. ");
         }
 
         // 2-2. 역할 문자열을 Enum으로 변환 및 검증

@@ -34,7 +34,7 @@ public class Admin extends BaseEntity {
     //속성
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long adminid;
+    private Long adminId;
 
     @Column(nullable = false, length = 20)
     private String name;

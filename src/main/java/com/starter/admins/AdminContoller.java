@@ -5,6 +5,7 @@ import com.starter.admins.dto.responseDto.AdminResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,10 @@ public class AdminContoller {
 
     //기능
 
-    //관리자 생성
+    /**
+     * 관리자 생성 API
+     */
+
     @PostMapping("/signup")
     public ResponseEntity<AdminResponseDto> create(@RequestBody @Valid AdminCreateRequestDto requestDto) {
 
@@ -32,9 +36,9 @@ public class AdminContoller {
         AdminResponseDto responseDto = this.adminService.createAdmin(requestDto);
 
         // 2. 생성 - ResponseEntity
-        ResponseEntity<AdminResponseDto> response= new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        ResponseEntity<AdminResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
-        //3. 반환
+        // 3. 반환
         return response;
 
     }
