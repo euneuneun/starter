@@ -2,11 +2,16 @@ package com.starter.product.service;
 
 import com.starter.product.dto.ProductCreateRequestDto;
 import com.starter.product.dto.ProductCreateResponseDto;
+import com.starter.product.dto.ProductDetailResponseDto;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -21,7 +26,7 @@ public class ProductService {
 
     // 기능
     /**
-     *  상품등록API
+     *  상품등록
      */
     public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
         // 1. 데이터 준비
@@ -45,6 +50,28 @@ public class ProductService {
         ProductCreateResponseDto responseDto = new ProductCreateResponseDto(
                 savedProduct.getName(), savedProduct.getCategory(), savedProduct.getPrice(),
                 savedProduct.getStock(), savedProduct.getStatus());
+
+        // 5. 응답 반환
+        return responseDto;
+    }
+    /**
+     *  상품 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public ProductDetailResponseDto detailProduct(Long id) {
+        // 1. id로 상품 조회
+        Optional<Product> optionalProduct = this.productRepository.findById(id);
+
+        // 2. 상품 존재 여부 확인, 없으면 예외처리
+        if(optionalProduct.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 3. 객체 꺼내기
+        Product foundProduct = optionalProduct.get();
+
+        // 4. entity -> dto 변환
+        ProductDetailResponseDto responseDto = new ProductDetailResponseDto(foundProduct);
 
         // 5. 응답 반환
         return responseDto;
