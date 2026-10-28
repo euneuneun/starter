@@ -5,8 +5,10 @@ title: ''
 labels: ''
 assignees: ''
 ---
-## 💡 Issue 제목
-> 예: [Feat] 로그인 API 구현
+<!--
+제목 규칙: [Feat] 로그인 API 구현
+prefix: Feat / Fix / Refactor / Test / Docs / Chore
+-->
 
 ## 📄 설명
 설명을 작성해 주세요.
