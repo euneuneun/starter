@@ -1,8 +1,6 @@
 package com.starter.product.controller;
 
-import com.starter.product.dto.ProductCreateRequestDto;
-import com.starter.product.dto.ProductCreateResponseDto;
-import com.starter.product.dto.ProductDetailResponseDto;
+import com.starter.product.dto.*;
 import com.starter.product.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +45,22 @@ public class ProductController {
 
         // 2. Http
         ResponseEntity<ProductDetailResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
+    }
+    /**
+     *  상품 재고 변경 API
+     */
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<ProductChangeStockResponseDto> changeStock(
+            @RequestBody ProductChangeStockRequestDto requestDto, @PathVariable Long id) {
+        System.out.println("상품 재고 변경 Controller 진입");
+        // 1. 서비스 처리
+        ProductChangeStockResponseDto responseDto = this.productService.changeStock(requestDto, id);
+
+        // 2. Http
+        ResponseEntity<ProductChangeStockResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;

@@ -1,8 +1,6 @@
 package com.starter.product.service;
 
-import com.starter.product.dto.ProductCreateRequestDto;
-import com.starter.product.dto.ProductCreateResponseDto;
-import com.starter.product.dto.ProductDetailResponseDto;
+import com.starter.product.dto.*;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
@@ -72,6 +70,43 @@ public class ProductService {
 
         // 4. entity -> dto 변환
         ProductDetailResponseDto responseDto = new ProductDetailResponseDto(foundProduct);
+
+        // 5. 응답 반환
+        return responseDto;
+    }
+    /**
+     *  상품 재고 변경
+     */
+    @Transactional
+    public ProductChangeStockResponseDto changeStock(ProductChangeStockRequestDto requestDto, Long id) {
+        // 1. id로 상품 조회
+        Optional<Product> optionalProduct = this.productRepository.findById(id);
+
+        // 2. 상품 존재 여부 확인, 없으면 예외처리
+        if(optionalProduct.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 3. 객체 꺼내기
+        Product foundProduct = optionalProduct.get();
+
+        // 4. RequestDto 에서 변경할 재고 가져오기
+        Integer stock = requestDto.getStock();
+
+        // 4-1. 가져온 재고 검증
+        if(stock == null || stock < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+
+        // 4-2. 재고 변경
+        foundProduct.changeStock(stock);
+
+        // 4-3. 변경된 재고 db 동기화
+        productRepository.flush();
+
+        // 5. entity -> dto 변환
+        ProductChangeStockResponseDto responseDto = new ProductChangeStockResponseDto(
+                foundProduct.getId(), foundProduct.getStock(), foundProduct.getStatus(), foundProduct.getUpdatedAt());
 
         // 5. 응답 반환
         return responseDto;
