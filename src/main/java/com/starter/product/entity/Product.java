@@ -36,7 +36,7 @@ public class Product {
     private Long price;
 
     @Column(nullable = false)
-    private int stock;
+    private Integer stock;
 
     @Column(nullable = false, length = 15)
     @Enumerated(EnumType.STRING)
@@ -58,7 +58,7 @@ public class Product {
     protected Product() {
     }
 
-    public Product(String name, String category, Long price, int stock, boolean discontinued) {
+    public Product(String name, String category, Long price, Integer stock, ProductStatus status) {
         // 잘못입력한 데이터 차단
         if(name == null || name.isBlank() || name.length() > 100) {
             throw new IllegalArgumentException("상품명은 null 이거나 100자를 넘을 수 없습니다.");
@@ -69,23 +69,24 @@ public class Product {
         if(price == null || price < 0) {
             throw new IllegalArgumentException("가격은 null 이거나 음수일 수 없습니다.");
         }
-        if(stock < 0) {
+        if(stock == null || stock < 0) {
             throw new IllegalArgumentException("재고는 음수일 수 없습니다.");
         }
         this.name = name;
         this.category = category;
         this.price = price;
-        if(discontinued == true) {
-            status = ProductStatus.DISCONTINUED;
+        if(status == ProductStatus.DISCONTINUED) {
+            this.status = ProductStatus.DISCONTINUED;
+        } else if(status == ProductStatus.OUT_OF_STOCK) {
+            this.status = ProductStatus.OUT_OF_STOCK;
+        } else if(stock == 0) {
+                this.status = ProductStatus.OUT_OF_STOCK;
         } else {
-            if (stock == 0) {
-                status = ProductStatus.OUT_OF_STOCK;
-            } else {
-                status = ProductStatus.ON_SALE;
+            this.status = ProductStatus.ON_SALE;
             }
-        }
         this.stock = stock;
     }
+
     // 기능
     // 재고 변경하기
     public void changeStock(int stock) {
@@ -102,7 +103,7 @@ public class Product {
         }
     }
     // 상품 단종 설정
-    public void discontinue() {
+    public void discontinued() {
         this.status = ProductStatus.DISCONTINUED;
     }
     // 상품 단종 해제
@@ -131,5 +132,34 @@ public class Product {
     // 상품 삭제 처리
     public void deleteProduct() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    // 응답에 필요한 getter
+    public Long getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
+    }
+    public String getCategory() {
+        return category;
+    }
+    public Long getPrice() {
+        return price;
+    }
+    public Integer getStock() {
+        return stock;
+    }
+    public ProductStatus getStatus() {
+        return status;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
     }
 }
