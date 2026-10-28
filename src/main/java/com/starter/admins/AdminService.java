@@ -69,7 +69,7 @@ public class AdminService {
 
 
     @Transactional(readOnly = true)
-    public AdminLoginResponseDto loginAdmin(@Valid AdminLoginRequestDto requestDto, HttpSession session) {
+    public AdminLoginResponseDto loginAdmin(AdminLoginRequestDto requestDto, HttpSession session) {
         // 1. 데이터 준비
         String email = requestDto.getEmail();
         String password = requestDto.getPassword();
@@ -117,10 +117,9 @@ public class AdminService {
      * 관리자 로그아웃 API
      */
 
-    @Transactional
     public void logoutAdmin(HttpSession session) {
         if (session != null) {
-            session.invalidate(); // 서버 세션 무효화[cite: 3]
+            session.invalidate();
         }
     }
 }

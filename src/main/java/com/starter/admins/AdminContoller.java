@@ -51,15 +51,18 @@ public class AdminContoller {
     @PostMapping("/login")
     public ResponseEntity<AdminLoginResponseDto> login(
             @RequestBody @Valid AdminLoginRequestDto requestDto,
-            @Valid HttpSession request
+            HttpSession session
             ) {
         // 1. 서비스 처리 - 로그인
-        AdminLoginResponseDto responseDto = adminService.loginAdmin(requestDto, request);
+        AdminLoginResponseDto responseDto = adminService.loginAdmin(requestDto, session);
 
-        // 2. 생성 - ResponseEntity
+        // 2. 세션 유효 시간 설정
+        session.setMaxInactiveInterval(24 * 60 * 60);
+
+        // 3. 생성 - ResponseEntity
         ResponseEntity<AdminLoginResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        // 3. 반환
+        // 4. 반환
         return response;
     }
 
