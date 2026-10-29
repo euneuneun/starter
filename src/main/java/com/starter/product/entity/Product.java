@@ -1,5 +1,6 @@
 package com.starter.product.entity;
 
+import com.starter.admins.entity.Admin;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -24,7 +25,10 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // private Long adminId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -57,8 +61,15 @@ public class Product {
     // JPA 기본 생성자
     protected Product() {
     }
+    
+    // // 관리자 정보 없이 상품을 생성하는 생성자
+    public Product(String name, String category, Long price, Integer stock,
+                   ProductStatus status) {
+        this(name, category, price, stock, status, null); }
 
-    public Product(String name, String category, Long price, Integer stock, ProductStatus status) {
+    // 관리자 정보 포함 상품을 생성하는 생성자
+    public Product(String name, String category, Long price, Integer stock,
+                   ProductStatus status, Admin admin) {
         // 잘못입력한 데이터 차단
         if(name == null || name.isBlank() || name.length() > 100) {
             throw new IllegalArgumentException("상품명은 null 이거나 100자를 넘을 수 없습니다.");
@@ -77,14 +88,13 @@ public class Product {
         this.price = price;
         if(status == ProductStatus.DISCONTINUED) {
             this.status = ProductStatus.DISCONTINUED;
-        } else if(status == ProductStatus.OUT_OF_STOCK) {
-            this.status = ProductStatus.OUT_OF_STOCK;
         } else if(stock == 0) {
                 this.status = ProductStatus.OUT_OF_STOCK;
         } else {
             this.status = ProductStatus.ON_SALE;
             }
         this.stock = stock;
+        this.admin = admin;
     }
 
     // 기능
@@ -161,5 +171,8 @@ public class Product {
     }
     public LocalDateTime getDeletedAt() {
         return deletedAt;
+    }
+    public Admin getAdmin() {
+        return admin;
     }
 }

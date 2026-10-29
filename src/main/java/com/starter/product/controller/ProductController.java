@@ -2,13 +2,11 @@ package com.starter.product.controller;
 
 import com.starter.product.dto.ProductCreateRequestDto;
 import com.starter.product.dto.ProductCreateResponseDto;
+import com.starter.product.dto.ProductDetailResponseDto;
 import com.starter.product.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/products")
@@ -34,6 +32,21 @@ public class ProductController {
 
         // 2. Http
         ResponseEntity<ProductCreateResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+
+        // 3. 반환
+        return response;
+    }
+    /**
+     *  상품 상세 조회 API
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDetailResponseDto> detailProduct(@PathVariable Long id) {
+
+        // 1. 서비스 처리
+        ProductDetailResponseDto responseDto = this.productService.detailProduct(id);
+
+        // 2. Http
+        ResponseEntity<ProductDetailResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
