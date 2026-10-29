@@ -26,6 +26,7 @@ public class ProductService {
     /**
      *  상품등록
      */
+    @Transactional
     public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
         // 1. 데이터 준비
         String name = productCreateRequestDto.getName();
