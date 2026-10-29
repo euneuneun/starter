@@ -1,9 +1,6 @@
 package com.starter.customer.controller;
 
-import com.starter.customer.dto.CustomerChangeRequestDto;
-import com.starter.customer.dto.CustomerChangeResponseDto;
-import com.starter.customer.dto.CustomerDetailResponseDto;
-import com.starter.customer.dto.CustomerListResponseDto;
+import com.starter.customer.dto.*;
 import com.starter.customer.service.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +70,21 @@ public class CustomerController {
         // 3. 반환
         return response;
     }
+    /**
+     *  고객 상태 변경 API
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<CustomerStatusResponseDto> statusCustomer(
+            @RequestBody CustomerStatusRequestDto requestDto, @PathVariable Long id) {
 
+        // 1. 서비스 처리
+        CustomerStatusResponseDto responseDto = this.customerService.statusCustomer(requestDto, id);
+
+        // 2. Http
+        ResponseEntity<CustomerStatusResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
+    }
 
 }
