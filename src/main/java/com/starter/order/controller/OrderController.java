@@ -23,7 +23,8 @@ public class OrderController {
     private final OrderService orderService;
 
     /**
-     *  CS 주문 생성 API
+     * CS 주문 생성 API
+     *
      * @param adminId 로그인하고 있는 사용자(= CS 관리자)
      * @param request 주문 고객 ID, 주문 상품 ID, 주문 상품 수량
      * @return body 없음
@@ -31,8 +32,8 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<Void> createOrder(
             @SessionAttribute(name = "ADMIN_ID", required = false) Long adminId,
-            @Valid @RequestBody OrderCreateRequest request)
-    {
+            @Valid @RequestBody OrderCreateRequest request) {
+
         orderService.createOrder(
                 adminId,
                 request.getCustomerId(),
@@ -51,8 +52,7 @@ public class OrderController {
      */
     @GetMapping("{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrderDetail(
-            @SessionAttribute(name = "ADMIN_ID", required = false) Long adminId,
-            @PathVariable Long orderId){
+            @PathVariable Long orderId) {
 
         OrderDetailResponse response = orderService.getOrderDetail(orderId);
 
