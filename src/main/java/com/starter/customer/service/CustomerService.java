@@ -1,5 +1,7 @@
 package com.starter.customer.service;
 
+import com.starter.customer.dto.CustomerChangeRequestDto;
+import com.starter.customer.dto.CustomerChangeResponseDto;
 import com.starter.customer.dto.CustomerDetailResponseDto;
 import com.starter.customer.dto.CustomerListResponseDto;
 import com.starter.customer.entity.Customer;
@@ -98,6 +100,42 @@ public class CustomerService {
                 customerDtoList, page, size, pageCustomer.getTotalElements(), pageCustomer.getTotalPages());
 
         // 7. 응답 반환
+        return responseDto;
+    }
+    /**
+     *  고객 정보 수정
+     */
+    @Transactional
+    public CustomerChangeResponseDto changeCustomer(CustomerChangeRequestDto requestDto, Long id) {
+
+        // 1. id로 고객 조회
+        Optional<Customer> optionalCustomer = this.customerRepository.findById(id);
+
+        // 2. 고객 존재 여부 확인, 없으면 예외처리
+        if(optionalCustomer.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 3. 객체 꺼내기
+        Customer foundCustomer = optionalCustomer.get();
+
+        // 4. RequestDto에서 변경할 정보 가져오기
+        String name = requestDto.getName();
+        String email = requestDto.getEmail();
+        String phone = requestDto.getPhone();
+
+        // 4-1. 가져온 정보 검증
+        foundCustomer.changeCustomer(name, email, phone);
+
+        // 4-2. 변경된 정보 db 동기화
+        customerRepository.flush();
+
+        // 5. entity -> dto 변환
+        CustomerChangeResponseDto responseDto = new CustomerChangeResponseDto(
+                foundCustomer.getId(), foundCustomer.getName(), foundCustomer.getEmail(), foundCustomer.getPhone(),
+                foundCustomer.getStatus(), foundCustomer.getCreatedAt(), foundCustomer.getUpdatedAt());
+
+        // 6. 응답 반환
         return responseDto;
 
     }
