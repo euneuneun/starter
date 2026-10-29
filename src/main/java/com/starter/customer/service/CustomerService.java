@@ -55,7 +55,8 @@ public class CustomerService {
      */
     @Transactional(readOnly = true)
     public CustomerListResponseDto listCustomers(
-            String keyword, Integer page, Integer size, String sortBy, String sortDirection, String status) {
+            String keyword, Integer page, Integer size, String sortBy,
+            String sortDirection, Customer.CustomerStatus status) {
         // 1. 검증
         // 1-1. page 검증
         if(page == null || page < 1) {
@@ -94,18 +95,17 @@ public class CustomerService {
         Page<Customer> pageCustomer;
 
         if(keyword == null || keyword.isBlank()) {
-            if(status == null || status.isBlank()) {
+            if(status == null) {
                 pageCustomer = customerRepository.findAll(pageable);
             } else {
-                pageCustomer = customerRepository.findByStatus(Customer.CustomerStatus.valueOf(status), pageable);
+                pageCustomer = customerRepository.findByStatus(status, pageable);
             }
         } else {
-            if(status == null || status.isBlank()) {
+            if(status == null) {
                 pageCustomer = customerRepository.findByNameContainingOrEmailContaining(keyword, keyword, pageable);
             } else {
                 pageCustomer = customerRepository.findByNameContainingAndStatusOrEmailContainingAndStatus(
-                        keyword,Customer.CustomerStatus.valueOf(status),
-                        keyword, Customer.CustomerStatus.valueOf(status), pageable);
+                        keyword, status, keyword, status, pageable);
             }
         }
 
