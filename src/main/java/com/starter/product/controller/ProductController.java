@@ -1,6 +1,7 @@
 package com.starter.product.controller;
 
 import com.starter.product.dto.*;
+import com.starter.product.entity.Product;
 import com.starter.product.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,5 +66,24 @@ public class ProductController {
         // 3. 반환
         return response;
     }
+    /**
+     *  상품 리스트 조회 API
+     */
+    @GetMapping
+    public ResponseEntity<ProductListResponseDto> listProducts(
+            @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection, @RequestParam(required = false) String category,
+            @RequestParam(required = false) Product.ProductStatus status) {
 
+        // 1. 서비스 처리
+        ProductListResponseDto responseDto = this.productService.listProducts(
+                keyword, page, size, sortBy, sortDirection, category, status);
+
+        // 2. Http
+        ResponseEntity<ProductListResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
+    }
 }
