@@ -11,10 +11,24 @@ import java.util.List;
 public class AdminListResponseDto {
     //속성
     private List<AdminDto> adminList;
+    private int currentPage;
+    private int pageSize;
+    private long totalElements;
+    private int totalPages;
 
     //생성자
-    public AdminListResponseDto(List<AdminDto> adminList) {
+    public AdminListResponseDto(
+            List<AdminDto> adminList,
+            int currentPage,
+            int pageSize,
+            long totalElements,
+            int totalPages
+    ) {
         this.adminList = adminList;
+        this.currentPage = currentPage;
+        this.pageSize =pageSize;
+        this.totalElements = totalElements;
+        this.totalPages = totalPages;
     }
     //기능
 
@@ -45,8 +59,8 @@ public class AdminListResponseDto {
                 LocalDateTime approvedAt
         ) {
             this.adminId = adminId;
-            this.email = name;
-            this.name = email;
+            this.name = name;
+            this.email = email;
             this.phone = phone;
             this.role = role;
             this.status = status;

@@ -6,12 +6,15 @@ import com.starter.admins.dto.responseDto.AdminListResponseDto;
 import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
 import com.starter.admins.dto.responseDto.AdminResponseDto;
 import com.starter.admins.dto.service.AdminService;
+import com.starter.admins.entity.Admin;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 
 @RestController
@@ -88,10 +91,26 @@ public class AdminContoller {
      */
 
     @GetMapping
-    public ResponseEntity<AdminListResponseDto> getAdminListAPI() {
+    public ResponseEntity<AdminListResponseDto> getAdminListAPI(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortOrder,
+            @RequestParam(required = false) Admin.AdminRole role,
+            @RequestParam(required = false) Admin.AdminStatus status
+    ) {
 
         // 1. 서비스 처리 요청 - 회원 목록 조회
-        AdminListResponseDto responseDto = this.adminService.getAdminList();
+        AdminListResponseDto responseDto = this.adminService.getAdminList(
+                keyword,
+                page,
+                limit,
+                sortBy,
+                sortOrder,
+                role,
+                status
+        );
 
         // 2. 응답 생성
         ResponseEntity<AdminListResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -100,6 +119,8 @@ public class AdminContoller {
         return response;
 
     }
+
+
 
     /**
      * 예외 처리 메서드

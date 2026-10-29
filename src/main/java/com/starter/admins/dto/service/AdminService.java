@@ -10,6 +10,10 @@ import com.starter.admins.repository.AdminRepository;
 import com.starter.common.config.PasswordEncoder;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,13 +135,32 @@ public class AdminService {
      */
 
     @Transactional
-    public AdminListResponseDto getAdminList() {
+    public AdminListResponseDto getAdminList(
+            String keyword,
+            int page,
+            int limit,
+            String sortBy,
+            String sortOrder,
+            Admin.AdminRole role,
+            Admin.AdminStatus status
+    ) {
+       //1. 정렬 방향 변환("asc"/"desc" 문자열을 변환)
+        Sort.Direction sortDirection = Sort.Direction.fromString(sortOrder);
 
-        // 1. 관리자 목록 조회
-        List<Admin> foundAdminLsit = adminRepository.findAll();
+        // 2. 정렬 조건 생성
+        Sort sortConditions = Sort.by(sortDirection,sortBy);
 
-        // 2. 내부 Dto 생성
-        List<AdminListResponseDto.AdminDto> adminDtoList = foundAdminLsit.stream()
+        // 3. 페이징 조건 생성
+        Pageable pageableConditions = PageRequest.of(page -1, limit, sortConditions);
+
+        //4. 검색어 조건 생성 &
+        String searchKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
+
+        // 5. 페이징이 적용된 관리자 목록  조회
+        Page<Admin> adminPage = adminRepository.findByConditions(searchKeyword, role, status, pageableConditions);
+
+        // 6. 내부 Dto 생성
+        List<AdminListResponseDto.AdminDto> adminDtoList = adminPage.getContent().stream()
                 .map((admin) -> new AdminListResponseDto.AdminDto(
                         admin.getAdminId(),
                         admin.getName(),
@@ -150,10 +173,16 @@ public class AdminService {
                 ))
                 .collect(Collectors.toList());
 
-        // 3. 외부 Dto 생성
-        AdminListResponseDto response = new AdminListResponseDto(adminDtoList);
+        // 7. 외부 Dto 생성
+        AdminListResponseDto response = new AdminListResponseDto(
+                adminDtoList,
+                adminPage.getNumber() + 1,
+                adminPage.getSize(),
+                adminPage.getTotalElements(),
+                adminPage.getTotalPages()
+        );
 
-        // 4. 반환
+        // 8. 반환
         return response;
     }
 }
