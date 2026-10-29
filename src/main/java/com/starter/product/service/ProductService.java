@@ -256,4 +256,24 @@ public class ProductService {
         // 7. 응답 반환
         return responseDto;
     }
+    /**
+     *  상품 삭제
+     */
+    @Transactional
+    public void deleteProduct(Long id) {
+
+        // 1. id로 상품 조회
+        Optional<Product> optionalProduct = this.productRepository.findById(id);
+
+        // 2. 상품 존재 여부 확인, 없으면 예외처리
+        if(optionalProduct.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 3. 객체 꺼내기
+        Product foundProduct = optionalProduct.get();
+
+        // 4. 논리 삭제 처리
+        foundProduct.deleteProduct();
+    }
 }
