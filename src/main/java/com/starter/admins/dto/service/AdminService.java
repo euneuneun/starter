@@ -1,17 +1,20 @@
-package com.starter.admins;
+package com.starter.admins.dto.service;
 
 import com.starter.admins.dto.requestDto.AdminCreateRequestDto;
 import com.starter.admins.dto.requestDto.AdminLoginRequestDto;
+import com.starter.admins.dto.responseDto.AdminListResponseDto;
 import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
 import com.starter.admins.dto.responseDto.AdminResponseDto;
 import com.starter.admins.entity.Admin;
 import com.starter.admins.repository.AdminRepository;
 import com.starter.common.config.PasswordEncoder;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -122,7 +125,41 @@ public class AdminService {
             session.invalidate();
         }
     }
+
+    /**
+     * 관리자 다건 조회 API
+     */
+
+    @Transactional
+    public AdminListResponseDto getAdminList() {
+
+        // 1. 관리자 목록 조회
+        List<Admin> foundAdminLsit = adminRepository.findAll();
+
+        // 2. 내부 Dto 생성
+        List<AdminListResponseDto.AdminDto> adminDtoList = foundAdminLsit.stream()
+                .map((admin) -> new AdminListResponseDto.AdminDto(
+                        admin.getAdminId(),
+                        admin.getName(),
+                        admin.getEmail(),
+                        admin.getPhone(),
+                        admin.getRole(),
+                        admin.getStatus(),
+                        admin.getCreatedAt(),
+                        admin.getApprovedAt()
+                ))
+                .collect(Collectors.toList());
+
+        // 3. 외부 Dto 생성
+        AdminListResponseDto response = new AdminListResponseDto(adminDtoList);
+
+        // 4. 반환
+        return response;
+    }
 }
+
+
+
 
 
 
