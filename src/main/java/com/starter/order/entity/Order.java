@@ -65,6 +65,7 @@ public class Order extends BaseEntity {
      * 주문 상태 수정 메서드
      * <li> 상태 변경 순서: 준비중 → 배송중 → 배송완료 </li>
      */
+    //TODO: 에러 ResponseStatusException으로 교체
     public void updateOrderStatus(){
 
         if(this.status==OrderStatus.PREPARING){
@@ -88,6 +89,7 @@ public class Order extends BaseEntity {
      *
      * @param cancelReason 취소 사유
      */
+    //TODO: 에러 ResponseStatusException으로 교체
     public void cancelOrder(String cancelReason){
 
         if(this.status==OrderStatus.PREPARING){
