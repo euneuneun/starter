@@ -213,4 +213,47 @@ public class ProductService {
         // 6. 응답 반환
         return responseDto;
     }
+    /**
+     *  상품 상태 변경
+     */
+    @Transactional
+    public ProductStatusResponseDto statusProduct(ProductStatusRequestDto requestDto, Long id) {
+
+        // 1. id로 상품 조회
+        Optional<Product> optionalProduct = this.productRepository.findById(id);
+
+        // 2. 상품 존재 여부 확인, 없으면 예외처리
+        if(optionalProduct.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 3. 객체 꺼내기
+        Product foundProduct = optionalProduct.get();
+
+        // 4. RequestDto에서 변경할 정보 가져오기
+        Boolean discontinued = requestDto.getDiscontinued();
+
+        // 4-1. 가져온 정보 검증
+        if(discontinued == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+
+        // 5. 단종 여부에 따라 상품 상태 변경
+        if(discontinued == true) {
+            foundProduct.discontinued();
+        } else {
+            foundProduct.resumeSale();
+        }
+
+        // 5-1. 변경된 정보 db 동기화
+        productRepository.flush();
+
+        // 6. entity -> dto 변환
+        ProductStatusResponseDto responseDto = new ProductStatusResponseDto(
+                foundProduct.getId(), foundProduct.getStatus(), foundProduct.getUpdatedAt()
+        );
+
+        // 7. 응답 반환
+        return responseDto;
+    }
 }
