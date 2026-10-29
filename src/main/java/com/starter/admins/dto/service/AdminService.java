@@ -2,6 +2,7 @@ package com.starter.admins.dto.service;
 
 import com.starter.admins.dto.requestDto.AdminCreateRequestDto;
 import com.starter.admins.dto.requestDto.AdminLoginRequestDto;
+import com.starter.admins.dto.responseDto.AdminGetDeatilResponseDto;
 import com.starter.admins.dto.responseDto.AdminListResponseDto;
 import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
 import com.starter.admins.dto.responseDto.AdminResponseDto;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,14 +146,14 @@ public class AdminService {
             Admin.AdminRole role,
             Admin.AdminStatus status
     ) {
-       //1. 정렬 방향 변환("asc"/"desc" 문자열을 변환)
+        // 1. 정렬 방향 변환("asc"/"desc" 문자열을 변환)
         Sort.Direction sortDirection = Sort.Direction.fromString(sortOrder);
 
         // 2. 정렬 조건 생성
-        Sort sortConditions = Sort.by(sortDirection,sortBy);
+        Sort sortConditions = Sort.by(sortDirection, sortBy);
 
         // 3. 페이징 조건 생성
-        Pageable pageableConditions = PageRequest.of(page -1, limit, sortConditions);
+        Pageable pageableConditions = PageRequest.of(page - 1, limit, sortConditions);
 
         //4. 검색어 조건 생성 &
         String searchKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
@@ -185,7 +187,44 @@ public class AdminService {
         // 8. 반환
         return response;
     }
+
+    /**
+     * 관리자 상세 조회 API
+     */
+
+    @Transactional
+    public AdminGetDeatilResponseDto getAdminDetail(Long adminId) {
+
+        // 1. 관리자 조희
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 관리자를 찾을 수 없습니다."));
+
+        // 2. 데이터 준비
+        String name = admin.getName();
+        String email = admin.getEmail();
+        String phone = admin.getPhone();
+        Admin.AdminRole role = admin.getRole();
+        Admin.AdminStatus status = admin.getStatus();
+        LocalDateTime createdAt = admin.getCreatedAt();
+        LocalDateTime approvedAt = admin.getApprovedAt();
+
+        // 3. Dto 생성
+        AdminGetDeatilResponseDto adminGetDeatilResponseDto = new AdminGetDeatilResponseDto(
+                name,
+                email,
+                phone,
+                role,
+                status,
+                createdAt,
+                approvedAt
+        );
+
+        // 4. 반환
+        return adminGetDeatilResponseDto;
+
+    }
 }
+
 
 
 

@@ -2,6 +2,7 @@ package com.starter.admins.contoller;
 
 import com.starter.admins.dto.requestDto.AdminCreateRequestDto;
 import com.starter.admins.dto.requestDto.AdminLoginRequestDto;
+import com.starter.admins.dto.responseDto.AdminGetDeatilResponseDto;
 import com.starter.admins.dto.responseDto.AdminListResponseDto;
 import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
 import com.starter.admins.dto.responseDto.AdminResponseDto;
@@ -100,7 +101,6 @@ public class AdminContoller {
             @RequestParam(required = false) Admin.AdminRole role,
             @RequestParam(required = false) Admin.AdminStatus status
     ) {
-
         // 1. 서비스 처리 요청 - 회원 목록 조회
         AdminListResponseDto responseDto = this.adminService.getAdminList(
                 keyword,
@@ -114,10 +114,26 @@ public class AdminContoller {
 
         // 2. 응답 생성
         ResponseEntity<AdminListResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
-
         // 3. 반환
         return response;
 
+    }
+
+    /**
+     *  관리자 상세 조회 API
+     */
+
+    @GetMapping("/{adminId}")
+    public ResponseEntity<AdminGetDeatilResponseDto> getAdminDetail(@PathVariable Long adminId) {
+
+        // 1. 서비스 처리 - 관리자 상세 조회
+        AdminGetDeatilResponseDto responseDto = this.adminService.getAdminDetail(adminId);
+
+        // 2. 응답 생성
+        ResponseEntity<AdminGetDeatilResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return result;
     }
 
 
