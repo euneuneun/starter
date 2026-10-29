@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
@@ -84,6 +86,24 @@ public class CustomerController {
         ResponseEntity<CustomerStatusResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
+        return response;
+    }
+    /**
+     *  고객 삭제 API
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteCustomer(@PathVariable Long id) {
+
+        // 1. 서비스 처리
+        this.customerService.deleteCustomer(id);
+
+        // 2. 메세지 전달
+        Map<String, String> responseBody = Map.of("message", "요청하신 고객 정보가 삭제되었습니다.");
+
+        // 3. Http
+        ResponseEntity<Map<String, String>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+
+        // 4. 반환
         return response;
     }
 
