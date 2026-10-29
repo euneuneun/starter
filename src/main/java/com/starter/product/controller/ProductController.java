@@ -3,9 +3,11 @@ package com.starter.product.controller;
 import com.starter.product.dto.*;
 import com.starter.product.entity.Product;
 import com.starter.product.service.ProductService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -26,15 +28,24 @@ public class ProductController {
      *  상품등록 API
      */
     @PostMapping
-    public ResponseEntity<ProductCreateResponseDto> createProduct(@RequestBody ProductCreateRequestDto createRequestDto) {
+    public ResponseEntity<ProductCreateResponseDto> createProduct(
+            @RequestBody ProductCreateRequestDto createRequestDto, HttpSession session) {
 
-        // 1. 서비스 처리
-        ProductCreateResponseDto responseDto = this.productService.createProduct(createRequestDto);
+        // 1. 관리자 id 가져오기
+        Long adminId = (Long) session.getAttribute("ADMIN_ID");
 
-        // 2. Http
+        // 1-1. 로그인 여부 검증
+        if(adminId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+        }
+
+        // 2. 서비스 처리
+        ProductCreateResponseDto responseDto = this.productService.createProduct(createRequestDto, adminId);
+
+        // 3. Http
         ResponseEntity<ProductCreateResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
-        // 3. 반환
+        // 4. 반환
         return response;
     }
     /**
