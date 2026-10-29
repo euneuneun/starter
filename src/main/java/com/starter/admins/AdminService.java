@@ -41,7 +41,7 @@ public class AdminService {
         // 2. 데이터 검증
         // 2-1. 중복된 이메일 확인 (가입된 이메일이 존재하면 예외처리)
         if (adminRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다. ");
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
         // 2-2. 역할 문자열을 Enum으로 변환 및 검증
@@ -76,11 +76,11 @@ public class AdminService {
 
         // 2. DB 유저 이메일로 조회 -> Admin 엔티티
         Admin admin = adminRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("이메일이 틀렸습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 틀렸습니다."));
 
         // 3. 비밀번호 비교 검증
         if (!passwordEncoder.matches(password, admin.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 틀렸습니다.");
         }
 
         // 4. 계정 상태 검증 (활성 상태에만 통과)
