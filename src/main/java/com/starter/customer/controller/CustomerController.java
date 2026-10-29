@@ -1,5 +1,7 @@
 package com.starter.customer.controller;
 
+import com.starter.customer.dto.CustomerChangeRequestDto;
+import com.starter.customer.dto.CustomerChangeResponseDto;
 import com.starter.customer.dto.CustomerDetailResponseDto;
 import com.starter.customer.dto.CustomerListResponseDto;
 import com.starter.customer.service.CustomerService;
@@ -55,5 +57,22 @@ public class CustomerController {
         // 3. 반환
         return response;
     }
+    /**
+     *  고객 정보 수정 API
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<CustomerChangeResponseDto> changeCustomer(
+            @RequestBody CustomerChangeRequestDto requestDto, @PathVariable Long id) {
+
+        // 1. 서비스 처리
+        CustomerChangeResponseDto responseDto = this.customerService.changeCustomer(requestDto, id);
+
+        // 2. Http
+        ResponseEntity<CustomerChangeResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
+    }
+
 
 }
