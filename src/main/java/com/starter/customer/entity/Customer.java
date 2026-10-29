@@ -84,4 +84,29 @@ public class Customer {
         this.deletedAt = LocalDateTime.now();
     }
 
+    public Long getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getPhone() {
+        return phone;
+    }
+    public CustomerStatus getStatus() {
+        return status;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
 }
