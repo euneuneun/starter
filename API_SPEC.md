@@ -830,20 +830,20 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Query String**
 
-```
+```text
 ?page=1&size=10&sortBy=createdAt&sortDirection=desc
 ```
 
 | 키 | 설명 |
 | --- | --- |
 | `keyword` | 고객명 또는 이메일 검색 (선택) |
-| `page` | 페이지 번호 (기본값 1) |
-| `size` | 페이지당 개수 (기본값 10) |
-| `sortBy` | `name`, `email`, `createdAt` |
-| `sortDirection` | `asc`, `desc` |
-| `status` | `ACTIVE`, `INACTIVE`, `SUSPENDED` |
+| `page` | 페이지 번호 (기본값 1, 1 이상) |
+| `size` | 페이지당 개수 (기본값 10, 1 이상) |
+| `sortBy` | 정렬 기준: `name`, `email`, `createdAt` (기본값 `createdAt`) |
+| `sortDirection` | 정렬 방향: `asc`, `desc` (기본값 `desc`) |
+| `status` | 고객 상태 필터: `ACTIVE`, `INACTIVE`, `SUSPENDED` (선택) |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요청 본문 없음
 
 **Response** `200 OK`
 
@@ -853,12 +853,12 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `content[].id` | Long | 고객 고유 식별자 |
 | `content[].name` | String | 고객 이름 |
 | `content[].email` | String | 고객 이메일 |
-| `content[].phone` | String | 고객 전화번호 |
+| `content[].phone` | String | 고객 전화번호 (null 가능) |
 | `content[].status` | String | 고객 상태 |
 | `content[].createdAt` | LocalDateTime | 고객 가입일 |
-| `page` | Integer | 현재 페이지 번호 |
+| `page` | Integer | 현재 페이지 번호 (1부터 시작) |
 | `size` | Integer | 페이지당 개수 |
-| `totalElements` | Long | 검색/필터 조건에 해당하는 전체 고객 수 |
+| `totalElements` | Long | 검색 및 필터 조건에 해당하는 전체 고객 수 |
 | `totalPages` | Integer | 전체 페이지 수 |
 
 ```json
@@ -888,7 +888,12 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`
+**Error Response** — `400 Bad Request`
+
+- `page` 또는 `size`가 1 미만인 경우
+- `sortBy`가 허용된 정렬 기준이 아닌 경우
+- `sortDirection`이 `asc`, `desc`가 아닌 경우
+- `status`가 정의되지 않은 Enum 값인 경우
 
 ```json
 {
@@ -898,6 +903,11 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "path": "/customers"
 }
 ```
+
+> 검색 키워드가 없으면 전체 고객을 조회합니다.
+> 검색 키워드와 상태 필터를 함께 사용할 수 있습니다.
+> 검색 결과가 없으면 `content`는 빈 배열로 반환됩니다.
+> 현재 코드에는 `deletedAt`이 설정된 고객을 조회에서 제외하는 조건이 없습니다.
 
 </details>
 
@@ -910,7 +920,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 조회할 고객 ID |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요청 본문 없음
 
 **Response** `200 OK`
 
@@ -919,7 +929,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `id` | Long | 고객 고유 식별자 |
 | `name` | String | 고객 이름 |
 | `email` | String | 고객 이메일 |
-| `phone` | String | 고객 전화번호 |
+| `phone` | String | 고객 전화번호 (null 가능) |
 | `status` | String | 고객 상태 |
 | `createdAt` | LocalDateTime | 고객 가입일 |
 
@@ -934,7 +944,9 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `404 Not Found`
+
+- 요청한 고객 ID가 존재하지 않는 경우
 
 ```json
 {
@@ -944,6 +956,8 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "path": "/customers/999"
 }
 ```
+
+> 현재 코드에서는 `deletedAt`이 설정된 고객도 ID가 존재하면 조회될 수 있습니다.
 
 </details>
 
@@ -964,11 +978,11 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Request Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `name` | String | 수정할 고객 이름 |
-| `email` | String | 수정할 고객 이메일 (중복 불가) |
-| `phone` | String | 수정할 고객 전화번호 |
+| 필드 | 타입 | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `name` | String | 선택 | 수정할 고객 이름 (공백 불가, 최대 100자) |
+| `email` | String | 선택 | 수정할 고객 이메일 (공백 불가, 최대 255자) |
+| `phone` | String | 선택 | 수정할 고객 전화번호 (공백 불가, 최대 15자) |
 
 ```json
 {
@@ -977,6 +991,10 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "phone": "010-4541-1212"
 }
 ```
+
+> PATCH 요청이므로 변경할 필드만 전달할 수 있습니다.
+> 요청 필드가 `null`이거나 생략되면 기존 값이 유지됩니다.
+> 빈 문자열 또는 공백만 있는 문자열은 허용되지 않습니다.
 
 **Response** `200 OK`
 
@@ -1002,16 +1020,28 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`, `409`
+**Error Response**
+
+| 상태 코드 | 상황 |
+| --- | --- |
+| `404 Not Found` | 요청한 고객 ID가 존재하지 않는 경우 |
+| `400 Bad Request` | 요청 본문 형식이 잘못된 경우 |
+| 확인 필요 | 이름, 이메일, 전화번호 유효성 검증 예외의 HTTP 응답 처리 |
+| 확인 필요 | 중복 이메일에 대한 예외 응답 처리 |
 
 ```json
 {
-  "status": 409,
-  "error": "Conflict",
-  "message": "데이터가 중복되었습니다",
-  "path": "/customers/1"
+  "status": 404,
+  "error": "Not Found",
+  "message": "해당 데이터를 찾을 수 없습니다.",
+  "path": "/customers/999"
 }
 ```
+
+> Entity의 `changeCustomer()`에서 입력값을 검증합니다.
+> 현재 Service에는 `IllegalArgumentException`을 HTTP 400으로 변환하는 별도 처리가 없습니다.
+> 이메일은 DB에서 중복이 제한되지만, 중복 발생 시 HTTP 409 반환은 현재 코드에서 확인되지 않습니다.
+> 수정 시 `flush()`를 호출하여 변경 내용을 DB에 반영합니다.
 
 </details>
 
@@ -1032,9 +1062,9 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Request Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 변경할 고객 상태 (`ACTIVE`, `INACTIVE`, `SUSPENDED`) |
+| 필드 | 타입 | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `status` | String | ✅ | 변경할 고객 상태 (`ACTIVE`, `INACTIVE`, `SUSPENDED`) |
 
 ```json
 {
@@ -1058,16 +1088,26 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400 Bad Request`, `404 Not Found`
+
+| 상태 코드 | 상황 |
+| --- | --- |
+| `400 Bad Request` | 상태값이 null이거나 유효하지 않은 경우 |
+| `404 Not Found` | 요청한 고객 ID가 존재하지 않는 경우 |
 
 ```json
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "유효하지 않은 고객 상태입니다.",
+  "message": "상태값이 비어있습니다.",
   "path": "/customers/1/status"
 }
 ```
+
+> 고객 상태는 Entity의 `changeStatus()` 메서드에서 변경합니다.
+> 상태값이 `null`이면 `IllegalArgumentException`이 발생하며 Service에서 HTTP 400으로 변환합니다.
+> 정의되지 않은 Enum 문자열은 요청 데이터 변환 과정에서 오류가 발생할 수 있습니다.
+> 변경 시 `flush()`를 호출하여 변경 내용을 DB에 반영합니다.
 
 </details>
 
@@ -1080,20 +1120,40 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 삭제할 고객 ID |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요청 본문 없음
 
-**Response** `204 No Content` — 응답 헤더·바디 없음
+**Response** `200 OK`
 
-**Error Response** — `400`, `401`, `403`, `404`
+> 고객 레코드를 실제로 삭제하지 않고 `deletedAt`에 삭제 일시를 기록하는 논리 삭제 방식입니다.
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `message` | String | 고객 삭제 처리 완료 메시지 |
+
+```json
+{
+  "message": "요청하신 고객 정보가 삭제되었습니다."
+}
+```
+
+**Error Response** — `404 Not Found`
+
+- 요청한 고객 ID가 존재하지 않는 경우
 
 ```json
 {
   "status": 404,
   "error": "Not Found",
-  "message": "고객을 찾을 수 없습니다.",
+  "message": "해당 데이터를 찾을 수 없습니다.",
   "path": "/customers/999"
 }
 ```
+
+> `Customer.deleteCustomer()` 메서드에서 `deletedAt`에 현재 시간을 저장합니다.
+> `CustomerService.deleteCustomer()`는 `@Transactional`을 사용하므로 변경 감지로 DB에 반영됩니다.
+> 실제 데이터는 DB에서 삭제되지 않습니다.
+> 현재 조회 메서드에는 `deletedAt` 제외 조건이 없어 논리 삭제된 고객도 조회될 수 있습니다.
+> 중복 삭제를 방지하는 검사는 현재 구현되어 있지 않습니다.
 
 </details>
 
