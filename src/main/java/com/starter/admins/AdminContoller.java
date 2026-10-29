@@ -6,12 +6,10 @@ import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
 import com.starter.admins.dto.responseDto.AdminResponseDto;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("admins")
@@ -45,14 +43,14 @@ public class AdminContoller {
     }
 
     /**
-     *관리자 로그인 API
+     * 관리자 로그인 API
      */
 
     @PostMapping("/login")
     public ResponseEntity<AdminLoginResponseDto> login(
             @RequestBody @Valid AdminLoginRequestDto requestDto,
             HttpSession session
-            ) {
+    ) {
         // 1. 서비스 처리 - 로그인
         AdminLoginResponseDto responseDto = adminService.loginAdmin(requestDto, session);
 
@@ -80,5 +78,13 @@ public class AdminContoller {
 
         // 3. 반환
         return response;
+    }
+
+    // 예외 처리 메서드
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handlerIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("요청 오류: " + e.getMessage());
     }
 }
