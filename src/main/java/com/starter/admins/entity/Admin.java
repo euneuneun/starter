@@ -28,7 +28,11 @@ public class Admin extends BaseEntity {
     public enum AdminStatus {
         PENDING,   // 승인 대기
         APPROVED,  // 승인 완료
-        REJECTED   // 반려됨
+        REJECTED,   // 반려됨
+        ACTIVATE, // 계정 활성화
+        DEACTIVATE, //계정 비활성화
+        SUSPENDED //계정 정지
+
     }
 
     //속성
@@ -83,4 +87,6 @@ public class Admin extends BaseEntity {
         this.role = role;
         this.status = AdminStatus.PENDING;
     }
+
+    //기능
 }
