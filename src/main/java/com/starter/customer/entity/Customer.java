@@ -58,18 +58,24 @@ public class Customer {
     // 기능
     // 고객 정보 수정
     public void changeCustomer(String name, String email, String phone) {
-        if(name == null || name.isBlank() || name.length() > 100) {
-            throw new IllegalArgumentException("이름은 null 이거나 100자를 넘을 수 없습니다.");
+        if(name != null) {
+            if(name.isBlank() || name.length() > 100) {
+                throw new IllegalArgumentException("이름을 확인해주세요.");
+            }
+            this.name = name;
         }
-        if(email == null || email.isBlank() || email.length() > 255) {
-            throw new IllegalArgumentException("이메일은 null 이거나 255자를 넘을 수 없습니다.");
+        if(email != null) {
+            if(email.isBlank() || email.length() > 255) {
+                throw new IllegalArgumentException("이메일을 확인해주세요.");
+            }
+            this.email = email;
         }
-        if(phone != null && phone.length() > 15) {
-            throw new IllegalArgumentException("전화번호는 15자를 넘을 수 없습니다.");
+        if(phone != null) {
+            if(phone.isBlank() || phone.length() > 15) {
+                throw new IllegalArgumentException("전화번호를 확인해주세요.");
+            }
+            this.phone = phone;
         }
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
     }
     // 고객 상태 변경
     public void changeStatus(CustomerStatus status) {
