@@ -177,4 +177,40 @@ public class ProductService {
         // 8. 응답 반환
         return responseDto;
     }
+    /**
+     *  상품 정보 수정
+     */
+    @Transactional
+    public ProductChangeResponseDto changeProduct(ProductChangeRequestDto requestDto, Long id) {
+
+        // 1. id로 상품 조회
+        Optional<Product> optionalProduct = this.productRepository.findById(id);
+
+        // 2. 상품 존재 여부 확인, 없으면 예외처리
+        if(optionalProduct.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 3. 객체 꺼내기
+        Product foundProduct = optionalProduct.get();
+
+        // 4. RequestDto에서 변경할 정보 가져오기
+        String name = requestDto.getName();
+        String category = requestDto.getCategory();
+        Long price = requestDto.getPrice();
+
+        // 4-1. 가져온 정보 검증
+        foundProduct.changeProduct(name, category, price);
+
+        // 4-2. 변경된 정보 db 동기화
+        productRepository.flush();
+
+        // 5. entity -> dto 변환
+        ProductChangeResponseDto responseDto = new ProductChangeResponseDto(
+                foundProduct.getId(), foundProduct.getName(), foundProduct.getCategory(),
+                foundProduct.getPrice(), foundProduct.getUpdatedAt());
+
+        // 6. 응답 반환
+        return responseDto;
+    }
 }
