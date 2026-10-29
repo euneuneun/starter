@@ -180,7 +180,11 @@ public class CustomerService {
         Customer.CustomerStatus status = requestDto.getStatus();
 
         // 4-1. 가져온 정보 검증
-        foundCustomer.changeStatus(status);
+        try {
+            foundCustomer.changeStatus(status);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
 
         // 4-2. 변경된 정보 db 동기화
         customerRepository.flush();
