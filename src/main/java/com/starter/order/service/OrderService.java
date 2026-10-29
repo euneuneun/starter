@@ -4,6 +4,7 @@ import com.starter.admins.entity.Admin;
 import com.starter.admins.repository.AdminRepository;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
+import com.starter.order.dto.response.OrderDetailResponse;
 import com.starter.order.entity.Order;
 import com.starter.order.entity.OrderItem;
 import com.starter.order.repository.OrderItemRepository;
@@ -11,8 +12,10 @@ import com.starter.order.repository.OrderRepository;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -109,5 +112,37 @@ public class OrderService {
         // 5-2. 주문 상품 저장
         OrderItem saveOrderItem = orderItemRepository.save(orderItem);
 
+    }
+
+    /**
+     *  주문 상세 조회
+     *
+     * @param orderId 조회할 주문 ID
+     * @return 주문 상세 정보
+     */
+    @Transactional(readOnly = true)
+    public OrderDetailResponse getOrderDetail(Long orderId){
+
+        // 1. 엔티티 준비
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()->  new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
+
+        OrderItem orderItem = orderItemRepository.findById(orderId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
+
+        OrderDetailResponse response = new OrderDetailResponse(
+                order.getOrderNumber(),
+                order.getCustomer().getName(),
+                order.getCustomer().getEmail(),
+                orderItem.getProductName(),
+                orderItem.getQuantity(),
+                order.getTotalPrice(),
+                order.getCreatedAt(),
+                order.getStatus(),
+                order.getRegisterAdmin().getEmail(),
+                order.getRegisterAdmin().getRole()
+        );
+
+        return response;
     }
 }
