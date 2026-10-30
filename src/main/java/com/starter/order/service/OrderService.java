@@ -250,7 +250,7 @@ public class OrderService {
     /**
      * 주문 상태 수정 (준비중 -> 배송중 -> 배송완료)
      *
-     * @param orderId
+     * @param orderId 상태 수정할 주문 ID
      */
     @Transactional
     public void updateOrderStatus(Long orderId){
@@ -260,6 +260,22 @@ public class OrderService {
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
         order.updateOrderStatus();
+    }
+
+    /**
+     * 주문 취소
+     *
+     * @param orderId 취소할 주문 ID
+     * @param cancelReason 취소 사유
+     */
+    @Transactional
+    public void cancelOrder(Long orderId, String cancelReason){
+
+        // 1. orderId에 해당하는 엔티티 찾기
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
+
+        order.cancelOrder(cancelReason);
     }
 
 }
