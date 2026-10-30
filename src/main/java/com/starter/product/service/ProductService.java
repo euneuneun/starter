@@ -1,5 +1,7 @@
 package com.starter.product.service;
 
+import com.starter.admins.entity.Admin;
+import com.starter.admins.repository.AdminRepository;
 import com.starter.product.dto.*;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
@@ -20,10 +22,12 @@ public class ProductService {
 
     // 속성
     private final ProductRepository productRepository;
+    private final AdminRepository adminRepository;
 
     // 생성자
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, AdminRepository adminRepository) {
         this.productRepository = productRepository;
+        this.adminRepository = adminRepository;
     }
 
     // 기능
@@ -31,7 +35,7 @@ public class ProductService {
      *  상품등록
      */
     @Transactional
-    public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
+    public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto, Long adminId) {
         // 1. 데이터 준비
         String name = productCreateRequestDto.getName();
         String category = productCreateRequestDto.getCategory();
@@ -43,8 +47,19 @@ public class ProductService {
         }
         Product.ProductStatus status = productCreateRequestDto.getStatus();
 
+        // 2. 관리자 id로 조회
+        Optional<Admin> optionalAdmin = adminRepository.findById(adminId);
+
+        // 2-1. 관리자 존재여부 확인
+        if(optionalAdmin.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 2-2. 관리자가 있으면
+        Admin foundAdmin = optionalAdmin.get();
+
         // 2. 엔티티 준비
-        Product newProduct = new Product(name, category, price, stock, status);
+        Product newProduct = new Product(name, category, price, stock, status, foundAdmin);
 
         // 3. 상품 저장
         Product savedProduct = this.productRepository.save(newProduct);
