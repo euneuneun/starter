@@ -93,7 +93,7 @@ public class AdminService {
             case PENDING:
                 throw new IllegalArgumentException("계정 승인 대기 중 입니다.");
             case REJECTED:
-                throw new IllegalArgumentException("계정 신청이 거부 됐습니다.");
+                throw new IllegalArgumentException("계정 신청이 거부 됐습니다. 사유: " + admin.getRejectReason());
             case SUSPENDED:
                 throw new IllegalArgumentException("계정이 정지 됐습니다.");
             case DEACTIVATE:
@@ -177,7 +177,7 @@ public class AdminService {
                         admin.getRole(),
                         admin.getStatus(),
                         admin.getCreatedAt(),
-                        admin.getApprovedAt()
+                        admin.getActivatedAt()
                 ))
                 .collect(Collectors.toList());
 
@@ -221,7 +221,7 @@ public class AdminService {
         Admin.AdminRole role = foundAdmin.getRole();
         Admin.AdminStatus status = foundAdmin.getStatus();
         LocalDateTime createdAt = foundAdmin.getCreatedAt();
-        LocalDateTime approvedAt = foundAdmin.getApprovedAt();
+        LocalDateTime approvedAt = foundAdmin.getActivatedAt();
 
         // 5. Dto 생성
         AdminGetDeatilResponseDto adminGetDeatilResponseDto = new AdminGetDeatilResponseDto(
@@ -295,6 +295,7 @@ public class AdminService {
     /**
      * 관리자 역할 변경 API
      */
+
     @Transactional
     public AdminUpdateRoleResponseDto updateAdminRole(
             Long loginAdminId,
@@ -342,6 +343,7 @@ public class AdminService {
     /**
      * 관리자 상태 변경 API
      */
+
     @Transactional
     public AdminUpdateStatusResponseDto updateAdminStatus(
             Long loginAdminId,
@@ -361,19 +363,30 @@ public class AdminService {
         Admin foundAdmin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 관리자를 찾을 수 없습니다."));
 
-        // 4. 데이터 준비
+        // 4. 바꿀 상태와 거부 사유 준비
         Admin.AdminStatus newStatus = adminUpdatestatusRequestDto.getStatus();
+        String rejectReason = adminUpdatestatusRequestDto.getRejectReason();
 
-        // 5. 수정하기
-        Admin updateAdminStatus = foundAdmin.changeStatus(newStatus);
 
-        // 6. 수정 데이터 준비
+        // 5-1. 변경 상태가 거부일 때
+        if (newStatus == Admin.AdminStatus.REJECTED) {
+            // 5-2. 거부 사유 필수 검증
+            if (rejectReason == null || rejectReason.isBlank()) {
+                throw new IllegalArgumentException("거부 사유는 필수 입력 항목입니다.");
+            }
+        }
+
+        // 6. 수정 사항 저장하기
+        Admin updateAdminStatus = foundAdmin.changeStatus(newStatus, rejectReason);
+
+        // 7. 수정 데이터 준비
         Long updateAdminId = updateAdminStatus.getAdminId();
         String name = updateAdminStatus.getName();
         Admin.AdminStatus upadateAdminNewStatus = updateAdminStatus.getStatus();
         LocalDateTime updateAt = updateAdminStatus.getUpdatedAt();
 
-        // 7. dto 생성
+
+        // 8. dto 생성
         AdminUpdateStatusResponseDto adminUpdateStatusResponseDto = new AdminUpdateStatusResponseDto(
                 updateAdminId,
                 name,
@@ -381,7 +394,7 @@ public class AdminService {
                 updateAt
         );
 
-        // 8. 반환
+        // 9. 반환
         return adminUpdateStatusResponseDto;
     }
 }
