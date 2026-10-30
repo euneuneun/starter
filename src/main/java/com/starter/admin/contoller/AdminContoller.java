@@ -30,13 +30,13 @@ public class AdminContoller {
      */
 
     @PostMapping("/signup")
-    public ResponseEntity<AdminResponseDto> create(@RequestBody @Valid AdminCreateRequestDto requestDto) {
+    public ResponseEntity<AdminMessageResponseDto> create(@RequestBody @Valid AdminCreateRequestDto requestDto) {
 
         // 1. 서비스 처리 - 회원 생성
-        AdminResponseDto responseDto = this.adminService.createAdmin(requestDto);
+        AdminMessageResponseDto responseDto = this.adminService.createAdmin(requestDto);
 
         // 2. 생성 - ResponseEntity
-        ResponseEntity<AdminResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        ResponseEntity<AdminMessageResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
         // 3. 반환
         return response;
@@ -216,6 +216,27 @@ public class AdminContoller {
         // 4. 반환
         return result;
     }
+
+
+    /**
+     * 관리자 삭제 APU
+     */
+    @DeleteMapping("{adminId}")
+    public ResponseEntity<AdminMessageResponseDto>deleteAdmin(@PathVariable Long adminId, HttpSession session) {
+
+        // 1. 세션 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
+
+        // 2. 서비스 처리
+        AdminMessageResponseDto responseDto = this.adminService.deleteAdmin(loginAdminId, adminId);
+
+        // 3. 생성 - ResponseEntity
+        ResponseEntity<AdminMessageResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 4. 반환
+        return response;
+    }
+
 
 
 
