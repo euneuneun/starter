@@ -1,6 +1,7 @@
 package com.starter.customer.controller;
 
 import com.starter.customer.dto.*;
+import com.starter.customer.entity.Customer;
 import com.starter.customer.service.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,7 @@ public class CustomerController {
             @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) Customer.CustomerStatus status) {
 
         // 1. 서비스 처리
         CustomerListResponseDto responseDto = this.customerService.listCustomers(

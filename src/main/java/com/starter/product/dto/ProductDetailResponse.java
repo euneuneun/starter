@@ -9,13 +9,13 @@ import java.time.LocalDateTime;
 @JsonPropertyOrder({"id", "name", "category", "price", "stock",
         "status", "createdAt", "adminName", "adminEmail"})
 
-public class ProductDetailResponseDto {
+public class ProductDetailResponse {
 
     // 속성
     private Long id;
     private String name;
     private String category;
-    private Long price;
+    private String price;
     private Integer stock;
     private Product.ProductStatus status;
     private LocalDateTime createdAt;
@@ -23,11 +23,11 @@ public class ProductDetailResponseDto {
     private String adminEmail;
 
     // 생성자
-    public  ProductDetailResponseDto(Product product) {
+    public ProductDetailResponse(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.category = product.getCategory();
-        this.price = product.getPrice();
+        this.price = String.format("%,d원", product.getPrice());
         this.stock = product.getStock();
         this.status = product.getStatus();
         this.createdAt = product.getCreatedAt();
@@ -47,7 +47,7 @@ public class ProductDetailResponseDto {
     public String getCategory() {
         return category;
     }
-    public Long getPrice() {
+    public String getPrice() {
         return price;
     }
     public Integer getStock() {

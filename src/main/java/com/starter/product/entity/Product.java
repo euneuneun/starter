@@ -1,19 +1,17 @@
 package com.starter.product.entity;
 
-import com.starter.admin.entity.Admin;
+                                                                                            import com.starter.admin.entity.Admin;
+import com.starter.admins.entity.Admin;
+import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "products")
-@EntityListeners(AuditingEntityListener.class)
-public class Product {
+public class Product extends BaseEntity {
 
     // Enum 정의
     // 상품 상태
@@ -46,16 +44,6 @@ public class Product {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private ProductStatus status;
-
-    @CreatedDate
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-    @Column(nullable = true)
-    private LocalDateTime deletedAt;
 
     // 생성자
     // JPA 기본 생성자
@@ -126,22 +114,28 @@ public class Product {
     }
     // 상품 정보 수정
     public void changeProduct(String name, String category, Long price) {
-        if(name == null || name.isBlank() || name.length() > 100) {
-            throw new IllegalArgumentException("상품명은 null 이거나 100자를 넘을 수 없습니다.");
+        if(name != null) {
+            if(name.isBlank() || name.length() > 100) {
+                throw new IllegalArgumentException("상품명을 확인해주세요.");
+            }
+            this.name = name;
         }
-        if(category == null || category.isBlank() || category.length() > 15) {
-            throw new IllegalArgumentException("카테고리는 null 이거나 15자를 넘을 수 없습니다.");
+        if(category != null) {
+            if(category.isBlank() || category.length() > 15) {
+                throw new IllegalArgumentException("카테고리를 확인해주세요.");
+            }
+            this.category = category;
         }
-        if(price == null || price < 0) {
-            throw new IllegalArgumentException("가격은 null 이거나 음수일 수 없습니다.");
+        if(price != null) {
+            if(price < 0) {
+                throw new IllegalArgumentException("가격은 음수일 수 없습니다.");
+            }
+            this.price = price;
         }
-        this.name = name;
-        this.category = category;
-        this.price = price;
     }
     // 상품 삭제 처리
     public void deleteProduct() {
-        this.deletedAt = LocalDateTime.now();
+        super.softDelete();
     }
 
     // 응답에 필요한 getter
@@ -162,15 +156,6 @@ public class Product {
     }
     public ProductStatus getStatus() {
         return status;
-    }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
     }
     public Admin getAdmin() {
         return admin;

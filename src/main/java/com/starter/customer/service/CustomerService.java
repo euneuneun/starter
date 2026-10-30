@@ -55,48 +55,72 @@ public class CustomerService {
      */
     @Transactional(readOnly = true)
     public CustomerListResponseDto listCustomers(
-            String keyword, Integer page, Integer size, String sortBy, String sortDirection, String status) {
+            String keyword, Integer page, Integer size, String sortBy,
+            String sortDirection, Customer.CustomerStatus status) {
+        // 1. 검증
+        // 1-1. page 검증
+        if(page == null || page < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+        // 1-2. size 검증
+        if(size == null || size < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+        // 1-3. sortDirection 검증
+        if(sortDirection == null ||
+                (!sortDirection.equals("asc") && !sortDirection.equals("desc"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+        // 1-4. sortBy 검증
+        if(sortBy == null || (!sortBy.equals("name")
+                && !sortBy.equals("email") && !sortBy.equals("createdAt"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+        }
+        // 1-5. keyword 검증
+        if(keyword != null && keyword.isBlank()) {
+            keyword = null;
+        }
+        // 1-6. status는 컨트롤러에서 enum으로 변환 -> 검증생략
 
-        // 1. 정렬 방향 변환
+        // 2. 정렬 방향 변환
         Sort.Direction direction = Sort.Direction.fromString(sortDirection); //"asc" / "desc" 문자열을 변환
 
-        // 2. 정렬 조건 만들기
+        // 3. 정렬 조건 만들기
         Sort sort = Sort.by(direction,sortBy);
 
-        // 3. 페이징 조건 만들기
+        // 4. 페이징 조건 만들기
         Pageable pageable = PageRequest.of(page-1, size, sort);
 
-        // 4. 키워드 유무에 따라 고객 목록 조회
+        // 5. 키워드 유무에 따라 고객 목록 조회
         Page<Customer> pageCustomer;
 
         if(keyword == null || keyword.isBlank()) {
-            if(status == null || status.isBlank()) {
+            if(status == null) {
                 pageCustomer = customerRepository.findAll(pageable);
             } else {
-                pageCustomer = customerRepository.findByStatus(Customer.CustomerStatus.valueOf(status), pageable);
+                pageCustomer = customerRepository.findByStatus(status, pageable);
             }
         } else {
-            if(status == null || status.isBlank()) {
+            if(status == null) {
                 pageCustomer = customerRepository.findByNameContainingOrEmailContaining(keyword, keyword, pageable);
             } else {
                 pageCustomer = customerRepository.findByNameContainingAndStatusOrEmailContainingAndStatus(
-                        keyword,Customer.CustomerStatus.valueOf(status),
-                        keyword, Customer.CustomerStatus.valueOf(status), pageable);
+                        keyword, status, keyword, status, pageable);
             }
         }
 
-        // 5. entity -> dto 목록 변환
+        // 6. entity -> dto 목록 변환
         List<CustomerDetailResponseDto> customerDtoList =
                 pageCustomer.getContent().stream().map(customer -> new CustomerDetailResponseDto(
                         customer.getId(), customer.getName(), customer.getEmail(),
                         customer.getPhone(), customer.getStatus(), customer.getCreatedAt()
                 )).toList();
 
-        // 6. 응답 dto
+        // 7. 응답 dto
         CustomerListResponseDto responseDto = new CustomerListResponseDto(
                 customerDtoList, page, size, pageCustomer.getTotalElements(), pageCustomer.getTotalPages());
 
-        // 7. 응답 반환
+        // 8. 응답 반환
         return responseDto;
     }
     /**
@@ -156,7 +180,11 @@ public class CustomerService {
         Customer.CustomerStatus status = requestDto.getStatus();
 
         // 4-1. 가져온 정보 검증
-        foundCustomer.changeStatus(status);
+        try {
+            foundCustomer.changeStatus(status);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+        }
 
         // 4-2. 변경된 정보 db 동기화
         customerRepository.flush();
