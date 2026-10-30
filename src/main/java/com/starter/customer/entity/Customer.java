@@ -1,18 +1,14 @@
 package com.starter.customer.entity;
 
+import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "customers")
-@EntityListeners(AuditingEntityListener.class)
-public class Customer {
+public class Customer extends BaseEntity {
 
     // Enum 정의
     // 고객 상태
@@ -37,16 +33,6 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private CustomerStatus status;
-
-    @CreatedDate
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-    @Column(nullable = true)
-    private LocalDateTime deletedAt;
 
 
     // 생성자
@@ -87,7 +73,7 @@ public class Customer {
     }
     // 고객 삭제 처리
     public void deleteCustomer() {
-        this.deletedAt = LocalDateTime.now();
+        super.softDelete();
     }
 
     public Long getId() {
@@ -104,15 +90,6 @@ public class Customer {
     }
     public CustomerStatus getStatus() {
         return status;
-    }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
     }
 
 }
