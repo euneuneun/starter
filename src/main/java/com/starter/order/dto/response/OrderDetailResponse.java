@@ -1,6 +1,6 @@
 package com.starter.order.dto.response;
 
-import com.starter.admins.entity.Admin;
+import com.starter.admin.entity.Admin;
 import com.starter.order.enums.OrderStatus;
 import lombok.Getter;
 

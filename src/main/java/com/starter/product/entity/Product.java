@@ -1,5 +1,6 @@
 package com.starter.product.entity;
 
+                                                                                            import com.starter.admin.entity.Admin;
 import com.starter.admins.entity.Admin;
 import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;

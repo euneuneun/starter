@@ -1,11 +1,10 @@
-package com.starter.admins.entity;
+package com.starter.admin.entity;
 
 import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -95,10 +94,26 @@ public class Admin extends BaseEntity {
      * 관리자 정보 수정 기능
      */
 
-    public Admin changeName(String newName, String newEmail, String newPhone) {
+    public Admin changeInfo(String newName, String newEmail, String newPhone) {
         this.name = newName;
         this.email = newEmail;
         this.phone = newPhone;
+        return this;
+    }
+
+    /**
+     *  관리자 역할 수정 기능
+     */
+    public Admin changeRole(AdminRole newRole) {
+        this.role = newRole;
+        return this;
+    }
+
+    /**
+     *  관리자 상태 수정 기능
+     */
+    public Admin changeStatus(AdminStatus newStatus) {
+        this.status = newStatus;
         return this;
     }
 }
