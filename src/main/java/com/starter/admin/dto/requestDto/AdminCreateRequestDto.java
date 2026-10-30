@@ -1,9 +1,7 @@
 package com.starter.admin.dto.requestDto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import com.starter.admin.entity.Admin;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 
 @Getter
@@ -25,12 +23,18 @@ public class AdminCreateRequestDto {
     @Pattern(regexp = "010-?\\d{3,4}-?\\d{4}$", message = "올바른 휴대폰 번호 형식이 아닙니다.")
     private String phone;
 
-    @NotBlank(message = "권한은 필수 선택입니다.")
-    private String role;
+    @NotNull(message = "권한은 필수 선택입니다.")
+    private Admin.AdminRole role;
 
     //생성자
 
-    public AdminCreateRequestDto(String name, String email, String password, String phone, String role) {
+    public AdminCreateRequestDto(
+            String name,
+            String email,
+            String password,
+            String phone,
+            Admin.AdminRole role
+    ) {
         this.name = name;
         this.email = email;
         this.password = password;

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "admins")
+@SQLRestriction("deleted_at IS NULL")
 public class Admin extends BaseEntity {
 
     //Enum정의
@@ -27,9 +29,8 @@ public class Admin extends BaseEntity {
     //관리자 상태
     public enum AdminStatus {
         PENDING,   // 승인 대기
-        APPROVED,  // 승인 완료
         REJECTED,   // 반려됨
-        ACTIVATE, // 계정 활성화
+        ACTIVATE, // 계정 활성
         DEACTIVATE, //계정 비활성화
         SUSPENDED //계정 정지
 
@@ -104,6 +105,7 @@ public class Admin extends BaseEntity {
     /**
      *  관리자 역할 수정 기능
      */
+
     public Admin changeRole(AdminRole newRole) {
         this.role = newRole;
         return this;

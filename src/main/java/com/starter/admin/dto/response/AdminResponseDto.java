@@ -1,14 +1,15 @@
-package com.starter.admin.dto.responseDto;
+package com.starter.admin.dto.response;
 
 import lombok.Getter;
 
 @Getter
-public class AdminLoginResponseDto {
+public class AdminResponseDto {
+
     //속성
     private final String message;
 
     //생성자
-    public AdminLoginResponseDto(String message) {
+    public AdminResponseDto(String message) {
         this.message = message;
     }
 

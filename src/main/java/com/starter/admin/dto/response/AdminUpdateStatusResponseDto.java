@@ -1,4 +1,4 @@
-package com.starter.admin.dto.responseDto;
+package com.starter.admin.dto.response;
 
 import com.starter.admin.entity.Admin;
 import lombok.Getter;
@@ -6,20 +6,23 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class AdminUpdateRoleResponseDto {
+public class AdminUpdateStatusResponseDto {
     // 속성
     private Long adminId;
     private String name;
-    private Admin.AdminRole role;
+    private Admin.AdminStatus status;
     private LocalDateTime updateAt;
 
-    // 생성자
+    //생성자
 
-    public AdminUpdateRoleResponseDto(Long adminId, String name, Admin.AdminRole role, LocalDateTime updateAt) {
+    public AdminUpdateStatusResponseDto(Long adminId, String name, Admin.AdminStatus status, LocalDateTime updateAt) {
         this.adminId = adminId;
         this.name = name;
-        this.role = role;
+        this.status = status;
         this.updateAt = updateAt;
     }
-    // 기능
+
+
+    //기능
+
 }

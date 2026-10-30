@@ -1,18 +1,22 @@
 package com.starter.admin.contoller;
 
 import com.starter.admin.dto.requestDto.*;
-import com.starter.admin.dto.responseDto.*;
+import com.starter.admin.dto.response.*;
 import com.starter.admin.service.AdminService;
 import com.starter.admin.entity.Admin;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("admins")
+@RequestMapping("/admins")
 public class AdminContoller {
 
     //속성
@@ -52,7 +56,7 @@ public class AdminContoller {
             HttpSession session
     ) {
         // 1. 서비스 처리 - 로그인
-        AdminLoginResponseDto responseDto = adminService.loginAdmin(requestDto, session);
+        AdminLoginResponseDto responseDto = this.adminService.loginAdmin(requestDto, session);
 
         // 2. 세션 유효 시간 설정
         session.setMaxInactiveInterval(24 * 60 * 60);
@@ -71,7 +75,7 @@ public class AdminContoller {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpSession session) {
         // 1. 서비스 처리 - 로그아웃
-        adminService.logoutAdmin(session);
+        this.adminService.logoutAdmin(session);
 
         // 2. 생성 ResponseEntity
         ResponseEntity<String> response = new ResponseEntity<>("로그아웃 되었습니다.", HttpStatus.OK);
@@ -112,6 +116,7 @@ public class AdminContoller {
 
         // 2. 응답 생성
         ResponseEntity<AdminListResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
         // 3. 반환
         return response;
 
@@ -170,7 +175,8 @@ public class AdminContoller {
     /**
      * 관리자 역할 변경 API
      */
-    @PatchMapping("{adminId}/role")
+
+    @PatchMapping("/{adminId}/role")
     public ResponseEntity<AdminUpdateRoleResponseDto> updateAminRole(
             @PathVariable Long adminId,
             @RequestBody AdminUpdateRoleRequestDto adminUpdateRoleRequestDto,
@@ -195,7 +201,8 @@ public class AdminContoller {
     /**
      * 관리자 상태 변경
      */
-    @PatchMapping("{adminId}/status")
+
+    @PatchMapping("/{adminId}/status")
     public ResponseEntity<AdminUpdateStatusResponseDto> updateAminRole(
             @PathVariable Long adminId,
             @RequestBody AdminUpdateStatusRequestDto adminUpdateStatusRequestDto,
@@ -216,6 +223,28 @@ public class AdminContoller {
         // 4. 반환
         return result;
     }
+
+    /**
+     * 관리자 삭제 API
+     */
+    @DeleteMapping("/{adminId}")
+    public ResponseEntity<AdminMessageResponseDto>deleteAdmin(@PathVariable Long adminId, HttpSession session) {
+
+        // 1. 세션 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
+
+        // 2. 서비스 처리
+        AdminMessageResponseDto responseDto = this.adminService.deleteAdmin(loginAdminId, adminId);
+
+        // 3. 생성 - ResponseEntity
+        ResponseEntity<AdminMessageResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 4. 반환
+        return response;
+    }
+
+
+
 
 
     /**
@@ -269,8 +298,12 @@ public class AdminContoller {
     /**
      * 비밀 번호 변경 API
      */
+
     @PatchMapping("/me/password")
-    public ResponseEntity<AdminResponseDto> updatePassword(@RequestBody AdminUpdatePasswordDto passwordDto, HttpSession session) {
+    public ResponseEntity<AdminResponseDto> updatePassword(
+            @RequestBody AdminUpdatePasswordDto passwordDto,
+            HttpSession session
+    ) {
 
         // 1. 세션에 로그인한 관리자 ID 추출
         Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
@@ -299,5 +332,20 @@ public class AdminContoller {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("요청 오류: " + e.getMessage());
+    }
+
+    /**
+     *  예외 처리 2
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException e) {
+        // 발생한 모든 에러 메시지를 수집해서 이어붙이기
+        String errorMessage = e.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", ")); // 쉼표로 구분
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("요청 오류: " + errorMessage);
     }
 }
