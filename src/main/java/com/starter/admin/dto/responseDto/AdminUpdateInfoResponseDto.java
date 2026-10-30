@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class AdminUpdateResponseDto {
+public class AdminUpdateInfoResponseDto {
 
     //속성
     private String name;
@@ -17,7 +17,7 @@ public class AdminUpdateResponseDto {
 
 
     //생성자
-    public AdminUpdateResponseDto(
+    public AdminUpdateInfoResponseDto(
             String name,
             String email,
             String phone,

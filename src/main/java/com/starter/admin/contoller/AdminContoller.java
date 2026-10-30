@@ -125,7 +125,7 @@ public class AdminContoller {
     public ResponseEntity<AdminGetDeatilResponseDto> getAdminDetail(
             @PathVariable Long adminId,
             HttpSession session
-            ) {
+    ) {
 
         // 1. 세션에 로그인한 관리자 ID 추출
         Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
@@ -145,7 +145,7 @@ public class AdminContoller {
      */
 
     @PatchMapping("/{adminId}")
-    public ResponseEntity<AdminUpdateResponseDto> updateAdminInfo(
+    public ResponseEntity<AdminUpdateInfoResponseDto> updateAdminInfo(
             @PathVariable Long adminId,
             @RequestBody AdminUpdateInfoRequestDto adminUpdateInfoRequestDto,
             HttpSession session
@@ -154,13 +154,13 @@ public class AdminContoller {
         Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
 
         // 2. 서비스 처리 - 관리자 정보 수정
-        AdminUpdateResponseDto responseDto = this.adminService.updateAdminInfo(
+        AdminUpdateInfoResponseDto responseDto = this.adminService.updateAdminInfo(
                 loginAdminId,
                 adminId,
                 adminUpdateInfoRequestDto);
 
         // 3. 응답 생성
-        ResponseEntity<AdminUpdateResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<AdminUpdateInfoResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 4.반환
         return result;
@@ -219,25 +219,75 @@ public class AdminContoller {
 
 
     /**
-     * 관리자 삭제 APU
+     * 내 정보 조회 API
      */
-    @DeleteMapping("{adminId}")
-    public ResponseEntity<AdminMessageResponseDto>deleteAdmin(@PathVariable Long adminId, HttpSession session) {
 
-        // 1. 세션 로그인한 관리자 ID 추출
+
+    @GetMapping("/me")
+    public ResponseEntity<AdminGetDeatilResponseDto> getAdminProfile(HttpSession session) {
+
+        // 1. 세션에 로그인한 관리자 ID 추출
         Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
 
         // 2. 서비스 처리
-        AdminMessageResponseDto responseDto = this.adminService.deleteAdmin(loginAdminId, adminId);
+        AdminGetDeatilResponseDto responseDto = this.adminService.getAdminProfile(loginAdminId);
 
-        // 3. 생성 - ResponseEntity
-        ResponseEntity<AdminMessageResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        // 3. 응답 생성
+        ResponseEntity<AdminGetDeatilResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 4. 반환
-        return response;
+        return result;
     }
 
 
+    /**
+     * 내 정보 수정 API
+     */
+
+    @PatchMapping("/me")
+    public ResponseEntity<AdminUpdateInfoResponseDto> updateAdminProfilenInfo(
+            @RequestBody AdminUpdateInfoRequestDto adminUpdateInfoRequestDto,
+            HttpSession session
+    ) {
+        // 1. 세션에 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
+
+        // 2. 서비스 처리 - 내 정보 수정
+        AdminUpdateInfoResponseDto responseDto = this.adminService.updateAdminProfileInfo(
+                loginAdminId,
+                adminUpdateInfoRequestDto
+        );
+
+        // 3. 생성 - ResponseEntity
+        ResponseEntity<AdminUpdateInfoResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 4.반환
+        return result;
+
+    }
+
+    /**
+     * 비밀 번호 변경 API
+     */
+    @PatchMapping("/me/password")
+    public ResponseEntity<AdminResponseDto> updatePassword(@RequestBody AdminUpdatePasswordDto passwordDto, HttpSession session) {
+
+        // 1. 세션에 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
+
+        // 2. 비밀번호 공백 검증
+        if (loginAdminId == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+        // 3. 서비스 처리 - 비밀번호 변경
+        AdminResponseDto responseDto = adminService.updatePassword(loginAdminId, passwordDto);
+
+        // 4. 생성 - ResponseEntity
+        ResponseEntity<AdminResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 5. 반환
+        return response;
+    }
 
 
     /**

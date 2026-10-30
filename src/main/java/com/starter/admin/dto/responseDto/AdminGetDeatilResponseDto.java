@@ -36,6 +36,21 @@ public class AdminGetDeatilResponseDto {
         this.approvedAt = approvedAt;
     }
 
+    public AdminGetDeatilResponseDto(
+            String name,
+            String email,
+            String phone,
+            LocalDateTime createdAt,
+            LocalDateTime approvedAt
+    ) {
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.createdAt = createdAt;
+        this.approvedAt = approvedAt;
+    }
+
 
     //기능
+
 }

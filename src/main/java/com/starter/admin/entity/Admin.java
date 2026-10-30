@@ -112,6 +112,7 @@ public class Admin extends BaseEntity {
     /**
      *  관리자 상태 수정 기능
      */
+
     public Admin changeStatus(AdminStatus newStatus,String rejectReason) {
         this.status = newStatus;
 
@@ -123,6 +124,15 @@ public class Admin extends BaseEntity {
             this.activatedAt = LocalDateTime.now();
         }
 
+        return this;
+    }
+
+    /**
+     *  관리자 비밀번호 수정 기능
+     */
+
+    public Admin changePassword(String newPassword) {
+        this.password = newPassword;
         return this;
     }
 }
