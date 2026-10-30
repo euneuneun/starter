@@ -1,7 +1,7 @@
 package com.starter.admin.service;
 
-import com.starter.admin.dto.requestDto.*;
-import com.starter.admin.dto.responseDto.*;
+import com.starter.admin.dto.request.*;
+import com.starter.admin.dto.response.*;
 import com.starter.admin.entity.Admin;
 import com.starter.admin.repository.AdminRepository;
 import com.starter.common.config.PasswordEncoder;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+
     //속성
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
@@ -41,16 +42,13 @@ public class AdminService {
         String email = createRequestDto.getEmail();
         String password = createRequestDto.getPassword();
         String phone = createRequestDto.getPhone();
-        String roleStr = createRequestDto.getRole();
+        Admin.AdminRole role = createRequestDto.getRole();
 
         // 2. 데이터 검증
         // 2-1. 중복된 이메일 확인 (가입된 이메일이 존재하면 예외처리)
         if (adminRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
-
-        // 2-2. 역할 문자열을 Enum으로 변환 및 검증
-        Admin.AdminRole role = Admin.AdminRole.valueOf(roleStr);
 
         // 3. 비밀번호 암호화
         String encryptionPassword = passwordEncoder.encode(password);
@@ -75,6 +73,7 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public AdminLoginResponseDto loginAdmin(AdminLoginRequestDto requestDto, HttpSession session) {
+
         // 1. 데이터 준비
         String email = requestDto.getEmail();
         String password = requestDto.getPassword();
@@ -122,6 +121,7 @@ public class AdminService {
      * 관리자 로그아웃 API
      */
 
+    @Transactional
     public void logoutAdmin(HttpSession session) {
         if (session != null) {
             session.invalidate();
@@ -368,9 +368,9 @@ public class AdminService {
         String rejectReason = adminUpdatestatusRequestDto.getRejectReason();
 
 
-        // 5-1. 변경 상태가 거부일 때
+        // 5. 변경 상태가 거부일 때
         if (newStatus == Admin.AdminStatus.REJECTED) {
-            // 5-2. 거부 사유 필수 검증
+            // 5-1. 거부 사유 필수 검증
             if (rejectReason == null || rejectReason.isBlank()) {
                 throw new IllegalArgumentException("거부 사유는 필수 입력 항목입니다.");
             }
@@ -432,6 +432,36 @@ public class AdminService {
 
     }
 
+    /**
+     * 관리자 삭제 API
+     */
+
+    @Transactional
+    public AdminMessageResponseDto deleteAdmin(Long loginAdminId, Long adminId) {
+        // 1. 로그인한 관리자 조회
+        Admin foundLoginAdmin = adminRepository.findById(loginAdminId)
+                .orElseThrow(() -> new IllegalArgumentException("로그인한 관리자를 찾을 수 없습니다."));
+
+        // 2. 권한 검증(슈퍼 관리자만 상태 변경 가능)
+        if (foundLoginAdmin.getRole() != Admin.AdminRole.SUPER_ADMIN) {
+            throw new IllegalArgumentException("슈퍼 관리자만 변경할 수 있습니다.");
+        }
+
+        // 3. 관리자 조회
+        Admin foundAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 관리자를 찾을 수 없습니다."));
+
+        // 4. 삭제 처리(공용 엔티티 사용)
+        foundAdmin.softDelete();
+        ;
+
+        // 5. 응답 생성
+        AdminMessageResponseDto response = new AdminMessageResponseDto("삭제에 성공하였습니다.");
+
+        // 6. 응답 반환
+        return response;
+    }
+
 
     /**
      * 내 정보 수정 API
@@ -480,6 +510,7 @@ public class AdminService {
     /**
      * 내 비밀번호 수정 API
      */
+
     @Transactional
     public AdminResponseDto updatePassword(Long loginAdminId, AdminUpdatePasswordDto passwordDto) {
 
@@ -506,7 +537,6 @@ public class AdminService {
         // 8. 반환
         return response;
     }
-
 
 
 }

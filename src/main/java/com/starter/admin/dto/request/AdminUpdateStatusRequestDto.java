@@ -1,8 +1,7 @@
-package com.starter.admin.dto.requestDto;
+package com.starter.admin.dto.request;
 
 import com.starter.admin.entity.Admin;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 public class AdminUpdateStatusRequestDto {

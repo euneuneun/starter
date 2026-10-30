@@ -21,8 +21,8 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
 
     // 관리자 역할로 조회
     Optional<Admin> findByRole(Admin.AdminRole adminRole);
-    // 관리자 다건 조회 필터링 조건
 
+    // 관리자 다건 조회 필터링 조건
     @Query("SELECT a FROM Admin a WHERE " +
             // 검색 키워드 조건
             "(:keyword IS NULL OR :keyword = '' OR a.name LIKE %:keyword% OR a.email LIKE %:keyword%) AND " +
