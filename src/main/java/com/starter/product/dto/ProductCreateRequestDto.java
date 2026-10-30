@@ -16,11 +16,10 @@ public class ProductCreateRequestDto {
     // 생성자
     @JsonCreator
     public ProductCreateRequestDto() {
-        System.out.println("DTO 기본 생성자 실행됨");
     }
 
-    public ProductCreateRequestDto(String name, String category, Long price, Integer stock) {
-        System.out.println("DTO 기본 생성자 실행됨");
+    public ProductCreateRequestDto(String name, String category, Long price,
+                                   Integer stock, Product.ProductStatus status) {
         this.name = name;
         this.category = category;
         this.price = price;
