@@ -86,4 +86,20 @@ public class ProductController {
         // 3. 반환
         return response;
     }
+    /**
+     *  상품 정보 수정 API
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProductChangeResponseDto> changeProduct(
+            @RequestBody ProductChangeRequestDto requestDto, @PathVariable Long id) {
+
+        // 1. 서비스 처리
+        ProductChangeResponseDto responseDto = this.productService.changeProduct(requestDto, id);
+
+        // 2. Http
+        ResponseEntity<ProductChangeResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
+    }
 }

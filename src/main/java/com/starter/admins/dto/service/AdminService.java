@@ -2,10 +2,8 @@ package com.starter.admins.dto.service;
 
 import com.starter.admins.dto.requestDto.AdminCreateRequestDto;
 import com.starter.admins.dto.requestDto.AdminLoginRequestDto;
-import com.starter.admins.dto.responseDto.AdminGetDeatilResponseDto;
-import com.starter.admins.dto.responseDto.AdminListResponseDto;
-import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
-import com.starter.admins.dto.responseDto.AdminResponseDto;
+import com.starter.admins.dto.requestDto.AdminUpdateRequestDto;
+import com.starter.admins.dto.responseDto.*;
 import com.starter.admins.entity.Admin;
 import com.starter.admins.repository.AdminRepository;
 import com.starter.common.config.PasswordEncoder;
@@ -136,7 +134,7 @@ public class AdminService {
      * 관리자 다건 조회 API
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AdminListResponseDto getAdminList(
             String keyword,
             int page,
@@ -192,21 +190,21 @@ public class AdminService {
      * 관리자 상세 조회 API
      */
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AdminGetDeatilResponseDto getAdminDetail(Long adminId) {
 
-        // 1. 관리자 조희
-        Admin admin = adminRepository.findById(adminId)
+        // 1. 관리자 조회
+        Admin foundAdmin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 관리자를 찾을 수 없습니다."));
 
         // 2. 데이터 준비
-        String name = admin.getName();
-        String email = admin.getEmail();
-        String phone = admin.getPhone();
-        Admin.AdminRole role = admin.getRole();
-        Admin.AdminStatus status = admin.getStatus();
-        LocalDateTime createdAt = admin.getCreatedAt();
-        LocalDateTime approvedAt = admin.getApprovedAt();
+        String name = foundAdmin.getName();
+        String email = foundAdmin.getEmail();
+        String phone = foundAdmin.getPhone();
+        Admin.AdminRole role = foundAdmin.getRole();
+        Admin.AdminStatus status = foundAdmin.getStatus();
+        LocalDateTime createdAt = foundAdmin.getCreatedAt();
+        LocalDateTime approvedAt = foundAdmin.getApprovedAt();
 
         // 3. Dto 생성
         AdminGetDeatilResponseDto adminGetDeatilResponseDto = new AdminGetDeatilResponseDto(
@@ -221,6 +219,48 @@ public class AdminService {
 
         // 4. 반환
         return adminGetDeatilResponseDto;
+
+    }
+
+    /**
+     * 관리자 정보 수정 API
+     */
+
+    @Transactional
+    public AdminUpdateResponseDto patchAdmin(Long adminId, AdminUpdateRequestDto adminUpdateRequestDto) {
+
+        // 1. 관리자 조회
+        Admin foundAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 관리자를 찾을 수 없습니다."));
+
+        // 2. 데이터 준비
+        String newName = adminUpdateRequestDto.getName();
+        String newEmail = adminUpdateRequestDto.getEmail();
+        String newPhone = adminUpdateRequestDto.getPhone();
+
+
+        // 3. 수정하기
+        Admin updateAdmin = foundAdmin.changeName(newName, newEmail, newPhone);
+
+        // 4. 수정 데이터 준비
+        String updateAdminName = updateAdmin.getName();
+        String updateAdminEmail = updateAdmin.getEmail();
+        String updateAdminPhone = updateAdmin.getPhone();
+        LocalDateTime updateAdminCreatedAt = updateAdmin.getCreatedAt();
+        LocalDateTime updateAdminUpdateAT = updateAdmin.getUpdatedAt();
+
+
+        // 5. dto 생성
+        AdminUpdateResponseDto adminUpdateResponseDto = new AdminUpdateResponseDto(
+                updateAdminName,
+                updateAdminEmail,
+                updateAdminPhone,
+                updateAdminCreatedAt,
+                updateAdminUpdateAT
+        );
+
+        // 6. 반환
+        return adminUpdateResponseDto;
 
     }
 }
