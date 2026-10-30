@@ -88,6 +88,11 @@ public class ProductService {
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
 
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
         // 4. entity -> dto 변환
         ProductDetailResponse responseDto = new ProductDetailResponse(foundProduct);
 
@@ -109,6 +114,11 @@ public class ProductService {
 
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
+
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. RequestDto 에서 변경할 재고 가져오기
         Integer stock = requestDto.getStock();
@@ -209,6 +219,11 @@ public class ProductService {
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
 
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
         // 4. RequestDto에서 변경할 정보 가져오기
         String name = requestDto.getName();
         String category = requestDto.getCategory();
@@ -244,6 +259,11 @@ public class ProductService {
 
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
+
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. RequestDto에서 변경할 정보 가져오기
         Boolean discontinued = requestDto.getDiscontinued();
@@ -287,6 +307,11 @@ public class ProductService {
 
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
+
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. 논리 삭제 처리
         foundProduct.deleteProduct();
