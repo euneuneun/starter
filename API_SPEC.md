@@ -815,6 +815,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 ---
 
+
 ## 👥 고객 관리
 
 | Method | Endpoint | 기능 |
@@ -823,7 +824,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `GET` | `/customers/{id}` | 고객 상세 조회 |
 | `PATCH` | `/customers/{id}` | 고객 정보 수정 |
 | `PATCH` | `/customers/{id}/status` | 고객 상태 변경 |
-| `DELETE` | `/customers/{id}` | 고객 삭제 |
+| `DELETE` | `/customers/{id}` | 고객 삭제 (논리 삭제) |
 
 <details>
 <summary><code>GET</code> <b>/customers</b> — 고객 리스트 조회</summary>
@@ -834,31 +835,31 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 ?page=1&size=10&sortBy=createdAt&sortDirection=desc
 ```
 
-| 키 | 설명 |
-| --- | --- |
-| `keyword` | 고객명 또는 이메일 검색 (선택) |
-| `page` | 페이지 번호 (기본값 1, 1 이상) |
-| `size` | 페이지당 개수 (기본값 10, 1 이상) |
-| `sortBy` | 정렬 기준: `name`, `email`, `createdAt` (기본값 `createdAt`) |
-| `sortDirection` | 정렬 방향: `asc`, `desc` (기본값 `desc`) |
-| `status` | 고객 상태 필터: `ACTIVE`, `INACTIVE`, `SUSPENDED` (선택) |
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| `keyword` | String | 고객명 또는 이메일 부분 검색 (선택) |
+| `page` | Integer | 페이지 번호 (기본값 1, 1 이상) |
+| `size` | Integer | 페이지당 개수 (기본값 10, 1 이상) |
+| `sortBy` | String | `name`, `email`, `createdAt` (기본값 `createdAt`) |
+| `sortDirection` | String | `asc`, `desc` (기본값 `desc`) |
+| `status` | String | 고객 상태 필터 (`ACTIVE`, `INACTIVE`, `SUSPENDED`, 선택) |
 
-**Request Headers / Body** — 별도 요청 본문 없음
+**Request Headers / Body** — 별도 요구 없음
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `content` | Array | 고객 목록 |
+| `content` | Array | 조회된 고객 목록 (논리 삭제된 고객 제외) |
 | `content[].id` | Long | 고객 고유 식별자 |
 | `content[].name` | String | 고객 이름 |
 | `content[].email` | String | 고객 이메일 |
 | `content[].phone` | String | 고객 전화번호 (null 가능) |
 | `content[].status` | String | 고객 상태 |
 | `content[].createdAt` | LocalDateTime | 고객 가입일 |
-| `page` | Integer | 현재 페이지 번호 (1부터 시작) |
+| `page` | Integer | 현재 페이지 번호 |
 | `size` | Integer | 페이지당 개수 |
-| `totalElements` | Long | 검색 및 필터 조건에 해당하는 전체 고객 수 |
+| `totalElements` | Long | 검색 및 필터 조건에 해당하는 고객 수 |
 | `totalPages` | Integer | 전체 페이지 수 |
 
 ```json
@@ -888,12 +889,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400 Bad Request`
-
-- `page` 또는 `size`가 1 미만인 경우
-- `sortBy`가 허용된 정렬 기준이 아닌 경우
-- `sortDirection`이 `asc`, `desc`가 아닌 경우
-- `status`가 정의되지 않은 Enum 값인 경우
+**Error Response** — `400`
 
 ```json
 {
@@ -903,11 +899,6 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "path": "/customers"
 }
 ```
-
-> 검색 키워드가 없으면 전체 고객을 조회합니다.
-> 검색 키워드와 상태 필터를 함께 사용할 수 있습니다.
-> 검색 결과가 없으면 `content`는 빈 배열로 반환됩니다.
-> 현재 코드에는 `deletedAt`이 설정된 고객을 조회에서 제외하는 조건이 없습니다.
 
 </details>
 
@@ -920,7 +911,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 조회할 고객 ID |
 
-**Request Headers / Body** — 별도 요청 본문 없음
+**Request Headers / Body** — 별도 요구 없음
 
 **Response** `200 OK`
 
@@ -944,9 +935,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `404 Not Found`
-
-- 요청한 고객 ID가 존재하지 않는 경우
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -956,8 +945,6 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "path": "/customers/999"
 }
 ```
-
-> 현재 코드에서는 `deletedAt`이 설정된 고객도 ID가 존재하면 조회될 수 있습니다.
 
 </details>
 
@@ -978,11 +965,11 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Request Body**
 
-| 필드 | 타입 | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `name` | String | 선택 | 수정할 고객 이름 (공백 불가, 최대 100자) |
-| `email` | String | 선택 | 수정할 고객 이메일 (공백 불가, 최대 255자) |
-| `phone` | String | 선택 | 수정할 고객 전화번호 (공백 불가, 최대 15자) |
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `name` | String | 수정할 고객 이름 (선택, 공백 불가, 최대 100자) |
+| `email` | String | 수정할 고객 이메일 (선택, 공백 불가, 최대 255자) |
+| `phone` | String | 수정할 고객 전화번호 (선택, 공백 불가, 최대 15자) |
 
 ```json
 {
@@ -991,10 +978,6 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "phone": "010-4541-1212"
 }
 ```
-
-> PATCH 요청이므로 변경할 필드만 전달할 수 있습니다.
-> 요청 필드가 `null`이거나 생략되면 기존 값이 유지됩니다.
-> 빈 문자열 또는 공백만 있는 문자열은 허용되지 않습니다.
 
 **Response** `200 OK`
 
@@ -1020,14 +1003,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response**
-
-| 상태 코드 | 상황 |
-| --- | --- |
-| `404 Not Found` | 요청한 고객 ID가 존재하지 않는 경우 |
-| `400 Bad Request` | 요청 본문 형식이 잘못된 경우 |
-| 확인 필요 | 이름, 이메일, 전화번호 유효성 검증 예외의 HTTP 응답 처리 |
-| 확인 필요 | 중복 이메일에 대한 예외 응답 처리 |
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1037,11 +1013,6 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "path": "/customers/999"
 }
 ```
-
-> Entity의 `changeCustomer()`에서 입력값을 검증합니다.
-> 현재 Service에는 `IllegalArgumentException`을 HTTP 400으로 변환하는 별도 처리가 없습니다.
-> 이메일은 DB에서 중복이 제한되지만, 중복 발생 시 HTTP 409 반환은 현재 코드에서 확인되지 않습니다.
-> 수정 시 `flush()`를 호출하여 변경 내용을 DB에 반영합니다.
 
 </details>
 
@@ -1062,9 +1033,9 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Request Body**
 
-| 필드 | 타입 | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `status` | String | ✅ | 변경할 고객 상태 (`ACTIVE`, `INACTIVE`, `SUSPENDED`) |
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `status` | String | 변경할 고객 상태 (`ACTIVE`, `INACTIVE`, `SUSPENDED`, 필수) |
 
 ```json
 {
@@ -1088,12 +1059,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400 Bad Request`, `404 Not Found`
-
-| 상태 코드 | 상황 |
-| --- | --- |
-| `400 Bad Request` | 상태값이 null이거나 유효하지 않은 경우 |
-| `404 Not Found` | 요청한 고객 ID가 존재하지 않는 경우 |
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1103,11 +1069,6 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "path": "/customers/1/status"
 }
 ```
-
-> 고객 상태는 Entity의 `changeStatus()` 메서드에서 변경합니다.
-> 상태값이 `null`이면 `IllegalArgumentException`이 발생하며 Service에서 HTTP 400으로 변환합니다.
-> 정의되지 않은 Enum 문자열은 요청 데이터 변환 과정에서 오류가 발생할 수 있습니다.
-> 변경 시 `flush()`를 호출하여 변경 내용을 DB에 반영합니다.
 
 </details>
 
@@ -1120,11 +1081,12 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 삭제할 고객 ID |
 
-**Request Headers / Body** — 별도 요청 본문 없음
+**Request Headers / Body** — 별도 요구 없음
 
 **Response** `200 OK`
 
-> 고객 레코드를 실제로 삭제하지 않고 `deletedAt`에 삭제 일시를 기록하는 논리 삭제 방식입니다.
+고객을 DB에서 물리적으로 삭제하지 않고 논리 삭제 처리합니다.
+삭제된 고객은 목록에서 제외되며, 상세 조회 및 수정 시 조회되지 않은 고객으로 처리합니다.
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
@@ -1136,9 +1098,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `404 Not Found`
-
-- 요청한 고객 ID가 존재하지 않는 경우
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1149,15 +1109,10 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-> `Customer.deleteCustomer()` 메서드에서 `deletedAt`에 현재 시간을 저장합니다.
-> `CustomerService.deleteCustomer()`는 `@Transactional`을 사용하므로 변경 감지로 DB에 반영됩니다.
-> 실제 데이터는 DB에서 삭제되지 않습니다.
-> 현재 조회 메서드에는 `deletedAt` 제외 조건이 없어 논리 삭제된 고객도 조회될 수 있습니다.
-> 중복 삭제를 방지하는 검사는 현재 구현되어 있지 않습니다.
-
 </details>
 
 ---
+
 
 ## 📦 상품 관리
 
@@ -1169,7 +1124,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `PATCH` | `/products/{id}` | 상품 정보 수정 |
 | `PATCH` | `/products/{id}/stock` | 상품 재고 변경 |
 | `PATCH` | `/products/{id}/status` | 상품 상태 변경 |
-| `DELETE` | `/products/{id}` | 상품 삭제 |
+| `DELETE` | `/products/{id}` | 상품 삭제 (논리 삭제) |
 
 <details>
 <summary><code>POST</code> <b>/products</b> — 상품 등록</summary>
@@ -1179,15 +1134,17 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
 
 **Request Body**
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 상품명 |
-| `category` | String | 상품 카테고리 |
-| `price` | Long | 상품 가격 (0원 이상) |
-| `stock` | Integer | 상품 재고 (0개 이상) |
+| `name` | String | 상품명 (필수, 공백 불가, 100자 이하) |
+| `category` | String | 상품 카테고리 (필수, 공백 불가, 15자 이하) |
+| `price` | Long | 상품 가격 (필수, 0원 이상) |
+| `stock` | Integer | 상품 재고 (필수, 0개 이상) |
+| `status` | String | 상품 상태 (선택, `DISCONTINUED` 지정 시 단종 처리) |
 
 ```json
 {
@@ -1202,33 +1159,29 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 상품 고유 식별자 |
-| `name` | String | 상품명 |
-| `category` | String | 상품 카테고리 |
-| `price` | Long | 상품 가격 |
+| `name` | String | 등록된 상품명 |
+| `category` | String | 등록된 카테고리 |
+| `price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `stock` | Integer | 상품 재고 |
 | `status` | String | 상품 상태 |
-| `updatedAt` | LocalDateTime | 상품 등록일 |
 
 ```json
 {
-  "id": 1,
   "name": "레고세트",
   "category": "완구/취미",
-  "price": 89000,
+  "price": "89,000원",
   "stock": 32,
-  "status": "ON_SALE",
-  "updatedAt": "2026-10-27T19:28:47"
+  "status": "ON_SALE"
 }
 ```
 
-**Error Response** — `400`, `401`, `403`
+**Error Response** — `400`, `401`, `404`
 
 ```json
 {
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "인증되지 않은 사용자입니다.",
   "path": "/products"
 }
 ```
@@ -1240,35 +1193,36 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Query String**
 
-```
+```text
 ?page=1&size=10&sortBy=price&sortDirection=asc
 ```
 
 | 키 | 타입 | 설명 |
 | --- | --- | --- |
-| `keyword` | String | 상품명 검색 (선택) |
-| `page` | Integer | 페이지 번호 (기본값 1) |
-| `size` | Integer | 페이지당 개수 (기본값 10) |
-| `sortBy` | String | `price`, `stock`, `createdAt` |
-| `sortDirection` | String | `asc`, `desc` |
-| `category` | String | 카테고리 필터 (선택) |
-| `status` | String | 상품 상태 필터 (`ON_SALE`, `OUT_OF_STOCK`, `DISCONTINUED`) |
+| `keyword` | String | 상품명 부분 검색 (선택) |
+| `page` | Integer | 페이지 번호 (기본값 1, 1 이상) |
+| `size` | Integer | 페이지당 개수 (기본값 10, 1 이상) |
+| `sortBy` | String | `price`, `stock`, `createdAt` (기본값 `createdAt`) |
+| `sortDirection` | String | `asc`, `desc` (기본값 `desc`) |
+| `category` | String | 카테고리 일치 검색 (선택) |
+| `status` | String | 상품 상태 필터 (`ON_SALE`, `OUT_OF_STOCK`, `DISCONTINUED`, 선택) |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요구 없음
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `content` | Array | 조회된 상품 목록 |
+| `content` | Array | 조회된 상품 목록 (논리 삭제된 상품 제외) |
 | `content[].id` | Long | 상품 고유 식별자 |
 | `content[].name` | String | 상품명 |
 | `content[].category` | String | 상품 카테고리 |
-| `content[].price` | Long | 상품 가격 |
+| `content[].price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `content[].stock` | Integer | 상품 재고 |
 | `content[].status` | String | 상품 상태 |
 | `content[].createdAt` | LocalDateTime | 상품 등록일 |
-| `content[].adminName` | String | 상품 등록 관리자 이름 |
+| `content[].adminName` | String | 상품 등록 관리자 이름 (관리자 정보 없으면 null) |
+| `content[].adminEmail` | String | 상품 등록 관리자 이메일 (관리자 정보 없으면 null) |
 | `page` | Integer | 현재 페이지 번호 |
 | `size` | Integer | 페이지당 개수 |
 | `totalElements` | Long | 검색/필터 조건에 해당하는 상품 수 |
@@ -1281,21 +1235,23 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
       "id": 2,
       "name": "직소퍼즐",
       "category": "완구/취미",
-      "price": 25000,
+      "price": "25,000원",
       "stock": 46,
       "status": "ON_SALE",
       "createdAt": "2026-10-27T23:15:38",
-      "adminName": "김운영"
+      "adminName": "김운영",
+      "adminEmail": "manager@sparta.com"
     },
     {
       "id": 1,
       "name": "레고세트",
       "category": "완구/취미",
-      "price": 89000,
+      "price": "89,000원",
       "stock": 32,
       "status": "ON_SALE",
       "createdAt": "2026-10-27T23:13:17",
-      "adminName": "admin"
+      "adminName": "admin",
+      "adminEmail": "admin@sparta.com"
     }
   ],
   "page": 1,
@@ -1305,7 +1261,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`
+**Error Response** — `400`
 
 ```json
 {
@@ -1327,7 +1283,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 조회할 상품 ID |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요구 없음
 
 **Response** `200 OK`
 
@@ -1336,19 +1292,19 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `id` | Long | 상품 고유 식별자 |
 | `name` | String | 상품명 |
 | `category` | String | 상품 카테고리 |
-| `price` | Long | 상품 가격 |
+| `price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `stock` | Integer | 상품 재고 |
 | `status` | String | 상품 상태 |
 | `createdAt` | LocalDateTime | 상품 등록일 |
-| `adminName` | String | 상품 등록 관리자 이름 |
-| `adminEmail` | String | 상품 등록 관리자 이메일 |
+| `adminName` | String | 상품 등록 관리자 이름 (관리자 정보 없으면 null) |
+| `adminEmail` | String | 상품 등록 관리자 이메일 (관리자 정보 없으면 null) |
 
 ```json
 {
   "id": 1,
   "name": "레고세트",
   "category": "완구/취미",
-  "price": 89000,
+  "price": "89,000원",
   "stock": 32,
   "status": "ON_SALE",
   "createdAt": "2026-10-27T23:13:17",
@@ -1357,7 +1313,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1389,9 +1345,9 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 수정할 상품명 |
-| `category` | String | 수정할 상품 카테고리 |
-| `price` | Long | 수정할 상품 가격 |
+| `name` | String | 수정할 상품명 (선택, 공백 불가, 100자 이하) |
+| `category` | String | 수정할 상품 카테고리 (선택, 공백 불가, 15자 이하) |
+| `price` | Long | 수정할 상품 가격 (선택, 0원 이상) |
 
 ```json
 {
@@ -1408,7 +1364,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `id` | Long | 상품 고유 식별자 |
 | `name` | String | 수정된 상품명 |
 | `category` | String | 수정된 카테고리 |
-| `price` | Long | 수정된 가격 |
+| `price` | String | 수정된 가격 (천 단위 구분 및 원 표시) |
 | `updatedAt` | LocalDateTime | 상품 정보 수정일 |
 
 ```json
@@ -1416,12 +1372,12 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "id": 1,
   "name": "아이패드",
   "category": "전자기기",
-  "price": 790000,
+  "price": "790,000원",
   "updatedAt": "2026-10-27T23:29:41"
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1453,7 +1409,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `stock` | Integer | 변경할 재고 수량 (0 이상) |
+| `stock` | Integer | 변경할 재고 수량 (필수, 0 이상) |
 
 ```json
 {
@@ -1479,7 +1435,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1511,7 +1467,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `discontinued` | Boolean | `true`: 단종 처리, `false`: 단종 해제 |
+| `discontinued` | Boolean | 필수. `true`: 단종 처리, `false`: 단종 해제 |
 
 ```json
 {
@@ -1535,7 +1491,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1557,17 +1513,26 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 삭제할 상품 ID |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요구 없음
 
-**Response** `204 No Content` — 응답 헤더·바디 없음
+**Response** `200 OK`
 
-**Error Response** — `400`, `401`, `403`, `404`
+상품을 DB에서 물리적으로 삭제하지 않고 논리 삭제 처리합니다.
+삭제된 상품은 목록 조회에서 제외되며, 상세 조회 및 수정 시 조회되지 않은 상품으로 처리합니다.
 
 ```json
 {
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "요청하신 상품이 삭제되었습니다."
+}
+```
+
+**Error Response** — `400`, `404`
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "해당 데이터를 찾을 수 없습니다.",
   "path": "/products/999"
 }
 ```
