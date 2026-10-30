@@ -15,7 +15,7 @@ public class ProductDetailResponse {
     private Long id;
     private String name;
     private String category;
-    private Long price;
+    private String price;
     private Integer stock;
     private Product.ProductStatus status;
     private LocalDateTime createdAt;
@@ -27,7 +27,7 @@ public class ProductDetailResponse {
         this.id = product.getId();
         this.name = product.getName();
         this.category = product.getCategory();
-        this.price = product.getPrice();
+        this.price = String.format("%,d원", product.getPrice());
         this.stock = product.getStock();
         this.status = product.getStatus();
         this.createdAt = product.getCreatedAt();
@@ -47,7 +47,7 @@ public class ProductDetailResponse {
     public String getCategory() {
         return category;
     }
-    public Long getPrice() {
+    public String getPrice() {
         return price;
     }
     public Integer getStock() {

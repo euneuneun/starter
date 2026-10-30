@@ -7,7 +7,7 @@ public class ProductCreateResponse {
     // 속성
     private String name;
     private String category;
-    private Long price;
+    private String price;
     private Integer stock;
     private Product.ProductStatus status;
 
@@ -15,7 +15,7 @@ public class ProductCreateResponse {
     public ProductCreateResponse(String name, String category, Long price, Integer stock, Product.ProductStatus status) {
         this.name = name;
         this.category = category;
-        this.price = price;
+        this.price = String.format("%,d원", price);
         this.stock = stock;
         this.status = status;
     }
@@ -27,7 +27,7 @@ public class ProductCreateResponse {
     public String getCategory() {
         return category;
     }
-    public Long getPrice() {
+    public String getPrice() {
         return price;
     }
     public Integer getStock() {
