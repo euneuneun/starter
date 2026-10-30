@@ -28,8 +28,8 @@ public class ProductController {
      *  상품등록 API
      */
     @PostMapping
-    public ResponseEntity<ProductCreateResponseDto> createProduct(
-            @RequestBody ProductCreateRequestDto createRequestDto, HttpSession session) {
+    public ResponseEntity<ProductCreateResponse> createProduct(
+            @RequestBody ProductCreateRequest createRequestDto, HttpSession session) {
 
         // 1. 관리자 id 가져오기
         Long adminId = (Long) session.getAttribute("ADMIN_ID");
@@ -40,10 +40,10 @@ public class ProductController {
         }
 
         // 2. 서비스 처리
-        ProductCreateResponseDto responseDto = this.productService.createProduct(createRequestDto, adminId);
+        ProductCreateResponse responseDto = this.productService.createProduct(createRequestDto, adminId);
 
         // 3. Http
-        ResponseEntity<ProductCreateResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        ResponseEntity<ProductCreateResponse> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
         // 4. 반환
         return response;
@@ -52,13 +52,13 @@ public class ProductController {
      *  상품 상세 조회 API
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDetailResponseDto> detailProduct(@PathVariable Long id) {
+    public ResponseEntity<ProductDetailResponse> detailProduct(@PathVariable Long id) {
 
         // 1. 서비스 처리
-        ProductDetailResponseDto responseDto = this.productService.detailProduct(id);
+        ProductDetailResponse responseDto = this.productService.detailProduct(id);
 
         // 2. Http
-        ResponseEntity<ProductDetailResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<ProductDetailResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
@@ -67,14 +67,14 @@ public class ProductController {
      *  상품 재고 변경 API
      */
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<ProductChangeStockResponseDto> changeStock(
-            @RequestBody ProductChangeStockRequestDto requestDto, @PathVariable Long id) {
+    public ResponseEntity<ProductChangeStockResponse> changeStock(
+            @RequestBody ProductChangeStockRequest requestDto, @PathVariable Long id) {
         System.out.println("상품 재고 변경 Controller 진입");
         // 1. 서비스 처리
-        ProductChangeStockResponseDto responseDto = this.productService.changeStock(requestDto, id);
+        ProductChangeStockResponse responseDto = this.productService.changeStock(requestDto, id);
 
         // 2. Http
-        ResponseEntity<ProductChangeStockResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<ProductChangeStockResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
@@ -83,18 +83,18 @@ public class ProductController {
      *  상품 리스트 조회 API
      */
     @GetMapping
-    public ResponseEntity<ProductListResponseDto> listProducts(
+    public ResponseEntity<ProductListResponse> listProducts(
             @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection, @RequestParam(required = false) String category,
             @RequestParam(required = false) Product.ProductStatus status) {
 
         // 1. 서비스 처리
-        ProductListResponseDto responseDto = this.productService.listProducts(
+        ProductListResponse responseDto = this.productService.listProducts(
                 keyword, page, size, sortBy, sortDirection, category, status);
 
         // 2. Http
-        ResponseEntity<ProductListResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<ProductListResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
@@ -103,14 +103,14 @@ public class ProductController {
      *  상품 정보 수정 API
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<ProductChangeResponseDto> changeProduct(
-            @RequestBody ProductChangeRequestDto requestDto, @PathVariable Long id) {
+    public ResponseEntity<ProductChangeResponse> changeProduct(
+            @RequestBody ProductChangeRequest requestDto, @PathVariable Long id) {
 
         // 1. 서비스 처리
-        ProductChangeResponseDto responseDto = this.productService.changeProduct(requestDto, id);
+        ProductChangeResponse responseDto = this.productService.changeProduct(requestDto, id);
 
         // 2. Http
-        ResponseEntity<ProductChangeResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<ProductChangeResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
@@ -119,14 +119,14 @@ public class ProductController {
      *  상품 상태 변경 API
      */
     @PatchMapping("/{id}/status")
-    public ResponseEntity<ProductStatusResponseDto> statusProduct(
-            @RequestBody ProductStatusRequestDto requestDto, @PathVariable Long id) {
+    public ResponseEntity<ProductStatusResponse> statusProduct(
+            @RequestBody ProductStatusRequest requestDto, @PathVariable Long id) {
 
         // 1. 서비스처리
-        ProductStatusResponseDto responseDto = this.productService.statusProduct(requestDto, id);
+        ProductStatusResponse responseDto = this.productService.statusProduct(requestDto, id);
 
         // 2. Http
-        ResponseEntity<ProductStatusResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<ProductStatusResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;

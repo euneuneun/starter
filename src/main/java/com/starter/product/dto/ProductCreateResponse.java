@@ -1,10 +1,8 @@
 package com.starter.product.dto;
 
-
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.starter.product.entity.Product;
 
-public class ProductCreateRequestDto {
+public class ProductCreateResponse {
 
     // 속성
     private String name;
@@ -14,12 +12,7 @@ public class ProductCreateRequestDto {
     private Product.ProductStatus status;
 
     // 생성자
-    @JsonCreator
-    public ProductCreateRequestDto() {
-    }
-
-    public ProductCreateRequestDto(String name, String category, Long price,
-                                   Integer stock, Product.ProductStatus status) {
+    public ProductCreateResponse(String name, String category, Long price, Integer stock, Product.ProductStatus status) {
         this.name = name;
         this.category = category;
         this.price = price;
@@ -42,21 +35,5 @@ public class ProductCreateRequestDto {
     }
     public Product.ProductStatus getStatus() {
         return status;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setCategory(String category) {
-        this.category = category;
-    }
-    public void setPrice(Long price) {
-        this.price = price;
-    }
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-    public void setStatus(Product.ProductStatus status) {
-        this.status = status;
     }
 }

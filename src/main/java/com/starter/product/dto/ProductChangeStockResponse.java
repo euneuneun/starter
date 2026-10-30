@@ -4,16 +4,19 @@ import com.starter.product.entity.Product;
 
 import java.time.LocalDateTime;
 
-public class ProductStatusResponseDto {
+public class ProductChangeStockResponse {
 
     // 속성
     private Long id;
+    private Integer stock;
     private Product.ProductStatus status;
     private LocalDateTime updatedAt;
 
     // 생성자
-    public ProductStatusResponseDto(Long id, Product.ProductStatus status, LocalDateTime updatedAt) {
+    public ProductChangeStockResponse(
+            Long id, Integer stock, Product.ProductStatus status, LocalDateTime updatedAt) {
         this.id = id;
+        this.stock = stock;
         this.status = status;
         this.updatedAt = updatedAt;
     }
@@ -22,10 +25,14 @@ public class ProductStatusResponseDto {
     public Long getId() {
         return id;
     }
+    public Integer getStock() {
+        return stock;
+    }
     public Product.ProductStatus getStatus() {
         return status;
     }
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
 }

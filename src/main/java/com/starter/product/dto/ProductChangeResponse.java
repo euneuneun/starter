@@ -2,7 +2,7 @@ package com.starter.product.dto;
 
 import java.time.LocalDateTime;
 
-public class ProductChangeResponseDto {
+public class ProductChangeResponse {
 
     // 속성
     private Long id;
@@ -12,8 +12,8 @@ public class ProductChangeResponseDto {
     private LocalDateTime updatedAt;
 
     // 생성자
-    public ProductChangeResponseDto(Long id, String name, String category,
-                                    Long price, LocalDateTime updatedAt) {
+    public ProductChangeResponse(Long id, String name, String category,
+                                 Long price, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.category = category;

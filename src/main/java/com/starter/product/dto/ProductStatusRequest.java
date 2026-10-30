@@ -1,14 +1,14 @@
 package com.starter.product.dto;
 
-public class ProductStatusRequestDto {
+public class ProductStatusRequest {
 
     // 속성
     private Boolean discontinued;
 
     // 생성자
-    public ProductStatusRequestDto() {
+    public ProductStatusRequest() {
     }
-    public ProductStatusRequestDto(Boolean discontinued) {
+    public ProductStatusRequest(Boolean discontinued) {
         this.discontinued = discontinued;
     }
 
