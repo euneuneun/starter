@@ -1,9 +1,9 @@
-package com.starter.admins.dto.requestDto;
+package com.starter.admin.dto.requestDto;
 
 import lombok.Getter;
 
 @Getter
-public class AdminUpdateRequestDto {
+public class AdminUpdateInfoRequestDto {
 
     //속성
     private String name;
@@ -11,7 +11,7 @@ public class AdminUpdateRequestDto {
     private String phone;
 
     //생성자
-    public AdminUpdateRequestDto(String name, String email, String phone) {
+    public AdminUpdateInfoRequestDto(String name, String email, String phone) {
         this.name = name;
         this.email = email;
         this.phone = phone;

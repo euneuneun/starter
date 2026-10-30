@@ -1,6 +1,6 @@
-package com.starter.admins.repository;
+package com.starter.admin.repository;
 
-import com.starter.admins.entity.Admin;
+import com.starter.admin.entity.Admin;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -20,6 +19,8 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
     // 이메일로 관리자 조회
     Optional<Admin> findByEmail(String email);
 
+    // 관리자 역할로 조회
+    Optional<Admin> findByRole(Admin.AdminRole adminRole);
     // 관리자 다건 조회 필터링 조건
 
     @Query("SELECT a FROM Admin a WHERE " +
