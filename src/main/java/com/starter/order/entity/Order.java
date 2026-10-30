@@ -19,6 +19,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @Getter
@@ -75,7 +77,7 @@ public class Order extends BaseEntity {
             this.status = OrderStatus.DELIVERED;
         }
         else{
-            throw new IllegalStateException("주문 상태를 수정할 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "배송완료 또는 취소된 주문은 상태를 수정할 수 없습니다.");
         }
 
     }
