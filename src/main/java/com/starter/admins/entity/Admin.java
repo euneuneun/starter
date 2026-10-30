@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -89,4 +90,15 @@ public class Admin extends BaseEntity {
     }
 
     //기능
+
+    /**
+     * 관리자 정보 수정 기능
+     */
+
+    public Admin changeName(String newName, String newEmail, String newPhone) {
+        this.name = newName;
+        this.email = newEmail;
+        this.phone = newPhone;
+        return this;
+    }
 }

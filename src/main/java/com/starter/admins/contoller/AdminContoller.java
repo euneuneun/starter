@@ -1,15 +1,17 @@
-package com.starter.admins;
+package com.starter.admins.contoller;
 
 import com.starter.admins.dto.requestDto.AdminCreateRequestDto;
 import com.starter.admins.dto.requestDto.AdminLoginRequestDto;
-import com.starter.admins.dto.responseDto.AdminLoginResponseDto;
-import com.starter.admins.dto.responseDto.AdminResponseDto;
+import com.starter.admins.dto.requestDto.AdminUpdateRequestDto;
+import com.starter.admins.dto.responseDto.*;
+import com.starter.admins.dto.service.AdminService;
+import com.starter.admins.entity.Admin;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("admins")
@@ -80,7 +82,79 @@ public class AdminContoller {
         return response;
     }
 
-    // 예외 처리 메서드
+    /**
+     * 관리자 다건 조회 API
+     */
+
+    @GetMapping
+    public ResponseEntity<AdminListResponseDto> getAdminListAPI(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortOrder,
+            @RequestParam(required = false) Admin.AdminRole role,
+            @RequestParam(required = false) Admin.AdminStatus status
+    ) {
+        // 1. 서비스 처리 요청 - 회원 목록 조회
+        AdminListResponseDto responseDto = this.adminService.getAdminList(
+                keyword,
+                page,
+                limit,
+                sortBy,
+                sortOrder,
+                role,
+                status
+        );
+
+        // 2. 응답 생성
+        ResponseEntity<AdminListResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        // 3. 반환
+        return response;
+
+    }
+
+    /**
+     *  관리자 상세 조회 API
+     */
+
+    @GetMapping("/{adminId}")
+    public ResponseEntity<AdminGetDeatilResponseDto> getAdminDetail(@PathVariable Long adminId) {
+
+        // 1. 서비스 처리 - 관리자 상세 조회
+        AdminGetDeatilResponseDto responseDto = this.adminService.getAdminDetail(adminId);
+
+        // 2. 응답 생성
+        ResponseEntity<AdminGetDeatilResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return result;
+    }
+
+    /**
+     *  관리자 정보 수정 API
+     */
+
+    @PatchMapping("/{adminId}")
+    public ResponseEntity<AdminUpdateResponseDto> patchAdmin(@PathVariable Long adminId, @RequestBody AdminUpdateRequestDto adminUpdateRequestDto) {
+
+        // 1. 서비스 처리 - 관리자 정보 수정
+        AdminUpdateResponseDto responseDto = this.adminService.patchAdmin(adminId, adminUpdateRequestDto);
+
+        // 2. 응답 생성
+        ResponseEntity<AdminUpdateResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3.반환
+        return result;
+
+    }
+
+
+
+    /**
+     * 예외 처리 메서드
+     */
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handlerIllegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity
