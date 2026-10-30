@@ -1,10 +1,10 @@
-package com.starter.customer.dto;
+package com.starter.customer.dto.response;
 
 import com.starter.customer.entity.Customer;
 
 import java.time.LocalDateTime;
 
-public class CustomerChangeResponseDto {
+public class CustomerDetailResponse {
 
     // 속성
     private Long id;
@@ -13,19 +13,16 @@ public class CustomerChangeResponseDto {
     private String phone;
     private Customer.CustomerStatus status;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     // 생성자
-    public CustomerChangeResponseDto(
-            Long id, String name, String email, String phone,
-            Customer.CustomerStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public CustomerDetailResponse(
+            Long id, String name, String email, String phone, Customer.CustomerStatus status, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.status = status;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     // 기능
@@ -46,8 +43,5 @@ public class CustomerChangeResponseDto {
     }
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

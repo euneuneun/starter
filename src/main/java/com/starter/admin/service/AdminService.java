@@ -244,7 +244,7 @@ public class AdminService {
      */
 
     @Transactional
-    public AdminUpdateResponseDto updateAdminInfo(
+    public AdminUpdateInfoResponseDto updateAdminInfo(
             Long loginAdminId,
             Long adminId,
             AdminUpdateInfoRequestDto adminUpdateInfoRequestDto
@@ -280,7 +280,7 @@ public class AdminService {
 
 
         // 7. dto 생성
-        AdminUpdateResponseDto adminUpdateResponseDto = new AdminUpdateResponseDto(
+        AdminUpdateInfoResponseDto adminUpdateInfoResponseDto = new AdminUpdateInfoResponseDto(
                 updateAdminName,
                 updateAdminEmail,
                 updateAdminPhone,
@@ -289,7 +289,7 @@ public class AdminService {
         );
 
         // 8. 반환
-        return adminUpdateResponseDto;
+        return adminUpdateInfoResponseDto;
     }
 
     /**
@@ -333,7 +333,7 @@ public class AdminService {
                 name,
                 upadateAdminNewRole,
                 updateAt
-                );
+        );
 
         // 8. 반환
         return adminUpdateRoleResponseDto;
@@ -399,33 +399,115 @@ public class AdminService {
     }
 
     /**
-     * 관리자 삭제 API
+     * 내 정보 조회 API
      */
-
     @Transactional
-    public AdminMessageResponseDto deleteAdmin(Long loginAdminId, Long adminId) {
+    public AdminGetDeatilResponseDto getAdminProfile(Long loginAdminId) {
+
         // 1. 로그인한 관리자 조회
         Admin foundLoginAdmin = adminRepository.findById(loginAdminId)
                 .orElseThrow(() -> new IllegalArgumentException("로그인한 관리자를 찾을 수 없습니다."));
 
-        // 2. 권한 검증(슈퍼 관리자만 상태 변경 가능)
-        if (foundLoginAdmin.getRole() != Admin.AdminRole.SUPER_ADMIN) {
-            throw new IllegalArgumentException("슈퍼 관리자만 변경할 수 있습니다.");
+        // 2. 데이터 준비
+        String name = foundLoginAdmin.getName();
+        String email = foundLoginAdmin.getEmail();
+        String phone = foundLoginAdmin.getPhone();
+        Admin.AdminRole role = foundLoginAdmin.getRole();
+        Admin.AdminStatus status = foundLoginAdmin.getStatus();
+        LocalDateTime createdAt = foundLoginAdmin.getCreatedAt();
+        LocalDateTime approvedAt = foundLoginAdmin.getActivatedAt();
+
+        // 5. Dto 생성
+        AdminGetDeatilResponseDto adminGetDeatilResponseDto = new AdminGetDeatilResponseDto(
+                name,
+                email,
+                phone,
+                createdAt,
+                approvedAt
+        );
+
+        // 6. 반환
+        return adminGetDeatilResponseDto;
+
+
+    }
+
+
+    /**
+     * 내 정보 수정 API
+     */
+
+    @Transactional
+    public AdminUpdateInfoResponseDto updateAdminProfileInfo(
+            Long loginAdminId,
+            AdminUpdateInfoRequestDto adminUpdateInfoRequestDto
+    ) {
+
+        // 1. 로그인한 관리자 조회
+        Admin foundLoginAdmin = adminRepository.findById(loginAdminId)
+                .orElseThrow(() -> new IllegalArgumentException("로그인한 관리자를 찾을 수 없습니다."));
+
+
+        // 4. 데이터 준비
+        String newName = adminUpdateInfoRequestDto.getName();
+        String newEmail = adminUpdateInfoRequestDto.getEmail();
+        String newPhone = adminUpdateInfoRequestDto.getPhone();
+
+        // 5. 수정하기
+        Admin updateAdmin = foundLoginAdmin.changeInfo(newName, newEmail, newPhone);
+
+        // 6. 수정 데이터 준비
+        String updateAdminName = updateAdmin.getName();
+        String updateAdminEmail = updateAdmin.getEmail();
+        String updateAdminPhone = updateAdmin.getPhone();
+        LocalDateTime updateAdminCreatedAt = updateAdmin.getCreatedAt();
+        LocalDateTime updateAdminUpdateAT = updateAdmin.getUpdatedAt();
+
+
+        // 7. dto 생성
+        AdminUpdateInfoResponseDto adminUpdateInfoResponseDto = new AdminUpdateInfoResponseDto(
+                updateAdminName,
+                updateAdminEmail,
+                updateAdminPhone,
+                updateAdminCreatedAt,
+                updateAdminUpdateAT
+        );
+
+        // 8. 반환
+        return adminUpdateInfoResponseDto;
+    }
+
+    /**
+     * 내 비밀번호 수정 API
+     */
+    @Transactional
+    public AdminResponseDto updatePassword(Long loginAdminId, AdminUpdatePasswordDto passwordDto) {
+
+        // 1. 비밀번호 데이터 준비
+        String password = passwordDto.getOldPassword();
+
+        // 2. 로그인한 관리자 조회
+        Admin foundLoginAdmin = adminRepository.findById(loginAdminId)
+                .orElseThrow(() -> new IllegalArgumentException("로그인한 관리자를 찾을 수 없습니다."));
+
+        // 3. 비밀번호 검증
+        if (!passwordEncoder.matches(password, foundLoginAdmin.getPassword())) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 틀렸습니다.");
         }
+        // 4. 새 비밀번호 데이터 준비
+        String encodedNewPassword = passwordEncoder.encode(passwordDto.getNewPassword());
 
-        // 3. 관리자 조회
-        Admin foundAdmin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 관리자를 찾을 수 없습니다."));
+        // 5. 새 비밀번호로 수정
+        Admin updatePasswordAdmin = foundLoginAdmin.changePassword(encodedNewPassword);
 
-        // 4. 삭제 처리
-        foundAdmin.softDelete();
+        // 6. 응답 생성
+        AdminResponseDto response = new AdminResponseDto("비밀번호 변경에 성공하였습니다.");
 
-        // 5. 응답 생성
-        AdminMessageResponseDto response = new AdminMessageResponseDto("삭제에 성공하였습니다.");
-
-        // 6. 응답 반환
+        // 8. 반환
         return response;
     }
+
+
 
 }
 

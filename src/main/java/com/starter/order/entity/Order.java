@@ -67,7 +67,6 @@ public class Order extends BaseEntity {
      * 주문 상태 수정 메서드
      * <li> 상태 변경 순서: 준비중 → 배송중 → 배송완료 </li>
      */
-    //TODO: 에러 ResponseStatusException으로 교체
     public void updateOrderStatus(){
 
         if(this.status==OrderStatus.PREPARING){
@@ -91,17 +90,16 @@ public class Order extends BaseEntity {
      *
      * @param cancelReason 취소 사유
      */
-    //TODO: 에러 ResponseStatusException으로 교체
     public void cancelOrder(String cancelReason){
 
         if(this.status==OrderStatus.PREPARING){
             this.status = OrderStatus.CANCELLED;
         }
         else if(this.status==OrderStatus.CANCELLED){
-            throw new IllegalStateException("이미 취소된 상태입니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 취소된 주문입니다.");
         }
         else{
-            throw new IllegalStateException("배송중, 배송완료 상태에서는 취소할 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "배송중 또는 배송완료된 주문은 취소할 수 없습니다.");
         }
 
         this.cancelReason = cancelReason;

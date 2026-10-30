@@ -1,6 +1,10 @@
 package com.starter.product.controller;
 
-import com.starter.product.dto.*;
+import com.starter.product.dto.request.ProductChangeRequest;
+import com.starter.product.dto.request.ProductChangeStockRequest;
+import com.starter.product.dto.request.ProductCreateRequest;
+import com.starter.product.dto.request.ProductStatusRequest;
+import com.starter.product.dto.response.*;
 import com.starter.product.entity.Product;
 import com.starter.product.service.ProductService;
 import jakarta.servlet.http.HttpSession;
