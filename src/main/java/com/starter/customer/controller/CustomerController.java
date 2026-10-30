@@ -1,6 +1,11 @@
 package com.starter.customer.controller;
 
-import com.starter.customer.dto.*;
+import com.starter.customer.dto.request.CustomerChangeRequest;
+import com.starter.customer.dto.request.CustomerStatusRequest;
+import com.starter.customer.dto.response.CustomerChangeResponse;
+import com.starter.customer.dto.response.CustomerDetailResponse;
+import com.starter.customer.dto.response.CustomerListResponse;
+import com.starter.customer.dto.response.CustomerStatusResponse;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.service.CustomerService;
 import org.springframework.http.HttpStatus;
@@ -26,13 +31,13 @@ public class CustomerController {
      *  고객 상세 조회 API
      */
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDetailResponseDto> detailCustomer(@PathVariable Long id) {
+    public ResponseEntity<CustomerDetailResponse> detailCustomer(@PathVariable Long id) {
 
         // 1. 서비스 처리
-        CustomerDetailResponseDto responseDto = this.customerService.detailCustomer(id);
+        CustomerDetailResponse responseDto = this.customerService.detailCustomer(id);
 
         // 2. Http
-        ResponseEntity<CustomerDetailResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<CustomerDetailResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
@@ -41,18 +46,18 @@ public class CustomerController {
      *  고객 리스트 조회 API
      */
     @GetMapping
-    public ResponseEntity<CustomerListResponseDto> listCustomers(
+    public ResponseEntity<CustomerListResponse> listCustomers(
             @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
             @RequestParam(required = false) Customer.CustomerStatus status) {
 
         // 1. 서비스 처리
-        CustomerListResponseDto responseDto = this.customerService.listCustomers(
+        CustomerListResponse responseDto = this.customerService.listCustomers(
                 keyword, page, size, sortBy, sortDirection, status);
 
         // 2. Http
-        ResponseEntity<CustomerListResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<CustomerListResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
@@ -61,14 +66,14 @@ public class CustomerController {
      *  고객 정보 수정 API
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<CustomerChangeResponseDto> changeCustomer(
-            @RequestBody CustomerChangeRequestDto requestDto, @PathVariable Long id) {
+    public ResponseEntity<CustomerChangeResponse> changeCustomer(
+            @RequestBody CustomerChangeRequest requestDto, @PathVariable Long id) {
 
         // 1. 서비스 처리
-        CustomerChangeResponseDto responseDto = this.customerService.changeCustomer(requestDto, id);
+        CustomerChangeResponse responseDto = this.customerService.changeCustomer(requestDto, id);
 
         // 2. Http
-        ResponseEntity<CustomerChangeResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<CustomerChangeResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
@@ -77,14 +82,14 @@ public class CustomerController {
      *  고객 상태 변경 API
      */
     @PatchMapping("/{id}/status")
-    public ResponseEntity<CustomerStatusResponseDto> statusCustomer(
-            @RequestBody CustomerStatusRequestDto requestDto, @PathVariable Long id) {
+    public ResponseEntity<CustomerStatusResponse> statusCustomer(
+            @RequestBody CustomerStatusRequest requestDto, @PathVariable Long id) {
 
         // 1. 서비스 처리
-        CustomerStatusResponseDto responseDto = this.customerService.statusCustomer(requestDto, id);
+        CustomerStatusResponse responseDto = this.customerService.statusCustomer(requestDto, id);
 
         // 2. Http
-        ResponseEntity<CustomerStatusResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        ResponseEntity<CustomerStatusResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;

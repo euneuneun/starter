@@ -1,16 +1,16 @@
-package com.starter.customer.dto;
+package com.starter.customer.dto.request;
 
 import com.starter.customer.entity.Customer;
 
-public class CustomerStatusRequestDto {
+public class CustomerStatusRequest {
 
     // 속성
     private Customer.CustomerStatus status;
 
     // 생성자
-    public CustomerStatusRequestDto() {
+    public CustomerStatusRequest() {
     }
-    public CustomerStatusRequestDto(Customer.CustomerStatus status) {
+    public CustomerStatusRequest(Customer.CustomerStatus status) {
         this.status = status;
     }
 
