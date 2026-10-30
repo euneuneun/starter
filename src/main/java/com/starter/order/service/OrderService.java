@@ -135,7 +135,7 @@ public class OrderService {
 
         // 1. 엔티티 준비
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(()->  new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
         OrderItem orderItem = orderItemRepository.findById(orderId)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
@@ -246,4 +246,20 @@ public class OrderService {
 
         return response;
     }
+
+    /**
+     * 주문 상태 수정 (준비중 -> 배송중 -> 배송완료)
+     *
+     * @param orderId
+     */
+    @Transactional
+    public void updateOrderStatus(Long orderId){
+
+        // 1. orderId에 해당하는 엔티티 찾기
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
+
+        order.updateOrderStatus();
+    }
+
 }

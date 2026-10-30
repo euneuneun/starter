@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class OrderController {
      *
      * @param adminId 로그인하고 있는 사용자(= CS 관리자)
      * @param request 주문 고객 ID, 주문 상품 ID, 주문 상품 수량
-     * @return body 없음
+     * @return 201 CREATED body 없음
      */
     @PostMapping
     public ResponseEntity<Void> createOrder(
@@ -53,7 +54,7 @@ public class OrderController {
      * 주문 상세 조회 API
      *
      * @param orderId 조회할 주문 ID
-     * @return
+     * @return  200 OK, 주문 상세 정보 (주문번호, 고객 정보, 주문 상품, 상태 등)
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrderDetail(
@@ -73,7 +74,7 @@ public class OrderController {
      * @param direction ASC, DESC
      * @param page 조회할 페이지 수
      * @param size 한 페이지에 들어가는 주문 수
-     * @return
+     * @return 200 OK, 주문 목록 (페이징 정보 포함)
      */
     @GetMapping
     public ResponseEntity<Page<OrderSummaryResponse>> getOrderList(
@@ -87,5 +88,19 @@ public class OrderController {
         Page<OrderSummaryResponse> response = orderService.getOrderList(keyword, status, sortBy, direction, page, size);
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 주문 상태 수정 API
+     *
+     * @param orderId 수정할 주문ID
+     * @return 200 OK body 없음
+     */
+    @PatchMapping("/{orderId}")
+    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId){
+
+        orderService.updateOrderStatus(orderId);
+
+        return ResponseEntity.ok().build();
     }
 }
