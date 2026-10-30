@@ -1,7 +1,7 @@
 package com.starter.product.service;
 
-import com.starter.admins.entity.Admin;
-import com.starter.admins.repository.AdminRepository;
+import com.starter.admin.entity.Admin;
+import com.starter.admin.repository.AdminRepository;
 import com.starter.product.dto.*;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;

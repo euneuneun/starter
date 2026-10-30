@@ -67,7 +67,7 @@ public class Admin extends BaseEntity {
     private String rejectReason;
 
     @Column(nullable = true)
-    private LocalDateTime approvedAt;
+    private LocalDateTime activatedAt;
 
     @Column(nullable = true)
     private LocalDateTime rejectedAt;
@@ -112,8 +112,17 @@ public class Admin extends BaseEntity {
     /**
      *  관리자 상태 수정 기능
      */
-    public Admin changeStatus(AdminStatus newStatus) {
+    public Admin changeStatus(AdminStatus newStatus,String rejectReason) {
         this.status = newStatus;
+
+        // 가입 승인, 거부 시 시간 기록, 거부 사유 절차
+        if (newStatus == AdminStatus.REJECTED) {
+            this.rejectReason = rejectReason;
+            this.rejectedAt = LocalDateTime.now();
+        } else if (newStatus == AdminStatus.ACTIVATE) {
+            this.activatedAt = LocalDateTime.now();
+        }
+
         return this;
     }
 }
