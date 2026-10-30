@@ -168,4 +168,23 @@ public class CustomerService {
         // 6. 응답 반환
         return responseDto;
     }
+    /**
+     *  고객 삭제
+     */
+    @Transactional
+    public void deleteCustomer(Long id) {
+        // 1. id로 고객 조회
+        Optional<Customer> optionalCustomer = this.customerRepository.findById(id);
+
+        // 2. 고객 존재 여부 확인, 없으면 예외처리
+        if(optionalCustomer.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
+        // 3. 객체 꺼내기
+        Customer foundCustomer = optionalCustomer.get();
+
+        // 4. 논리 삭제 처리
+        foundCustomer.deleteCustomer();
+    }
 }
