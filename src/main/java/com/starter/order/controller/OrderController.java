@@ -1,5 +1,6 @@
 package com.starter.order.controller;
 
+import com.starter.order.dto.request.OrderCancelRequest;
 import com.starter.order.dto.request.OrderCreateRequest;
 import com.starter.order.dto.response.OrderDetailResponse;
 import com.starter.order.dto.response.OrderSummaryResponse;
@@ -103,4 +104,23 @@ public class OrderController {
 
         return ResponseEntity.ok().build();
     }
+
+
+    /**
+     * 주문 취소 API
+     *
+     * @param orderId
+     * @return 200 OK body 없음
+     */
+    @PatchMapping("/{orderId}")
+    public ResponseEntity<Void> cancelOrder(
+            @PathVariable Long orderId,
+            @Valid @RequestBody OrderCancelRequest reqeust
+    ){
+
+        orderService.cancelOrder(orderId, reqeust.getCancelReason());
+
+        return ResponseEntity.ok().build();
+    }
+
 }
