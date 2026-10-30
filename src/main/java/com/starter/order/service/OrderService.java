@@ -5,20 +5,30 @@ import com.starter.admins.repository.AdminRepository;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
 import com.starter.order.dto.response.OrderDetailResponse;
+import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.entity.Order;
 import com.starter.order.entity.OrderItem;
+import com.starter.order.enums.OrderStatus;
 import com.starter.order.repository.OrderItemRepository;
 import com.starter.order.repository.OrderRepository;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -141,6 +151,97 @@ public class OrderService {
                 order.getStatus(),
                 order.getRegisterAdmin().getEmail(),
                 order.getRegisterAdmin().getRole()
+        );
+
+        return response;
+    }
+
+    /**
+     * 주문 목록 조회
+     *
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Page<OrderSummaryResponse> getOrderList(
+            String keyword,
+            OrderStatus status,
+            String sortBy,
+            Sort.Direction direction,
+            int page,
+            int size){
+
+        // 1. 정렬 및 페이징 처리
+        String sortProperty = switch(sortBy){
+            case "orderNumber" -> "order.orderNumber";
+            case "customerName" -> "order.customer.name";
+            case "produdctName" -> "productName";
+            case "quantity" -> "quantity";
+            case "totalPrice" -> "order.totalPrice";
+            case "createdAt" -> "order.createdAt";
+            case "status" -> "order.status";
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "정렬할 수 없는 항목입니다.");
+        };
+
+        Sort sort = Sort.by(direction, sortProperty);
+        Pageable pageable = PageRequest.of(Math.max(page-1, 0), size, sort);
+
+        // 2. 경우에 따른 조회
+        Page<OrderItem> orderItems;
+        // 2-1. keyword O, status O
+        if(StringUtils.hasText(keyword) && status != null)
+            orderItems = orderItemRepository.findByOrder_OrderNumberContainingAndOrder_StatusOrOrder_Customer_NameContainingAndOrder_Status(
+                    keyword, status, keyword, status, pageable);
+        else if (StringUtils.hasText(keyword) || status != null){
+            // 2-2. keyword O, status X
+            if(StringUtils.hasText(keyword))
+                orderItems = orderItemRepository.findByOrder_OrderNumberContainingOrOrder_Customer_NameContaining(
+                        keyword, keyword, pageable);
+            // 2-3 keyword X, status O
+            else
+                orderItems = orderItemRepository.findByOrder_Status(status, pageable);
+        }
+        else{
+            orderItems = orderItemRepository.findAll(pageable);
+        }
+
+        // 3. Page<entity> -> Page<dto>
+
+        // 3-1. page안에 있는 entity 하나씩 뽑아서 dto로 변환
+        List<OrderSummaryResponse> orderSummaryList = new ArrayList<>();
+
+        // orderItems (Page<OrderItem>)
+        // ├─ 데이터 목록       → getContent()        = [주문상품1, 주문상품2, ..., 주문상품10]
+        // ├─ 현재 페이지 번호  → getNumber()         = 1
+        // ├─ 페이지 크기       → getSize()           = 10
+        // ├─ 전체 데이터 개수  → getTotalElements()  = 37
+        // └─ 전체 페이지 수    → getTotalPages()     = 4
+        for(OrderItem orderItem :  orderItems.getContent()){
+
+            Order order = orderItem.getOrder();
+
+            // TODO: total_price OrderItem으로 변경?
+            OrderSummaryResponse orderSummaryResponse = new OrderSummaryResponse(
+                    order.getOrderId(),
+                    order.getOrderNumber(),
+                    order.getCustomer().getName(),
+                    orderItem.getProductName(),
+                    orderItem.getQuantity(),
+                    order.getTotalPrice(),
+                    order.getCreatedAt(),
+                    order.getStatus(),
+                    order.getRegisterAdmin().getName()
+            );
+
+            // 3-2. dto -> list <dto>
+            orderSummaryList.add(orderSummaryResponse);
+        }
+
+
+        // 3-3. list<dto> -> page<dto>
+        Page<OrderSummaryResponse> response = new PageImpl<>(
+                orderSummaryList,
+                orderItems.getPageable(),
+                orderItems.getTotalElements()
         );
 
         return response;
