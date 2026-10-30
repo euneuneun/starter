@@ -1159,6 +1159,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 ---
 
+
 ## 📦 상품 관리
 
 | Method | Endpoint | 기능 |
@@ -1169,7 +1170,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `PATCH` | `/products/{id}` | 상품 정보 수정 |
 | `PATCH` | `/products/{id}/stock` | 상품 재고 변경 |
 | `PATCH` | `/products/{id}/status` | 상품 상태 변경 |
-| `DELETE` | `/products/{id}` | 상품 삭제 |
+| `DELETE` | `/products/{id}` | 상품 삭제 (논리 삭제) |
 
 <details>
 <summary><code>POST</code> <b>/products</b> — 상품 등록</summary>
@@ -1179,15 +1180,17 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
 
 **Request Body**
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 상품명 |
-| `category` | String | 상품 카테고리 |
-| `price` | Long | 상품 가격 (0원 이상) |
-| `stock` | Integer | 상품 재고 (0개 이상) |
+| `name` | String | 상품명 (필수, 공백 불가, 100자 이하) |
+| `category` | String | 상품 카테고리 (필수, 공백 불가, 15자 이하) |
+| `price` | Long | 상품 가격 (필수, 0원 이상) |
+| `stock` | Integer | 상품 재고 (필수, 0개 이상) |
+| `status` | String | 상품 상태 (선택, `DISCONTINUED` 지정 시 단종 처리) |
 
 ```json
 {
@@ -1202,33 +1205,29 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 상품 고유 식별자 |
-| `name` | String | 상품명 |
-| `category` | String | 상품 카테고리 |
-| `price` | Long | 상품 가격 |
+| `name` | String | 등록된 상품명 |
+| `category` | String | 등록된 카테고리 |
+| `price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `stock` | Integer | 상품 재고 |
 | `status` | String | 상품 상태 |
-| `updatedAt` | LocalDateTime | 상품 등록일 |
 
 ```json
 {
-  "id": 1,
   "name": "레고세트",
   "category": "완구/취미",
-  "price": 89000,
+  "price": "89,000원",
   "stock": 32,
-  "status": "ON_SALE",
-  "updatedAt": "2026-10-27T19:28:47"
+  "status": "ON_SALE"
 }
 ```
 
-**Error Response** — `400`, `401`, `403`
+**Error Response** — `400`, `401`, `404`
 
 ```json
 {
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "인증되지 않은 사용자입니다.",
   "path": "/products"
 }
 ```
@@ -1240,35 +1239,36 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Query String**
 
-```
+```text
 ?page=1&size=10&sortBy=price&sortDirection=asc
 ```
 
 | 키 | 타입 | 설명 |
 | --- | --- | --- |
-| `keyword` | String | 상품명 검색 (선택) |
-| `page` | Integer | 페이지 번호 (기본값 1) |
-| `size` | Integer | 페이지당 개수 (기본값 10) |
-| `sortBy` | String | `price`, `stock`, `createdAt` |
-| `sortDirection` | String | `asc`, `desc` |
-| `category` | String | 카테고리 필터 (선택) |
-| `status` | String | 상품 상태 필터 (`ON_SALE`, `OUT_OF_STOCK`, `DISCONTINUED`) |
+| `keyword` | String | 상품명 부분 검색 (선택) |
+| `page` | Integer | 페이지 번호 (기본값 1, 1 이상) |
+| `size` | Integer | 페이지당 개수 (기본값 10, 1 이상) |
+| `sortBy` | String | `price`, `stock`, `createdAt` (기본값 `createdAt`) |
+| `sortDirection` | String | `asc`, `desc` (기본값 `desc`) |
+| `category` | String | 카테고리 일치 검색 (선택) |
+| `status` | String | 상품 상태 필터 (`ON_SALE`, `OUT_OF_STOCK`, `DISCONTINUED`, 선택) |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요구 없음
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `content` | Array | 조회된 상품 목록 |
+| `content` | Array | 조회된 상품 목록 (논리 삭제된 상품 제외) |
 | `content[].id` | Long | 상품 고유 식별자 |
 | `content[].name` | String | 상품명 |
 | `content[].category` | String | 상품 카테고리 |
-| `content[].price` | Long | 상품 가격 |
+| `content[].price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `content[].stock` | Integer | 상품 재고 |
 | `content[].status` | String | 상품 상태 |
 | `content[].createdAt` | LocalDateTime | 상품 등록일 |
-| `content[].adminName` | String | 상품 등록 관리자 이름 |
+| `content[].adminName` | String | 상품 등록 관리자 이름 (관리자 정보 없으면 null) |
+| `content[].adminEmail` | String | 상품 등록 관리자 이메일 (관리자 정보 없으면 null) |
 | `page` | Integer | 현재 페이지 번호 |
 | `size` | Integer | 페이지당 개수 |
 | `totalElements` | Long | 검색/필터 조건에 해당하는 상품 수 |
@@ -1281,21 +1281,23 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
       "id": 2,
       "name": "직소퍼즐",
       "category": "완구/취미",
-      "price": 25000,
+      "price": "25,000원",
       "stock": 46,
       "status": "ON_SALE",
       "createdAt": "2026-10-27T23:15:38",
-      "adminName": "김운영"
+      "adminName": "김운영",
+      "adminEmail": "manager@sparta.com"
     },
     {
       "id": 1,
       "name": "레고세트",
       "category": "완구/취미",
-      "price": 89000,
+      "price": "89,000원",
       "stock": 32,
       "status": "ON_SALE",
       "createdAt": "2026-10-27T23:13:17",
-      "adminName": "admin"
+      "adminName": "admin",
+      "adminEmail": "admin@sparta.com"
     }
   ],
   "page": 1,
@@ -1305,7 +1307,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`
+**Error Response** — `400`
 
 ```json
 {
@@ -1327,7 +1329,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 조회할 상품 ID |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요구 없음
 
 **Response** `200 OK`
 
@@ -1336,19 +1338,19 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `id` | Long | 상품 고유 식별자 |
 | `name` | String | 상품명 |
 | `category` | String | 상품 카테고리 |
-| `price` | Long | 상품 가격 |
+| `price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `stock` | Integer | 상품 재고 |
 | `status` | String | 상품 상태 |
 | `createdAt` | LocalDateTime | 상품 등록일 |
-| `adminName` | String | 상품 등록 관리자 이름 |
-| `adminEmail` | String | 상품 등록 관리자 이메일 |
+| `adminName` | String | 상품 등록 관리자 이름 (관리자 정보 없으면 null) |
+| `adminEmail` | String | 상품 등록 관리자 이메일 (관리자 정보 없으면 null) |
 
 ```json
 {
   "id": 1,
   "name": "레고세트",
   "category": "완구/취미",
-  "price": 89000,
+  "price": "89,000원",
   "stock": 32,
   "status": "ON_SALE",
   "createdAt": "2026-10-27T23:13:17",
@@ -1357,7 +1359,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1389,9 +1391,9 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 수정할 상품명 |
-| `category` | String | 수정할 상품 카테고리 |
-| `price` | Long | 수정할 상품 가격 |
+| `name` | String | 수정할 상품명 (선택, 공백 불가, 100자 이하) |
+| `category` | String | 수정할 상품 카테고리 (선택, 공백 불가, 15자 이하) |
+| `price` | Long | 수정할 상품 가격 (선택, 0원 이상) |
 
 ```json
 {
@@ -1408,7 +1410,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `id` | Long | 상품 고유 식별자 |
 | `name` | String | 수정된 상품명 |
 | `category` | String | 수정된 카테고리 |
-| `price` | Long | 수정된 가격 |
+| `price` | String | 수정된 가격 (천 단위 구분 및 원 표시) |
 | `updatedAt` | LocalDateTime | 상품 정보 수정일 |
 
 ```json
@@ -1416,12 +1418,12 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "id": 1,
   "name": "아이패드",
   "category": "전자기기",
-  "price": 790000,
+  "price": "790,000원",
   "updatedAt": "2026-10-27T23:29:41"
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1453,7 +1455,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `stock` | Integer | 변경할 재고 수량 (0 이상) |
+| `stock` | Integer | 변경할 재고 수량 (필수, 0 이상) |
 
 ```json
 {
@@ -1479,7 +1481,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1511,7 +1513,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `discontinued` | Boolean | `true`: 단종 처리, `false`: 단종 해제 |
+| `discontinued` | Boolean | 필수. `true`: 단종 처리, `false`: 단종 해제 |
 
 ```json
 {
@@ -1535,7 +1537,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `401`, `403`, `404`
+**Error Response** — `400`, `404`
 
 ```json
 {
@@ -1557,17 +1559,26 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 삭제할 상품 ID |
 
-**Request Headers / Body** — 없음
+**Request Headers / Body** — 별도 요구 없음
 
-**Response** `204 No Content` — 응답 헤더·바디 없음
+**Response** `200 OK`
 
-**Error Response** — `400`, `401`, `403`, `404`
+상품을 DB에서 물리적으로 삭제하지 않고 논리 삭제 처리합니다.
+삭제된 상품은 목록 조회에서 제외되며, 상세 조회 및 수정 시 조회되지 않은 상품으로 처리합니다.
 
 ```json
 {
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "요청하신 상품이 삭제되었습니다."
+}
+```
+
+**Error Response** — `400`, `404`
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "해당 데이터를 찾을 수 없습니다.",
   "path": "/products/999"
 }
 ```
