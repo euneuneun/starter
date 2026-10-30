@@ -48,6 +48,11 @@ public class CustomerService {
         // 3. 객체 꺼내기
         Customer foundCustomer = optionalCustomer.get();
 
+        // 3-1. 삭제된 고객인지 확인, 삭제된 고객이면 예외처리
+        if(foundCustomer.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
         // 4. entity -> dto 변환
         CustomerDetailResponse responseDto = new CustomerDetailResponse(
                 foundCustomer.getId(), foundCustomer.getName(),foundCustomer.getEmail(), foundCustomer.getPhone(), foundCustomer.getStatus(), foundCustomer.getCreatedAt());
@@ -96,23 +101,8 @@ public class CustomerService {
         // 4. 페이징 조건 만들기
         Pageable pageable = PageRequest.of(page-1, size, sort);
 
-        // 5. 키워드 유무에 따라 고객 목록 조회
-        Page<Customer> pageCustomer;
-
-        if(keyword == null || keyword.isBlank()) {
-            if(status == null) {
-                pageCustomer = customerRepository.findAll(pageable);
-            } else {
-                pageCustomer = customerRepository.findByStatus(status, pageable);
-            }
-        } else {
-            if(status == null) {
-                pageCustomer = customerRepository.findByNameContainingOrEmailContaining(keyword, keyword, pageable);
-            } else {
-                pageCustomer = customerRepository.findByNameContainingAndStatusOrEmailContainingAndStatus(
-                        keyword, status, keyword, status, pageable);
-            }
-        }
+        // 5. 검색 조건에 따라 고객 목록 조회
+        Page<Customer> pageCustomer = customerRepository.searchCustomers(keyword, status, pageable);
 
         // 6. entity -> dto 목록 변환
         List<CustomerDetailResponse> customerDtoList =
@@ -144,6 +134,11 @@ public class CustomerService {
 
         // 3. 객체 꺼내기
         Customer foundCustomer = optionalCustomer.get();
+
+        // 3-1. 삭제된 고객인지 확인, 삭제된 고객이면 예외처리
+        if(foundCustomer.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. RequestDto에서 변경할 정보 가져오기
         String name = requestDto.getName();
@@ -181,6 +176,11 @@ public class CustomerService {
         // 3. 객체 꺼내기
         Customer foundCustomer = optionalCustomer.get();
 
+        // 3-1. 삭제된 고객인지 확인, 삭제된 고객이면 예외처리
+        if(foundCustomer.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
         // 4. RequestDto에서 변경할 정보 가져오기
         Customer.CustomerStatus status = requestDto.getStatus();
 
@@ -216,6 +216,11 @@ public class CustomerService {
 
         // 3. 객체 꺼내기
         Customer foundCustomer = optionalCustomer.get();
+
+        // 3-1. 삭제된 고객인지 확인, 삭제된 고객이면 예외처리
+        if(foundCustomer.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. 논리 삭제 처리
         foundCustomer.deleteCustomer();
