@@ -1,4 +1,4 @@
-package com.starter.admin.dto.request;
+package com.starter.admin.dto.requestDto;
 
 import com.starter.admin.entity.Admin;
 import jakarta.validation.constraints.*;

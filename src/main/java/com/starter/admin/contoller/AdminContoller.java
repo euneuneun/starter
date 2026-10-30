@@ -1,6 +1,6 @@
 package com.starter.admin.contoller;
 
-import com.starter.admin.dto.request.*;
+import com.starter.admin.dto.requestDto.*;
 import com.starter.admin.dto.response.*;
 import com.starter.admin.service.AdminService;
 import com.starter.admin.entity.Admin;
