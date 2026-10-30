@@ -30,13 +30,13 @@ public class AdminContoller {
      */
 
     @PostMapping("/signup")
-    public ResponseEntity<AdminResponseDto> create(@RequestBody @Valid AdminCreateRequestDto requestDto) {
+    public ResponseEntity<AdminMessageResponseDto> create(@RequestBody @Valid AdminCreateRequestDto requestDto) {
 
         // 1. 서비스 처리 - 회원 생성
-        AdminResponseDto responseDto = this.adminService.createAdmin(requestDto);
+        AdminMessageResponseDto responseDto = this.adminService.createAdmin(requestDto);
 
         // 2. 생성 - ResponseEntity
-        ResponseEntity<AdminResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        ResponseEntity<AdminMessageResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
         // 3. 반환
         return response;

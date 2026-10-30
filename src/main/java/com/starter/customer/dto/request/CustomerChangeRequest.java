@@ -1,6 +1,6 @@
-package com.starter.customer.dto;
+package com.starter.customer.dto.request;
 
-public class CustomerChangeRequestDto {
+public class CustomerChangeRequest {
 
     // 속성
     private String name;
@@ -8,10 +8,10 @@ public class CustomerChangeRequestDto {
     private String phone;
 
     // 생성자
-    public CustomerChangeRequestDto() {
+    public CustomerChangeRequest() {
     }
 
-    public CustomerChangeRequestDto(String name, String email, String phone) {
+    public CustomerChangeRequest(String name, String email, String phone) {
         this.name = name;
         this.email = email;
         this.phone = phone;

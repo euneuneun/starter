@@ -1,19 +1,19 @@
-package com.starter.customer.dto;
+package com.starter.product.dto.response;
 
 import java.util.List;
 
-public class CustomerListResponseDto {
+public class ProductListResponse {
 
     // 속성
-    private final List<CustomerDetailResponseDto> content;
+    private final List<ProductDetailResponse> content;
     private Integer page;
     private Integer size;
     private Long totalElements;
     private Integer totalPages;
 
     // 생성자
-    public CustomerListResponseDto(List<CustomerDetailResponseDto> content, Integer page,
-                                   Integer size, Long totalElements, Integer totalPages) {
+    public ProductListResponse(List<ProductDetailResponse> content, Integer page,
+                               Integer size, Long totalElements, Integer totalPages) {
         this.content = content;
         this.page = page;
         this.size = size;
@@ -22,7 +22,7 @@ public class CustomerListResponseDto {
     }
 
     // 기능
-    public List<CustomerDetailResponseDto> getContent() {
+    public List<ProductDetailResponse> getContent() {
         return content;
     }
     public Integer getPage() {
@@ -37,4 +37,5 @@ public class CustomerListResponseDto {
     public Integer getTotalPages() {
         return totalPages;
     }
+
 }

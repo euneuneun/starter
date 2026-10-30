@@ -1,4 +1,4 @@
-package com.starter.product.dto;
+package com.starter.product.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.starter.product.entity.Product;

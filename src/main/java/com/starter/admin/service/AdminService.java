@@ -35,7 +35,7 @@ public class AdminService {
      */
 
     @Transactional
-    public AdminResponseDto createAdmin(AdminCreateRequestDto createRequestDto) {
+    public AdminMessageResponseDto createAdmin(AdminCreateRequestDto createRequestDto) {
         // 1. 데이터 준비
         String name = createRequestDto.getName();
         String email = createRequestDto.getEmail();
@@ -62,7 +62,7 @@ public class AdminService {
         Admin saveAdmin = adminRepository.save(admin);
 
         // 6. dto 생성 & 메세지 전달
-        AdminResponseDto responseDto = new AdminResponseDto("관리자 신청이 완료되었습니다.");
+        AdminMessageResponseDto responseDto = new AdminMessageResponseDto("관리자 신청이 완료되었습니다.");
 
         // 7. 반환
         return responseDto;
