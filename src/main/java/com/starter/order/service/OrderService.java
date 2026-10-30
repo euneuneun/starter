@@ -59,41 +59,35 @@ public class OrderService {
      * @param quantity 주문 수량
      * @return
      */
-    // TODO: 예외 ResponseStatusException으로 교체
     @Transactional
     public void createOrder(Long adminId, Long customerId, Long productId, Integer quantity){
 
         // 1.admmin, customer, product 객체 꺼내기
         Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(()-> new IllegalStateException("존재하지 않는 관리자입니다."));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."));
 
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(()-> new IllegalStateException("존재하지 않는 고객입니다."));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 고객입니다."));
 
         Product product =productRepository.findById(productId)
-                .orElseThrow(()-> new IllegalStateException("존재하지 않는 상품입니다."));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."));
 
         // 2. 검증
         // 2-1. 주문한 상품 상태 확인
         if(product.getStatus() == Product.ProductStatus.DISCONTINUED)
-            throw new IllegalStateException("현재 상품이 단종되어 주문할 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 단종되어 주문할 수 없습니다.");
         else if(product.getStatus() == Product.ProductStatus.OUT_OF_STOCK)
-            throw new IllegalStateException("현재 상품이 품절되어 주문할 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 품절되어 주문할 수 없습니다.");
 
         // 2-2. 주문 수량만큼 상품 재고 검증 처리
         if(product.getStock() < quantity)
-            throw new IllegalStateException("주문 수량이 재고 수량보다 많습니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "주문 수량이 재고 수량보다 많습니다.");
 
 
         // 3. 재고 차감
         // 3-1. 재고 계산
         Integer stock = product.getStock() - quantity;
-        // 3-2. 재고 변경에 따른 상품 상태 자동 전환 처리
-        if(stock==0){
-            // TODO: 상품 품절 메서드 생성 후 교체 예정
-            product.discontinued();
-        }
-        // 3-3. 재고 저장
+        // 3-2. 재고 저장 ( 품절 처리 자동 변환)
         product.changeStock(stock);
 
         // 4. 엔티티 생성
@@ -159,7 +153,13 @@ public class OrderService {
     /**
      * 주문 목록 조회
      *
-     * @return
+     * @param keyword 검색어 (주문번호, 고객명)
+     * @param status 주문 상태 필터 (준비중, 배송중, 배송완료, 취소됨)/ null 값 = 전체 상태
+     * @param sortBy 정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
+     * @param direction ASC, DESC
+     * @param page 조회할 페이지 수
+     * @param size 한 페이지에 들어가는 주문 수
+     * @return 페이징된 주문 목록
      */
     @Transactional(readOnly = true)
     public Page<OrderSummaryResponse> getOrderList(
@@ -219,7 +219,6 @@ public class OrderService {
 
             Order order = orderItem.getOrder();
 
-            // TODO: total_price OrderItem으로 변경?
             OrderSummaryResponse orderSummaryResponse = new OrderSummaryResponse(
                     order.getOrderId(),
                     order.getOrderNumber(),
