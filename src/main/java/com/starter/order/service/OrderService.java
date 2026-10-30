@@ -153,7 +153,13 @@ public class OrderService {
     /**
      * 주문 목록 조회
      *
-     * @return
+     * @param keyword 검색어 (주문번호, 고객명)
+     * @param status 주문 상태 필터 (준비중, 배송중, 배송완료, 취소됨)/ null 값 = 전체 상태
+     * @param sortBy 정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
+     * @param direction ASC, DESC
+     * @param page 조회할 페이지 수
+     * @param size 한 페이지에 들어가는 주문 수
+     * @return 페이징된 주문 목록
      */
     @Transactional(readOnly = true)
     public Page<OrderSummaryResponse> getOrderList(
@@ -213,7 +219,6 @@ public class OrderService {
 
             Order order = orderItem.getOrder();
 
-            // TODO: total_price OrderItem으로 변경?
             OrderSummaryResponse orderSummaryResponse = new OrderSummaryResponse(
                     order.getOrderId(),
                     order.getOrderNumber(),
