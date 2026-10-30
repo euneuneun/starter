@@ -1,19 +1,16 @@
 package com.starter.product.entity;
 
 import com.starter.admins.entity.Admin;
+import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "products")
-@EntityListeners(AuditingEntityListener.class)
-public class Product {
+public class Product extends BaseEntity {
 
     // Enum 정의
     // 상품 상태
@@ -46,16 +43,6 @@ public class Product {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private ProductStatus status;
-
-    @CreatedDate
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-    @Column(nullable = true)
-    private LocalDateTime deletedAt;
 
     // 생성자
     // JPA 기본 생성자
@@ -147,7 +134,7 @@ public class Product {
     }
     // 상품 삭제 처리
     public void deleteProduct() {
-        this.deletedAt = LocalDateTime.now();
+        super.softDelete();
     }
 
     // 응답에 필요한 getter
@@ -168,15 +155,6 @@ public class Product {
     }
     public ProductStatus getStatus() {
         return status;
-    }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
     }
     public Admin getAdmin() {
         return admin;
