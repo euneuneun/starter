@@ -133,7 +133,7 @@ public class Product {
             this.name = name;
         }
         if(category != null) {
-            if(category.isBlank() || category.length() > 100) {
+            if(category.isBlank() || category.length() > 15) {
                 throw new IllegalArgumentException("카테고리를 확인해주세요.");
             }
             this.category = category;

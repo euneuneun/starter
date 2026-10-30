@@ -102,4 +102,22 @@ public class ProductController {
         // 3. 반환
         return response;
     }
+    /**
+     *  상품 상태 변경 API
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ProductStatusResponseDto> statusProduct(
+            @RequestBody ProductStatusRequestDto requestDto, @PathVariable Long id) {
+
+        // 1. 서비스처리
+        ProductStatusResponseDto responseDto = this.productService.statusProduct(requestDto, id);
+
+        // 2. Http
+        ResponseEntity<ProductStatusResponseDto> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
+    }
+
+
 }
