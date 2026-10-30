@@ -87,12 +87,7 @@ public class OrderService {
         // 3. 재고 차감
         // 3-1. 재고 계산
         Integer stock = product.getStock() - quantity;
-        // 3-2. 재고 변경에 따른 상품 상태 자동 전환 처리
-        if(stock==0){
-            // TODO: 상품 품절 메서드 생성 후 교체 예정
-            product.discontinued();
-        }
-        // 3-3. 재고 저장
+        // 3-2. 재고 저장 ( 품절 처리 자동 변환)
         product.changeStock(stock);
 
         // 4. 엔티티 생성
