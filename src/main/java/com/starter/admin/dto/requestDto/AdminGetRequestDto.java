@@ -1,4 +1,4 @@
-package com.starter.admins.dto.requestDto;
+package com.starter.admin.dto.requestDto;
 
 import lombok.Getter;
 

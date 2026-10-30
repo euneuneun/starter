@@ -1,6 +1,6 @@
 package com.starter.order.entity;
 
-import com.starter.admins.entity.Admin;
+import com.starter.admin.entity.Admin;
 import com.starter.common.entity.BaseEntity;
 import com.starter.customer.entity.Customer;
 import com.starter.order.enums.OrderStatus;

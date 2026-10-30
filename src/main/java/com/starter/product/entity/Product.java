@@ -1,6 +1,6 @@
 package com.starter.product.entity;
 
-import com.starter.admins.entity.Admin;
+import com.starter.admin.entity.Admin;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

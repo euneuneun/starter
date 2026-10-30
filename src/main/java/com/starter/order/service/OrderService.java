@@ -1,7 +1,7 @@
 package com.starter.order.service;
 
-import com.starter.admins.entity.Admin;
-import com.starter.admins.repository.AdminRepository;
+import com.starter.admin.entity.Admin;
+import com.starter.admin.repository.AdminRepository;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
 import com.starter.order.dto.response.OrderDetailResponse;
