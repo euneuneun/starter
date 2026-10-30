@@ -2,7 +2,8 @@ package com.starter.product.service;
 
 import com.starter.admin.entity.Admin;
 import com.starter.admin.repository.AdminRepository;
-import com.starter.product.dto.*;
+import com.starter.product.dto.request.*;
+import com.starter.product.dto.response.*;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
 import org.springframework.data.domain.Page;
