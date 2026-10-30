@@ -96,7 +96,7 @@ public class OrderController {
      * @param orderId 수정할 주문ID
      * @return 200 OK body 없음
      */
-    @PatchMapping("/{orderId}")
+    @PatchMapping("/{orderId}/status")
     public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId){
 
         orderService.updateOrderStatus(orderId);
