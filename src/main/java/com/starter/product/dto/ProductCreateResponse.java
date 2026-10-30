@@ -1,30 +1,26 @@
 package com.starter.product.dto;
 
-import java.time.LocalDateTime;
+import com.starter.product.entity.Product;
 
-public class ProductChangeResponseDto {
+public class ProductCreateResponse {
 
     // 속성
-    private Long id;
     private String name;
     private String category;
     private String price;
-    private LocalDateTime updatedAt;
+    private Integer stock;
+    private Product.ProductStatus status;
 
     // 생성자
-    public ProductChangeResponseDto(Long id, String name, String category,
-                                    Long price, LocalDateTime updatedAt) {
-        this.id = id;
+    public ProductCreateResponse(String name, String category, Long price, Integer stock, Product.ProductStatus status) {
         this.name = name;
         this.category = category;
         this.price = String.format("%,d원", price);
-        this.updatedAt = updatedAt;
+        this.stock = stock;
+        this.status = status;
     }
 
     // 기능
-    public Long getId() {
-        return id;
-    }
     public String getName() {
         return name;
     }
@@ -34,7 +30,10 @@ public class ProductChangeResponseDto {
     public String getPrice() {
         return price;
     }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+    public Integer getStock() {
+        return stock;
+    }
+    public Product.ProductStatus getStatus() {
+        return status;
     }
 }

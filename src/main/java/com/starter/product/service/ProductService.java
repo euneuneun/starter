@@ -35,17 +35,17 @@ public class ProductService {
      *  상품등록
      */
     @Transactional
-    public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto, Long adminId) {
+    public ProductCreateResponse createProduct(ProductCreateRequest productCreateRequest, Long adminId) {
         // 1. 데이터 준비
-        String name = productCreateRequestDto.getName();
-        String category = productCreateRequestDto.getCategory();
-        Long price = productCreateRequestDto.getPrice();
-        Integer stock = productCreateRequestDto.getStock();
+        String name = productCreateRequest.getName();
+        String category = productCreateRequest.getCategory();
+        Long price = productCreateRequest.getPrice();
+        Integer stock = productCreateRequest.getStock();
         // 1-1. 검증
         if(stock == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "stock은 null을 입력할 수 없습니다.");
         }
-        Product.ProductStatus status = productCreateRequestDto.getStatus();
+        Product.ProductStatus status = productCreateRequest.getStatus();
 
         // 2. 관리자 id로 조회
         Optional<Admin> optionalAdmin = adminRepository.findById(adminId);
@@ -65,7 +65,7 @@ public class ProductService {
         Product savedProduct = this.productRepository.save(newProduct);
 
         // 4. dto 생성해서 entity -> dto 변환
-        ProductCreateResponseDto responseDto = new ProductCreateResponseDto(
+        ProductCreateResponse responseDto = new ProductCreateResponse(
                 savedProduct.getName(), savedProduct.getCategory(), savedProduct.getPrice(),
                 savedProduct.getStock(), savedProduct.getStatus());
 
@@ -76,7 +76,7 @@ public class ProductService {
      *  상품 상세 조회
      */
     @Transactional(readOnly = true)
-    public ProductDetailResponseDto detailProduct(Long id) {
+    public ProductDetailResponse detailProduct(Long id) {
         // 1. id로 상품 조회
         Optional<Product> optionalProduct = this.productRepository.findById(id);
 
@@ -88,8 +88,13 @@ public class ProductService {
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
 
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
+
         // 4. entity -> dto 변환
-        ProductDetailResponseDto responseDto = new ProductDetailResponseDto(foundProduct);
+        ProductDetailResponse responseDto = new ProductDetailResponse(foundProduct);
 
         // 5. 응답 반환
         return responseDto;
@@ -98,7 +103,7 @@ public class ProductService {
      *  상품 재고 변경
      */
     @Transactional
-    public ProductChangeStockResponseDto changeStock(ProductChangeStockRequestDto requestDto, Long id) {
+    public ProductChangeStockResponse changeStock(ProductChangeStockRequest requestDto, Long id) {
         // 1. id로 상품 조회
         Optional<Product> optionalProduct = this.productRepository.findById(id);
 
@@ -109,6 +114,11 @@ public class ProductService {
 
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
+
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. RequestDto 에서 변경할 재고 가져오기
         Integer stock = requestDto.getStock();
@@ -125,7 +135,7 @@ public class ProductService {
         productRepository.flush();
 
         // 5. entity -> dto 변환
-        ProductChangeStockResponseDto responseDto = new ProductChangeStockResponseDto(
+        ProductChangeStockResponse responseDto = new ProductChangeStockResponse(
                 foundProduct.getId(), foundProduct.getStock(), foundProduct.getStatus(), foundProduct.getUpdatedAt());
 
         // 5. 응답 반환
@@ -135,7 +145,7 @@ public class ProductService {
      *  상품 리스트 조회
      */
     @Transactional(readOnly = true)
-    public ProductListResponseDto listProducts(
+    public ProductListResponse listProducts(
             String keyword, Integer page, Integer size, String sortBy,
             String sortDirection, String category, Product.ProductStatus status) {
         // 1. 검증
@@ -180,13 +190,13 @@ public class ProductService {
         Page<Product> pageProduct = productRepository.searchProducts(keyword, category, status,pageable);
 
         // 6. entity -> dto 목록 변환
-        List<ProductDetailResponseDto> productDtoList =
+        List<ProductDetailResponse> productDtoList =
                 pageProduct.getContent().stream()
-                        .map(product -> new ProductDetailResponseDto(product))
+                        .map(product -> new ProductDetailResponse(product))
                         .toList();
 
         // 7. 응답 dto
-        ProductListResponseDto responseDto = new ProductListResponseDto(
+        ProductListResponse responseDto = new ProductListResponse(
                 productDtoList, page, size, pageProduct.getTotalElements(), pageProduct.getTotalPages());
 
         // 8. 응답 반환
@@ -196,7 +206,7 @@ public class ProductService {
      *  상품 정보 수정
      */
     @Transactional
-    public ProductChangeResponseDto changeProduct(ProductChangeRequestDto requestDto, Long id) {
+    public ProductChangeResponse changeProduct(ProductChangeRequest requestDto, Long id) {
 
         // 1. id로 상품 조회
         Optional<Product> optionalProduct = this.productRepository.findById(id);
@@ -208,6 +218,11 @@ public class ProductService {
 
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
+
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. RequestDto에서 변경할 정보 가져오기
         String name = requestDto.getName();
@@ -221,7 +236,7 @@ public class ProductService {
         productRepository.flush();
 
         // 5. entity -> dto 변환
-        ProductChangeResponseDto responseDto = new ProductChangeResponseDto(
+        ProductChangeResponse responseDto = new ProductChangeResponse(
                 foundProduct.getId(), foundProduct.getName(), foundProduct.getCategory(),
                 foundProduct.getPrice(), foundProduct.getUpdatedAt());
 
@@ -232,7 +247,7 @@ public class ProductService {
      *  상품 상태 변경
      */
     @Transactional
-    public ProductStatusResponseDto statusProduct(ProductStatusRequestDto requestDto, Long id) {
+    public ProductStatusResponse statusProduct(ProductStatusRequest requestDto, Long id) {
 
         // 1. id로 상품 조회
         Optional<Product> optionalProduct = this.productRepository.findById(id);
@@ -244,6 +259,11 @@ public class ProductService {
 
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
+
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. RequestDto에서 변경할 정보 가져오기
         Boolean discontinued = requestDto.getDiscontinued();
@@ -264,7 +284,7 @@ public class ProductService {
         productRepository.flush();
 
         // 6. entity -> dto 변환
-        ProductStatusResponseDto responseDto = new ProductStatusResponseDto(
+        ProductStatusResponse responseDto = new ProductStatusResponse(
                 foundProduct.getId(), foundProduct.getStatus(), foundProduct.getUpdatedAt()
         );
 
@@ -287,6 +307,11 @@ public class ProductService {
 
         // 3. 객체 꺼내기
         Product foundProduct = optionalProduct.get();
+
+        // 3-1. 삭제된 상품인지 확인, 삭제된 상품이면 예외처리
+        if(foundProduct.getDeletedAt() != null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 데이터를 찾을 수 없습니다.");
+        }
 
         // 4. 논리 삭제 처리
         foundProduct.deleteProduct();

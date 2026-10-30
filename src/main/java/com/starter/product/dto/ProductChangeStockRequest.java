@@ -2,17 +2,17 @@ package com.starter.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ProductChangeStockRequestDto {
+public class ProductChangeStockRequest {
 
     // 속성
     @JsonProperty("stock") //Jackson 필드 접근 설정
     private Integer stock;
 
     // 생성자
-    public ProductChangeStockRequestDto() {
+    public ProductChangeStockRequest() {
     }
 
-    public ProductChangeStockRequestDto(Integer stock) {
+    public ProductChangeStockRequest(Integer stock) {
         this.stock = stock;
     }
 

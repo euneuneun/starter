@@ -1,6 +1,6 @@
 package com.starter.product.dto;
 
-public class ProductChangeRequestDto {
+public class ProductChangeRequest {
 
     // 속성
     private String name;
@@ -8,9 +8,9 @@ public class ProductChangeRequestDto {
     private Long price;
 
     // 생성자
-    public ProductChangeRequestDto() {
+    public ProductChangeRequest() {
     }
-    public ProductChangeRequestDto(String name, String category, Long price) {
+    public ProductChangeRequest(String name, String category, Long price) {
         this.name = name;
         this.category = category;
         this.price = price;
