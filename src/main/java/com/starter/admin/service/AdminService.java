@@ -35,7 +35,7 @@ public class AdminService {
      */
 
     @Transactional
-    public AdminResponseDto createAdmin(AdminCreateRequestDto createRequestDto) {
+    public AdminMessageResponseDto createAdmin(AdminCreateRequestDto createRequestDto) {
         // 1. 데이터 준비
         String name = createRequestDto.getName();
         String email = createRequestDto.getEmail();
@@ -62,7 +62,7 @@ public class AdminService {
         Admin saveAdmin = adminRepository.save(admin);
 
         // 6. dto 생성 & 메세지 전달
-        AdminResponseDto responseDto = new AdminResponseDto("관리자 신청이 완료되었습니다.");
+        AdminMessageResponseDto responseDto = new AdminMessageResponseDto("관리자 신청이 완료되었습니다.");
 
         // 7. 반환
         return responseDto;
@@ -397,6 +397,36 @@ public class AdminService {
         // 9. 반환
         return adminUpdateStatusResponseDto;
     }
+
+    /**
+     * 관리자 삭제 API
+     */
+
+    @Transactional
+    public AdminMessageResponseDto deleteAdmin(Long loginAdminId, Long adminId) {
+        // 1. 로그인한 관리자 조회
+        Admin foundLoginAdmin = adminRepository.findById(loginAdminId)
+                .orElseThrow(() -> new IllegalArgumentException("로그인한 관리자를 찾을 수 없습니다."));
+
+        // 2. 권한 검증(슈퍼 관리자만 상태 변경 가능)
+        if (foundLoginAdmin.getRole() != Admin.AdminRole.SUPER_ADMIN) {
+            throw new IllegalArgumentException("슈퍼 관리자만 변경할 수 있습니다.");
+        }
+
+        // 3. 관리자 조회
+        Admin foundAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 관리자를 찾을 수 없습니다."));
+
+        // 4. 삭제 처리
+        foundAdmin.softDelete();
+
+        // 5. 응답 생성
+        AdminMessageResponseDto response = new AdminMessageResponseDto("삭제에 성공하였습니다.");
+
+        // 6. 응답 반환
+        return response;
+    }
+
 }
 
 
