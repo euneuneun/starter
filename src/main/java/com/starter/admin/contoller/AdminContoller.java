@@ -1,11 +1,9 @@
-package com.starter.admins.contoller;
+package com.starter.admin.contoller;
 
-import com.starter.admins.dto.requestDto.AdminCreateRequestDto;
-import com.starter.admins.dto.requestDto.AdminLoginRequestDto;
-import com.starter.admins.dto.requestDto.AdminUpdateRequestDto;
-import com.starter.admins.dto.responseDto.*;
-import com.starter.admins.dto.service.AdminService;
-import com.starter.admins.entity.Admin;
+import com.starter.admin.dto.requestDto.*;
+import com.starter.admin.dto.responseDto.*;
+import com.starter.admin.service.AdminService;
+import com.starter.admin.entity.Admin;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -94,8 +92,12 @@ public class AdminContoller {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortOrder,
             @RequestParam(required = false) Admin.AdminRole role,
-            @RequestParam(required = false) Admin.AdminStatus status
+            @RequestParam(required = false) Admin.AdminStatus status,
+            HttpSession session
     ) {
+        // 1. 세션에 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
+
         // 1. 서비스 처리 요청 - 회원 목록 조회
         AdminListResponseDto responseDto = this.adminService.getAdminList(
                 keyword,
@@ -104,7 +106,8 @@ public class AdminContoller {
                 sortBy,
                 sortOrder,
                 role,
-                status
+                status,
+                loginAdminId
         );
 
         // 2. 응답 생성
@@ -115,38 +118,103 @@ public class AdminContoller {
     }
 
     /**
-     *  관리자 상세 조회 API
+     * 관리자 상세 조회 API
      */
 
     @GetMapping("/{adminId}")
-    public ResponseEntity<AdminGetDeatilResponseDto> getAdminDetail(@PathVariable Long adminId) {
+    public ResponseEntity<AdminGetDeatilResponseDto> getAdminDetail(
+            @PathVariable Long adminId,
+            HttpSession session
+            ) {
 
-        // 1. 서비스 처리 - 관리자 상세 조회
-        AdminGetDeatilResponseDto responseDto = this.adminService.getAdminDetail(adminId);
+        // 1. 세션에 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
 
-        // 2. 응답 생성
+        // 2. 서비스 처리 - 관리자 상세 조회
+        AdminGetDeatilResponseDto responseDto = this.adminService.getAdminDetail(loginAdminId, adminId);
+
+        // 3. 응답 생성
         ResponseEntity<AdminGetDeatilResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        // 3. 반환
+        // 4. 반환
         return result;
     }
 
     /**
-     *  관리자 정보 수정 API
+     * 관리자 정보 수정 API
      */
 
     @PatchMapping("/{adminId}")
-    public ResponseEntity<AdminUpdateResponseDto> patchAdmin(@PathVariable Long adminId, @RequestBody AdminUpdateRequestDto adminUpdateRequestDto) {
+    public ResponseEntity<AdminUpdateResponseDto> updateAdminInfo(
+            @PathVariable Long adminId,
+            @RequestBody AdminUpdateInfoRequestDto adminUpdateInfoRequestDto,
+            HttpSession session
+    ) {
+        // 1. 세션에 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
 
-        // 1. 서비스 처리 - 관리자 정보 수정
-        AdminUpdateResponseDto responseDto = this.adminService.patchAdmin(adminId, adminUpdateRequestDto);
+        // 2. 서비스 처리 - 관리자 정보 수정
+        AdminUpdateResponseDto responseDto = this.adminService.updateAdminInfo(
+                loginAdminId,
+                adminId,
+                adminUpdateInfoRequestDto);
 
-        // 2. 응답 생성
+        // 3. 응답 생성
         ResponseEntity<AdminUpdateResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
 
-        // 3.반환
+        // 4.반환
         return result;
 
+    }
+
+    /**
+     * 관리자 역할 변경 API
+     */
+    @PatchMapping("{adminId}/role")
+    public ResponseEntity<AdminUpdateRoleResponseDto> updateAminRole(
+            @PathVariable Long adminId,
+            @RequestBody AdminUpdateRoleRequestDto adminUpdateRoleRequestDto,
+            HttpSession session
+    ) {
+        // 1. 세션에 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
+
+        // 2. 서비스 처리 - 관리자 역할 수정
+        AdminUpdateRoleResponseDto responseDto = this.adminService.updateAdminRole(
+                loginAdminId,
+                adminId,
+                adminUpdateRoleRequestDto);
+
+        // 3. 응답 생성
+        ResponseEntity<AdminUpdateRoleResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 4. 반환
+        return result;
+    }
+
+    /**
+     * 관리자 상태 변경
+     */
+    @PatchMapping("{adminId}/status")
+    public ResponseEntity<AdminUpdateStatusResponseDto> updateAminRole(
+            @PathVariable Long adminId,
+            @RequestBody AdminUpdateStatusRequestDto adminUpdateStatusRequestDto,
+            HttpSession session
+    ) {
+        // 1. 세션에 로그인한 관리자 ID 추출
+        Long loginAdminId = (Long) session.getAttribute("ADMIN_ID");
+
+        // 2. 서비스 처리 - 관리자 역할 수정
+        AdminUpdateStatusResponseDto responseDto = this.adminService.updateAdminStatus(
+                loginAdminId,
+                adminId,
+                adminUpdateStatusRequestDto);
+
+        // 3. 응답 생성
+        ResponseEntity<AdminUpdateStatusResponseDto> result = new ResponseEntity<>(responseDto, HttpStatus.OK);
+
+        // 4. 반환
+        return result;
     }
 
 

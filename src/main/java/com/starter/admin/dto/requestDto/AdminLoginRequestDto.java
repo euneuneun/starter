@@ -1,4 +1,4 @@
-package com.starter.admins.dto.requestDto;
+package com.starter.admin.dto.requestDto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

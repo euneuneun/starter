@@ -1,7 +1,7 @@
-package com.starter.admins.dto.responseDto;
+package com.starter.admin.dto.responseDto;
 
 
-import com.starter.admins.entity.Admin;
+import com.starter.admin.entity.Admin;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
