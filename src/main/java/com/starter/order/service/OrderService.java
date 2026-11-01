@@ -205,24 +205,11 @@ public class OrderService {
         Sort sort = Sort.by(direction, sortProperty);
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
 
-        // 2. 경우에 따른 조회
-        Page<OrderItem> orderItems;
-        // 2-1. keyword O, status O
-        if (StringUtils.hasText(keyword) && status != null) {
-            orderItems = orderItemRepository.findByOrder_OrderNumberContainingAndOrder_StatusOrOrder_Customer_NameContainingAndOrder_Status(
-                    keyword, status, keyword, status, pageable);
-        } else if (StringUtils.hasText(keyword) || status != null) {
-            // 2-2. keyword O, status X
-            if (StringUtils.hasText(keyword)) {
-                orderItems = orderItemRepository.findByOrder_OrderNumberContainingOrOrder_Customer_NameContaining(
-                        keyword, keyword, pageable);
-            // 2-3 keyword X, status O
-            } else {
-                orderItems = orderItemRepository.findByOrder_Status(status, pageable);
-            }
-        } else {
-            orderItems = orderItemRepository.findAll(pageable);
-        }
+        // 2. 조회
+        // 2-1. 빈 검색어("")는 null로 바꿔서 검색어 조건 생략
+        String searchKeyword = StringUtils.hasText(keyword) ? keyword : null;
+        // 2-2. 검색어, 상태 조건으로 조회 (null인 조건은 쿼리에서 생략)
+        Page<OrderItem> orderItems = orderItemRepository.searchOrders(searchKeyword, status, pageable);
 
         // 3. Page<entity> -> Page<dto>
 
