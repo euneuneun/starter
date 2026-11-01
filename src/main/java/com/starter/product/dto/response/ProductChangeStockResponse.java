@@ -1,3 +1,4 @@
+
 package com.starter.product.dto.response;
 
 import com.starter.product.entity.Product;
@@ -6,33 +7,58 @@ import java.time.LocalDateTime;
 
 public class ProductChangeStockResponse {
 
-    // 속성
-    private Long id;
+    private Long productId;
     private Integer stock;
-    private Product.ProductStatus status;
+    private Product.ProductStatus productStatus;
     private LocalDateTime updatedAt;
-
-    // 생성자
+    /**
+     * 상품 재고 변경 응답 DTO를 생성한다.
+     *
+     * @param productId 상품 ID
+     * @param stock 상품 재고
+     * @param productStatus 상품 상태
+     * @param updatedAt 최종 수정 일시
+     */
     public ProductChangeStockResponse(
-            Long id, Integer stock, Product.ProductStatus status, LocalDateTime updatedAt) {
-        this.id = id;
+            Long productId,
+            Integer stock,
+            Product.ProductStatus productStatus,
+            LocalDateTime updatedAt) {
+        this.productId = productId;
         this.stock = stock;
-        this.status = status;
+        this.productStatus = productStatus;
         this.updatedAt = updatedAt;
     }
-
-    // 기능
-    public Long getId() {
-        return id;
+    /**
+     * 상품 ID를 반환한다.
+     *
+     * @return 상품 ID
+     */
+    public Long getProductId() {
+        return productId;
     }
+    /**
+     * 상품 재고를 반환한다.
+     *
+     * @return 상품 재고
+     */
     public Integer getStock() {
         return stock;
     }
-    public Product.ProductStatus getStatus() {
-        return status;
+    /**
+     * 상품 상태를 반환한다.
+     *
+     * @return 상품 상태
+     */
+    public Product.ProductStatus getProductStatus() {
+        return productStatus;
     }
+    /**
+     * 최종 수정 일시를 반환한다.
+     *
+     * @return 최종 수정 일시
+     */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-
 }

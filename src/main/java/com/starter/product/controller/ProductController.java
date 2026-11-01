@@ -1,3 +1,4 @@
+
 package com.starter.product.controller;
 
 import com.starter.product.dto.request.ProductChangeRequest;
@@ -19,139 +20,202 @@ import java.util.Map;
 @RequestMapping("/products")
 public class ProductController {
 
-    // 속성
     private final ProductService productService;
 
-    // 생성자
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-
-    // 기능
     /**
-     *  상품등록 API
+     * 상품을 등록한다.
+     *
+     * @param createRequestDto 상품 등록 요청 데이터
+     * @param session 관리자 로그인 세션
+     * @return 등록된 상품 정보
+     * @throws ResponseStatusException 인증되지 않은 경우
      */
     @PostMapping
     public ResponseEntity<ProductCreateResponse> createProduct(
-            @RequestBody ProductCreateRequest createRequestDto, HttpSession session) {
+            @RequestBody ProductCreateRequest createRequestDto,
+            HttpSession session) {
 
-        // 1. 관리자 id 가져오기
+        // 1. 관리자 ID 가져오기
         Long adminId = (Long) session.getAttribute("ADMIN_ID");
 
-        // 1-1. 로그인 여부 검증
-        if(adminId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+        // 2. 로그인 여부 검증
+        if (adminId == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Unauthorized user");
         }
 
-        // 2. 서비스 처리
-        ProductCreateResponse responseDto = this.productService.createProduct(createRequestDto, adminId);
+        // 3. 서비스 처리
+        ProductCreateResponse responseDto =
+                productService.createProduct(createRequestDto, adminId);
 
-        // 3. Http
-        ResponseEntity<ProductCreateResponse> response = new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        // 4. HTTP 응답 생성
+        ResponseEntity<ProductCreateResponse> response =
+                new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 
-        // 4. 반환
+        // 5. 반환
         return response;
     }
     /**
-     *  상품 상세 조회 API
+     * 상품 상세 정보를 조회한다.
+     *
+     * @param productId 조회할 상품 ID
+     * @return 상품 상세 정보
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDetailResponse> detailProduct(@PathVariable Long id) {
+    public ResponseEntity<ProductDetailResponse> detailProduct(
+            @PathVariable("id") Long productId) {
 
         // 1. 서비스 처리
-        ProductDetailResponse responseDto = this.productService.detailProduct(id);
+        ProductDetailResponse responseDto =
+                productService.detailProduct(productId);
 
-        // 2. Http
-        ResponseEntity<ProductDetailResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        // 2. HTTP 응답 생성
+        ResponseEntity<ProductDetailResponse> response =
+                new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
     }
     /**
-     *  상품 재고 변경 API
+     * 상품 재고를 변경한다.
+     *
+     * @param requestDto 상품 재고 변경 요청 데이터
+     * @param productId 변경할 상품 ID
+     * @return 변경된 상품 재고 정보
      */
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<ProductChangeStockResponse> changeStock(
-            @RequestBody ProductChangeStockRequest requestDto, @PathVariable Long id) {
-        System.out.println("상품 재고 변경 Controller 진입");
-        // 1. 서비스 처리
-        ProductChangeStockResponse responseDto = this.productService.changeStock(requestDto, id);
+    public ResponseEntity<ProductChangeStockResponse> changeProductStock(
+            @RequestBody ProductChangeStockRequest requestDto,
+            @PathVariable("id") Long productId) {
 
-        // 2. Http
-        ResponseEntity<ProductChangeStockResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        System.out.println("상품 재고 변경 Controller 진입");
+
+        // 1. 서비스 처리
+        ProductChangeStockResponse responseDto =
+                productService.changeStock(requestDto, productId);
+
+        // 2. HTTP 응답 생성
+        ResponseEntity<ProductChangeStockResponse> response =
+                new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
     }
     /**
-     *  상품 리스트 조회 API
+     * 상품 목록을 조회한다.
+     *
+     * @param keyword 상품 검색 키워드
+     * @param page 조회할 페이지 번호
+     * @param size 페이지당 상품 수
+     * @param sortBy 정렬 기준
+     * @param sortDirection 정렬 방향
+     * @param productCategory 상품 카테고리
+     * @param productStatus 상품 상태 필터
+     * @return 상품 목록과 페이징 정보
      */
     @GetMapping
     public ResponseEntity<ProductListResponse> listProducts(
-            @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDirection, @RequestParam(required = false) String category,
-            @RequestParam(required = false) Product.ProductStatus status) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection,
+            @RequestParam(
+                    name = "category",
+                    required = false) String productCategory,
+            @RequestParam(
+                    name = "status",
+                    required = false) Product.ProductStatus productStatus) {
 
         // 1. 서비스 처리
-        ProductListResponse responseDto = this.productService.listProducts(
-                keyword, page, size, sortBy, sortDirection, category, status);
+        ProductListResponse responseDto = productService.listProducts(
+                keyword,
+                page,
+                size,
+                sortBy,
+                sortDirection,
+                productCategory,
+                productStatus);
 
-        // 2. Http
-        ResponseEntity<ProductListResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        // 2. HTTP 응답 생성
+        ResponseEntity<ProductListResponse> response =
+                new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
     }
     /**
-     *  상품 정보 수정 API
+     * 상품 기본 정보를 수정한다.
+     *
+     * @param requestDto 상품 정보 수정 요청 데이터
+     * @param productId 수정할 상품 ID
+     * @return 수정된 상품 정보
      */
     @PatchMapping("/{id}")
     public ResponseEntity<ProductChangeResponse> changeProduct(
-            @RequestBody ProductChangeRequest requestDto, @PathVariable Long id) {
+            @RequestBody ProductChangeRequest requestDto,
+            @PathVariable("id") Long productId) {
 
         // 1. 서비스 처리
-        ProductChangeResponse responseDto = this.productService.changeProduct(requestDto, id);
+        ProductChangeResponse responseDto =
+                productService.changeProduct(requestDto, productId);
 
-        // 2. Http
-        ResponseEntity<ProductChangeResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        // 2. HTTP 응답 생성
+        ResponseEntity<ProductChangeResponse> response =
+                new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
     }
     /**
-     *  상품 상태 변경 API
+     * 상품 상태를 변경한다.
+     *
+     * @param requestDto 상품 상태 변경 요청 데이터
+     * @param productId 상태를 변경할 상품 ID
+     * @return 변경된 상품 상태 정보
      */
     @PatchMapping("/{id}/status")
     public ResponseEntity<ProductStatusResponse> statusProduct(
-            @RequestBody ProductStatusRequest requestDto, @PathVariable Long id) {
+            @RequestBody ProductStatusRequest requestDto,
+            @PathVariable("id") Long productId) {
 
-        // 1. 서비스처리
-        ProductStatusResponse responseDto = this.productService.statusProduct(requestDto, id);
+        // 1. 서비스 처리
+        ProductStatusResponse responseDto =
+                productService.statusProduct(requestDto, productId);
 
-        // 2. Http
-        ResponseEntity<ProductStatusResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
+        // 2. HTTP 응답 생성
+        ResponseEntity<ProductStatusResponse> response =
+                new ResponseEntity<>(responseDto, HttpStatus.OK);
 
         // 3. 반환
         return response;
     }
     /**
-     *  상품 삭제 API
+     * 상품을 삭제한다.
+     *
+     * @param productId 삭제할 상품 ID
+     * @return 상품 삭제 결과 메시지
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteProduct(
+            @PathVariable("id") Long productId) {
 
         // 1. 서비스 처리
-        this.productService.deleteProduct(id);
+        productService.deleteProduct(productId);
 
-        // 2. 메세지 전달
-        Map<String, String> responseBody = Map.of("message", "요청하신 상품이 삭제되었습니다.");
+        // 2. 메시지 전달
+        Map<String, String> responseBody =
+                Map.of("message", "요청하신 상품이 삭제되었습니다.");
 
-        // 3. Http
-        ResponseEntity<Map<String, String>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        // 3. HTTP 응답 생성
+        ResponseEntity<Map<String, String>> response =
+                new ResponseEntity<>(responseBody, HttpStatus.OK);
 
         // 4. 반환
         return response;
     }
-
 }
