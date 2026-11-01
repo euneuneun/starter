@@ -13,7 +13,6 @@ import com.starter.order.repository.OrderItemRepository;
 import com.starter.order.repository.OrderRepository;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +31,6 @@ import java.util.List;
 
 
 @Service
-@RequiredArgsConstructor
 public class OrderService {
 
     // 속성
@@ -43,6 +41,19 @@ public class OrderService {
     private final AdminRepository adminRepository;
 
     // 생성자
+    public OrderService(
+            OrderRepository orderRepository,
+            OrderItemRepository orderItemRepository,
+            CustomerRepository customerRepository,
+            ProductRepository productRepository,
+            AdminRepository adminRepository
+    ) {
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.customerRepository = customerRepository;
+        this.productRepository = productRepository;
+        this.adminRepository = adminRepository;
+    }
 
     // 기능
 
@@ -284,5 +295,4 @@ public class OrderService {
 
         order.cancelOrder(cancelReason);
     }
-
 }
