@@ -773,25 +773,33 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Request Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 관리자 상태 (계정 활성: `ACTIVATE`) |
+| 필드           | 타입 | 설명                                |
+|----------------| --- |-------------------------------------|
+| `adminStatus`  | String | 관리자 상태 (계정 활성: `ACTIVATE`) |
+| `rejectReason` | String | 거부 메세지(거부 시 작성 필수)      |
 
 ```json
 {
-  "status": "ACTIVATE"
+  "adminStatus": "ACTIVATE",
+  "rejectReason": ""
 }
 ```
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `message` | String | 전달 메시지 |
+| 필드          | 타입   | 설명                  |
+|---------------|--------|-----------------------|
+| `adminId`     | Long   | 관리자 고유 식별자    |
+| `adminName`   | String | 관리자명              |
+| `adminStatus` | String | 변경된 관리자 상태    |
+| `updateAt`    | String | 관리자 상태 변경 일시 |
 
 ```json
 {
-  "message": "승인 되었습니다."
+  "adminId": 3,
+  "adminName": "테스트",
+  "adminStatus": "ACTIVATE",
+  "updatedAt": "2026-11-01T16:50:51.897"
 }
 ```
 
@@ -801,8 +809,8 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/admins/{adminId}/approve"
+  "message": "Invalid request",
+  "path": "/admins/{adminId}/status"
 }
 ```
 
