@@ -99,20 +99,20 @@ public class OrderService {
         }
 
         // 2-2. 주문 수량만큼 상품 재고 검증 처리
-        if (product.getStock() < request.getQaunitity()) {
+        if (product.getStock() < request.getQuantity()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "주문 수량이 재고 수량보다 많습니다.");
         }
 
         // 3. 재고 차감
         // 3-1. 재고 계산
-        Integer stock = product.getStock() - request.getQaunitity();
+        Integer stock = product.getStock() - request.getQuantity();
         // 3-2. 재고 저장 ( 품절 처리 자동 변환)
         product.changeStock(stock);
 
         // 4. 엔티티 생성
         // 4-1. 엔티티에 넣을 값 계산
         // 4-1-1.( 총 금액 = 상품 단가 * 수량)
-        Long totalPrice = product.getPrice() * request.getQaunitity();
+        Long totalPrice = product.getPrice() * request.getQuantity();
         // 4-1-2. 주문 번호 생성
         // TODO: 메서드로 빼기
         String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);                 // 20261029
@@ -127,7 +127,7 @@ public class OrderService {
                 product,
                 product.getName(),  // 주문한 순간의 상품 이름
                 product.getPrice(), // 주문한 순간의 상품 가격
-                request.getQaunitity()
+                request.getQuantity()
         );
 
         // 5. 저장
