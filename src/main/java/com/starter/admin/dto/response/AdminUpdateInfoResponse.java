@@ -1,12 +1,13 @@
 package com.starter.admin.dto.response;
 
-import lombok.Getter;
+
 
 import java.time.LocalDateTime;
 
-@Getter
-public class AdminUpdateInfoResponseDto {
-
+/**
+ * 관리자 정보 수정 응답 DTO
+ */
+public class AdminUpdateInfoResponse {
     //속성
     private String name;
     private String email;
@@ -14,10 +15,8 @@ public class AdminUpdateInfoResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
-
     //생성자
-    public AdminUpdateInfoResponseDto(
+    public AdminUpdateInfoResponse(
             String name,
             String email,
             String phone,
@@ -30,7 +29,26 @@ public class AdminUpdateInfoResponseDto {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
-    //기능
 
+    //기능
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }
 

@@ -1,12 +1,12 @@
-package com.starter.admin.dto.requestDto;
+package com.starter.admin.dto.request;
 
-import com.starter.admin.entity.Admin;
+import com.starter.admin.enums.AdminRole;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
 
-@Getter
-public class AdminCreateRequestDto {
-
+/**
+ * 관리자 회원가입 요청 DTO
+ */
+public class AdminCreateRequest {
     //속성
     @NotBlank(message = "이름은 필수입니다.")
     private String name;
@@ -24,16 +24,15 @@ public class AdminCreateRequestDto {
     private String phone;
 
     @NotNull(message = "권한은 필수 선택입니다.")
-    private Admin.AdminRole role;
+    private AdminRole role;
 
     //생성자
-
-    public AdminCreateRequestDto(
+    public AdminCreateRequest(
             String name,
             String email,
             String password,
             String phone,
-            Admin.AdminRole role
+            AdminRole role
     ) {
         this.name = name;
         this.email = email;
@@ -43,6 +42,23 @@ public class AdminCreateRequestDto {
     }
 
     //기능
+    public String getName() {
+        return name;
+    }
 
+    public String getEmail() {
+        return email;
+    }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public AdminRole getRole() {
+        return role;
+    }
 }
