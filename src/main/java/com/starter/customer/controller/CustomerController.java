@@ -1,3 +1,4 @@
+
 package com.starter.customer.controller;
 
 import com.starter.customer.dto.request.CustomerChangeRequest;
@@ -10,107 +11,128 @@ import com.starter.customer.entity.Customer;
 import com.starter.customer.service.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
-
-    // 속성
     private final CustomerService customerService;
-
-    // 생성자
+    /**
+     * 고객 컨트롤러를 생성한다.
+     *
+     * @param customerService 고객 관리 서비스
+     */
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
-
-    // 기능
     /**
-     *  고객 상세 조회 API
+     * 고객 상세 정보를 조회한다.
+     *
+     * @param customerId 조회할 고객 ID
+     * @return 고객 상세 정보와 HTTP 응답
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<CustomerDetailResponse> detailCustomer(@PathVariable Long id) {
+    @GetMapping("/{customerId}")
+    public ResponseEntity<CustomerDetailResponse> detailCustomer(
+            @PathVariable Long customerId) {
 
-        // 1. 서비스 처리
-        CustomerDetailResponse responseDto = this.customerService.detailCustomer(id);
+        CustomerDetailResponse responseDto =
+                this.customerService.detailCustomer(customerId);
 
-        // 2. Http
-        ResponseEntity<CustomerDetailResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
-
-        // 3. 반환
-        return response;
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     /**
-     *  고객 리스트 조회 API
+     * 검색 및 필터 조건에 따라 고객 목록을 조회한다.
+     *
+     * @param keyword 고객 검색 키워드
+     * @param page 조회할 페이지 번호
+     * @param size 페이지당 조회할 고객 수
+     * @param sortBy 정렬 기준
+     * @param sortDirection 정렬 방향
+     * @param status 고객 상태 필터
+     * @return 고객 목록과 페이징 정보 및 HTTP 응답
      */
     @GetMapping
     public ResponseEntity<CustomerListResponse> listCustomers(
-            @RequestParam(required = false) String keyword, @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
-            @RequestParam(required = false) Customer.CustomerStatus status) {
+            @RequestParam(required = false)
+            Customer.CustomerStatus status) {
 
-        // 1. 서비스 처리
-        CustomerListResponse responseDto = this.customerService.listCustomers(
-                keyword, page, size, sortBy, sortDirection, status);
+        CustomerListResponse responseDto =
+                this.customerService.listCustomers(
+                        keyword,
+                        page,
+                        size,
+                        sortBy,
+                        sortDirection,
+                        status);
 
-        // 2. Http
-        ResponseEntity<CustomerListResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
-
-        // 3. 반환
-        return response;
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     /**
-     *  고객 정보 수정 API
+     * 고객 정보를 수정한다.
+     *
+     * @param requestDto 고객 정보 수정 요청 데이터
+     * @param customerId 수정할 고객 ID
+     * @return 수정된 고객 정보와 HTTP 응답
      */
-    @PatchMapping("/{id}")
+    @PatchMapping("/{customerId}")
     public ResponseEntity<CustomerChangeResponse> changeCustomer(
-            @RequestBody CustomerChangeRequest requestDto, @PathVariable Long id) {
+            @RequestBody CustomerChangeRequest requestDto,
+            @PathVariable Long customerId) {
 
-        // 1. 서비스 처리
-        CustomerChangeResponse responseDto = this.customerService.changeCustomer(requestDto, id);
+        CustomerChangeResponse responseDto =
+                this.customerService.changeCustomer(
+                        requestDto, customerId);
 
-        // 2. Http
-        ResponseEntity<CustomerChangeResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
-
-        // 3. 반환
-        return response;
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     /**
-     *  고객 상태 변경 API
+     * 고객 상태를 변경한다.
+     *
+     * @param requestDto 고객 상태 변경 요청 데이터
+     * @param customerId 상태를 변경할 고객 ID
+     * @return 변경된 고객 상태와 HTTP 응답
      */
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{customerId}/status")
     public ResponseEntity<CustomerStatusResponse> statusCustomer(
-            @RequestBody CustomerStatusRequest requestDto, @PathVariable Long id) {
+            @RequestBody CustomerStatusRequest requestDto,
+            @PathVariable Long customerId) {
 
-        // 1. 서비스 처리
-        CustomerStatusResponse responseDto = this.customerService.statusCustomer(requestDto, id);
+        CustomerStatusResponse responseDto =
+                this.customerService.statusCustomer(
+                        requestDto, customerId);
 
-        // 2. Http
-        ResponseEntity<CustomerStatusResponse> response = new ResponseEntity<>(responseDto, HttpStatus.OK);
-
-        // 3. 반환
-        return response;
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
     /**
-     *  고객 삭제 API
+     * 고객 정보를 삭제 처리한다.
+     *
+     * @param customerId 삭제할 고객 ID
+     * @return 삭제 완료 메시지와 HTTP 응답
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteCustomer(@PathVariable Long id) {
+    @DeleteMapping("/{customerId}")
+    public ResponseEntity<Map<String, String>> deleteCustomer(
+            @PathVariable Long customerId) {
 
-        // 1. 서비스 처리
-        this.customerService.deleteCustomer(id);
+        this.customerService.deleteCustomer(customerId);
 
-        // 2. 메세지 전달
-        Map<String, String> responseBody = Map.of("message", "요청하신 고객 정보가 삭제되었습니다.");
+        Map<String, String> responseBody = Map.of(
+                "message",
+                "요청하신 고객 정보가 삭제되었습니다.");
 
-        // 3. Http
-        ResponseEntity<Map<String, String>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
-
-        // 4. 반환
-        return response;
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
-
 }
