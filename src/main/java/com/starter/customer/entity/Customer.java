@@ -9,6 +9,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "customers")
 public class Customer extends BaseEntity {
+
     /**
      * 고객 상태를 정의한다.
      */
@@ -17,24 +18,25 @@ public class Customer extends BaseEntity {
         INACTIVE,
         SUSPENDED
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long customerId;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "name", nullable = false, length = 100)
+    private String customerName;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    @Column(name = "email", nullable = false, unique = true, length = 255)
+    private String customerEmail;
 
-    @Column(nullable = true, length = 15)
-    private String phone;
+    @Column(name = "phone", nullable = true, length = 15)
+    private String customerPhone;
 
-    @Column(nullable = false, length = 15)
+    @Column(name = "status", nullable = false, length = 15)
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    private CustomerStatus status;
+    private CustomerStatus customerStatus;
     /**
      * JPA에서 사용하는 기본 생성자이다.
      */
@@ -43,53 +45,53 @@ public class Customer extends BaseEntity {
     /**
      * 고객 정보를 수정한다.
      *
-     * @param name 변경할 고객 이름
-     * @param email 변경할 고객 이메일
-     * @param phone 변경할 고객 전화번호
+     * @param customerName 변경할 고객 이름
+     * @param customerEmail 변경할 고객 이메일
+     * @param customerPhone 변경할 고객 전화번호
      * @throws IllegalArgumentException 유효하지 않은 고객 정보
      */
     public void changeCustomer(
-            String name,
-            String email,
-            String phone) {
+            String customerName,
+            String customerEmail,
+            String customerPhone) {
 
-        if (name != null) {
-            if (name.isBlank() || name.length() > 100) {
+        if (customerName != null) {
+            if (customerName.isBlank() || customerName.length() > 100) {
                 throw new IllegalArgumentException("이름을 확인해주세요.");
             }
 
-            this.name = name;
+            this.customerName = customerName;
         }
 
-        if (email != null) {
-            if (email.isBlank() || email.length() > 255) {
+        if (customerEmail != null) {
+            if (customerEmail.isBlank() || customerEmail.length() > 255) {
                 throw new IllegalArgumentException("이메일을 확인해주세요.");
             }
 
-            this.email = email;
+            this.customerEmail = customerEmail;
         }
 
-        if (phone != null) {
-            if (phone.isBlank() || phone.length() > 15) {
+        if (customerPhone != null) {
+            if (customerPhone.isBlank() || customerPhone.length() > 15) {
                 throw new IllegalArgumentException("전화번호를 확인해주세요.");
             }
 
-            this.phone = phone;
+            this.customerPhone = customerPhone;
         }
     }
     /**
      * 고객 상태를 변경한다.
      *
-     * @param status 변경할 고객 상태
+     * @param customerStatus 변경할 고객 상태
      * @throws IllegalArgumentException 고객 상태가 null인 경우
      */
-    public void changeCustomerStatus(CustomerStatus status) {
+    public void changeCustomerStatus(CustomerStatus customerStatus) {
 
-        if (status == null) {
+        if (customerStatus == null) {
             throw new IllegalArgumentException("상태값이 비어있습니다.");
         }
 
-        this.status = status;
+        this.customerStatus = customerStatus;
     }
     /**
      * 고객 정보를 논리적으로 삭제한다.
@@ -110,31 +112,31 @@ public class Customer extends BaseEntity {
      *
      * @return 고객 이름
      */
-    public String getName() {
-        return name;
+    public String getCustomerName() {
+        return customerName;
     }
     /**
      * 고객 이메일을 반환한다.
      *
      * @return 고객 이메일
      */
-    public String getEmail() {
-        return email;
+    public String getCustomerEmail() {
+        return customerEmail;
     }
     /**
      * 고객 전화번호를 반환한다.
      *
      * @return 고객 전화번호
      */
-    public String getPhone() {
-        return phone;
+    public String getCustomerPhone() {
+        return customerPhone;
     }
     /**
      * 고객 상태를 반환한다.
      *
      * @return 고객 상태
      */
-    public CustomerStatus getStatus() {
-        return status;
+    public CustomerStatus getCustomerStatus() {
+        return customerStatus;
     }
 }

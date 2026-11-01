@@ -4,6 +4,7 @@ package com.starter.customer.dto.response;
 import java.util.List;
 
 public class CustomerListResponse {
+
     private final List<CustomerDetailResponse> content;
     private Integer page;
     private Integer size;

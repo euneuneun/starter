@@ -25,12 +25,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
+
     private final CustomerService customerService;
-    /**
-     * 고객 컨트롤러를 생성한다.
-     *
-     * @param customerService 고객 관리 서비스
-     */
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
@@ -57,7 +53,7 @@ public class CustomerController {
      * @param size 페이지당 조회할 고객 수
      * @param sortBy 정렬 기준
      * @param sortDirection 정렬 방향
-     * @param status 고객 상태 필터
+     * @param customerStatus 고객 상태 필터
      * @return 고객 목록과 페이징 정보 및 HTTP 응답
      */
     @GetMapping
@@ -67,8 +63,8 @@ public class CustomerController {
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
-            @RequestParam(required = false)
-            Customer.CustomerStatus status) {
+            @RequestParam(name = "status", required = false)
+            Customer.CustomerStatus customerStatus) {
 
         CustomerListResponse responseDto =
                 this.customerService.listCustomers(
@@ -77,7 +73,7 @@ public class CustomerController {
                         size,
                         sortBy,
                         sortDirection,
-                        status);
+                        customerStatus);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
