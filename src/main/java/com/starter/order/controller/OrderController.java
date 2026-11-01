@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/orders")
 public class OrderController {
 
     // 속성
