@@ -49,12 +49,7 @@ public class OrderController {
             @Valid @RequestBody OrderCreateRequest request) {
 
         // 1. 서비스 처리
-        orderService.createOrder(
-                adminId,
-                request.getCustomerId(),
-                request.getProductId(),
-                request.getQaunitity()
-        );
+        orderService.createOrder(adminId, request);
 
         // 2. Http
         ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.CREATED);
@@ -147,7 +142,7 @@ public class OrderController {
     ) {
 
         // 1. 서비스 처리
-        orderService.cancelOrder(orderId, reqeust.getCancelReason());
+        orderService.cancelOrder(orderId, reqeust);
 
         // 2. Http
         ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.OK);
