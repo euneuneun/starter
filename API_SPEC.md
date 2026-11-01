@@ -11,7 +11,7 @@
 <details>
 <summary><b>Enum 정의</b></summary>
 
-**관리자 역할 (`role`)**
+**관리자 역할 (`AdminRole`)**
 
 | 값 | 설명 |
 | --- | --- |
@@ -19,7 +19,7 @@
 | `OPERATION_ADMIN` | 운영 관리자 |
 | `CS_ADMIN` | CS 관리자 |
 
-**관리자 상태 (`status`)**
+**관리자 상태 (`AdminStatus`)**
 
 | 값 | 설명 |
 | --- | --- |
@@ -62,22 +62,22 @@
 
 ## 🔐 관리자 / 인증
 
-| Method | Endpoint | 기능 |
-| :---: | --- | --- |
-| `POST` | `/admins/signup` | 관리자 회원가입 |
-| `POST` | `/admins/login` | 관리자 로그인 |
-| `POST` | `/admins/logout` | 관리자 로그아웃 |
-| `GET` | `/admins` | 관리자 리스트 조회 |
-| `GET` | `/admins/{adminId}` | 관리자 상세 조회 |
-| `PATCH` | `/admins/{adminId}` | 관리자 정보 수정 |
-| `DELETE` | `/admins/{adminId}` | 관리자 삭제 |
-| `GET` | `/admins/{adminId}/me` | 내 프로필 조회 |
-| `PATCH` | `/admins/{adminId}/me` | 내 프로필 수정 |
-| `PATCH` | `/admins/{adminId}/password` | 비밀번호 변경 |
-| `PATCH` | `/admins/{adminId}/role` | 관리자 역할 변경 |
-| `PATCH` | `/admins/{adminId}/status` | 관리자 상태 변경 |
+| Method | Endpoint                    | 기능 |
+| :---: |-----------------------------| --- |
+| `POST` | `/admins/signup`            | 관리자 회원가입 |
+| `POST` | `/admins/login`             | 관리자 로그인 |
+| `POST` | `/admins/logout`            | 관리자 로그아웃 |
+| `GET` | `/admins`                   | 관리자 리스트 조회 |
+| `GET` | `/admins/{adminId}`         | 관리자 상세 조회 |
+| `PATCH` | `/admins/{adminId}`         | 관리자 정보 수정 |
+| `DELETE` | `/admins/{adminId}`         | 관리자 삭제 |
+| `GET` | `/admins/me`                | 내 프로필 조회 |
+| `PATCH` | `/admins/me`                | 내 프로필 수정 |
+| `PATCH` | `/admins/me/password`       | 비밀번호 변경 |
+| `PATCH` | `/admins/{adminId}/role`    | 관리자 역할 변경 |
+| `PATCH` | `/admins/{adminId}/status`  | 관리자 상태 변경 |
 | `PATCH` | `/admins/{adminId}/approve` | 관리자 승인 |
-| `PATCH` | `/admins/{adminId}/reject` | 관리자 거부 |
+| `PATCH` | `/admins/{adminId}/reject`  | 관리자 거부 |
 
 <details>
 <summary><code>POST</code> <b>/admins/signup</b> — 관리자 회원가입</summary>
@@ -90,21 +90,21 @@
 
 **Request Body**
 
-| 필드 | 타입 | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `name` | String | ✅ | 관리자명 |
-| `email` | String | ✅ | 관리자 이메일 (중복 불가) |
-| `phone` | String | ✅ | 관리자 전화번호 (`010-XXXX-XXXX`) |
-| `role` | String | ✅ | 관리자 역할 |
-| `password` | String | ✅ | 관리자 비밀번호 (최소 8자 이상) |
+| 필드         | 타입 | 필수 | 설명 |
+|--------------| --- | :---: | --- |
+| `adminName`  | String | ✅ | 관리자명 |
+| `adminEmail` | String | ✅ | 관리자 이메일 (중복 불가) |
+|`password`   | String | ✅ | 관리자 비밀번호 (최소 8자 이상) |
+| `adminPhone` | String | ✅ | 관리자 전화번호 (`010-XXXX-XXXX`)|
+| `role`       | String | ✅ | 관리자 역할 |
 
 ```json
 {
-  "name": "관리자 이름",
-  "email": "example@gmail.com",
-  "phone": "010-XXXX-XXXX",
-  "role": "SUPER_ADMIN",
-  "password": "12345678"
+  "adminName":"테스트",
+  "adminEmail": "2@naver.com",
+  "password": "12345678",
+  "adminPhone": "010-8555-6786",
+  "role": "SUPER_ADMIN"
 }
 ```
 
@@ -116,7 +116,7 @@
 
 ```json
 {
-  "message": "관리자 계정 신청이 완료되었습니다! 승인 후 로그인이 가능합니다."
+  "message": "관리자 신청이 완료되었습니다."
 }
 ```
 
@@ -126,7 +126,7 @@
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/signup"
 }
 ```
@@ -144,14 +144,14 @@
 
 **Request Body**
 
-| 필드 | 타입 | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `email` | String | ✅ | 관리자 이메일 |
-| `password` | String | ✅ | 관리자 비밀번호 (최소 8자 이상) |
+| 필드         | 타입 | 필수 | 설명 |
+|--------------| --- | :---: | --- |
+| `adminEmail` | String | ✅ | 관리자 이메일 |
+| `password`   | String | ✅ | 관리자 비밀번호 (최소 8자 이상) |
 
 ```json
 {
-  "email": "example@gmail.com",
+  "adminEmail": "example@gmail.com",
   "password": "12345678a!"
 }
 ```
@@ -174,7 +174,7 @@ Set-Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 ```json
 {
-  "message": "로그인 성공!"
+  "message": "로그인 성인에 성공하였습니다."
 }
 ```
 
@@ -184,7 +184,7 @@ Set-Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/login"
 }
 ```
@@ -212,15 +212,25 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `Set-Cookie` | String | 만료 처리된 세션 쿠키 (쿠키 삭제) |
 
-**Response Body** — 없음
+**Response Body** 
 
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `message` | String | 전달 메시지 |
+
+```json
+{
+  "message": "로그아웃 되었습니다."
+}
+```
 **Error Response**
 
 ```json
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/logout"
 }
 ```
@@ -240,40 +250,50 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `id` | Long | 관리자 고유 식별자 |
-| `name` | String | 관리자명 |
-| `email` | String | 관리자 이메일 |
-| `phone` | String | 관리자 전화번호 |
-| `role` | String | 관리자 역할 |
-| `status` | String | 관리자 상태 |
-| `createdAt` | LocalDateTime | 관리자 가입 일시 |
-| `approvedAt` | LocalDateTime | 관리자 승인 일시 |
+| 필드          | 타입 | 설명 |
+|---------------| --- | --- |
+| `adminId`     | Long | 관리자 고유 식별자 |
+| `adminName`   | String | 관리자명 |
+| `adminEmail`  | String | 관리자 이메일 |
+| `adminPhone`  | String | 관리자 전화번호 |
+| `role`        | String | 관리자 역할 |
+| `adminStatus` | String | 관리자 상태 |
+| `createdAt`   | LocalDateTime | 관리자 가입 일시 |
+| `activateAt`  | LocalDateTime | 관리자 승인 일시 |
+| `currentPage`  | Integer | 현재 페이지 번호(1부터 시작) |
+| `pageSize`  | Integer | 한 페이지당 조회할 데이터 개수 |
+| `totalElements`  | Long | 전체 검색 결과 데이터 총 개수 |
+| `totalPages`  | Integer | 전체 페이지 총수 |
 
 ```json
-[
-  {
-    "id": 1,
-    "name": "홍길동",
-    "email": "example@gmail.com",
-    "phone": "010-XXXX-XXXX",
-    "role": "SUPER_ADMIN",
-    "status": "PENDING",
-    "createdAt": "2026-10-27T10:00:00",
-    "approvedAt": "2026-10-27T11:00:00"
-  },
-  {
-    "id": 2,
-    "name": "김흥부",
-    "email": "example2@gmail.com",
-    "phone": "010-XXXX-XXXX",
-    "role": "SUPER_ADMIN",
-    "status": "PENDING",
-    "createdAt": "2026-10-27T10:30:00",
-    "approvedAt": "2026-10-27T11:30:00"
-  }
-]
+{
+  "adminList": [
+    {
+      "adminId": 3,
+      "adminName": "테스트",
+      "adminEmail": "2@naver.com",
+      "adminPhone": "010-8555-6786",
+      "role": "SUPER_ADMIN",
+      "adminStatus": "PENDING",
+      "createdAt": "2026-11-01T16:50:51.897",
+      "activatedAt": null
+    },
+    {
+      "adminId": 2,
+      "adminName": "테스트",
+      "adminEmail": "1@naver.com",
+      "adminPhone": "010-8565-6786",
+      "role": "SUPER_ADMIN",
+      "adminStatus": "PENDING",
+      "createdAt": "2026-11-01T16:50:44.220347",
+      "activatedAt": null
+    }
+  ],
+  "currentPage": 1,
+  "pageSize": 10,
+  "totalElements": 3,
+  "totalPages": 1
+}
 ```
 
 **Error Response**
@@ -282,7 +302,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins"
 }
 ```
@@ -306,25 +326,25 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `name` | String | 관리자명 |
-| `email` | String | 관리자 이메일 (중복 불가) |
-| `phone` | String | 관리자 전화번호 (`010-XXXX-XXXX`) |
-| `role` | String | 관리자 역할 |
-| `status` | String | 관리자 상태 |
-| `createdAt` | LocalDateTime | 관리자 계정 생성 일시 |
-| `approvedAt` | LocalDateTime | 관리자 승인 일시 |
+| 필드          | 타입 | 설명 |
+|---------------| --- | --- |
+| `adminName`   | String | 관리자명 |
+| `adminEmail`  | String | 관리자 이메일 (중복 불가) |
+| `adminPhone`  | String | 관리자 전화번호 (`010-XXXX-XXXX`) |
+| `role`        | String | 관리자 역할 |
+| `adminStatus` | String | 관리자 상태 |
+| `createdAt`   | LocalDateTime | 관리자 계정 생성 일시 |
+| `activatedAt` | LocalDateTime | 관리자 승인 일시 |
 
 ```json
 {
-  "name": "홍길동",
-  "email": "example@gmail.com",
-  "phone": "010-XXXX-XXXX",
+  "adminName": "테스트",
+  "adminEmail": "2@naver.com",
+  "adminPhone": "010-8555-6786",
   "role": "SUPER_ADMIN",
-  "status": "PENDING",
-  "createdAt": "2026-10-27T10:00:00",
-  "approvedAt": "2026-10-27T11:00:00"
+  "adminStatus": "PENDING",
+  "createdAt": "2026-11-01T16:50:51.897",
+  "activatedAt": null
 }
 ```
 
@@ -334,7 +354,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/{adminId}"
 }
 ```
@@ -358,33 +378,37 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Request Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `name` | String | 관리자 이름 |
-| `email` | String | 관리자 이메일 (중복 불가) |
-| `phone` | String | 관리자 전화번호 (`010-XXXX-XXXX`) |
+| 필드         | 타입 | 설명 |
+|--------------| --- | --- |
+| `adminName`  | String | 관리자 이름 |
+| `adminEmail` | String | 관리자 이메일 (중복 불가) |
+| `adminPhone` | String | 관리자 전화번호 (`010-XXXX-XXXX`) |
 
 ```json
 {
-  "name": "이름",
-  "email": "example@gmail.com",
-  "phone": "010-XXXX-XXXX"
+  "adminName": "TestMk2",
+  "adminEmail": "99@naver.com",
+  "adminPhone": "010-8999-9565"
 }
 ```
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `name` | String | 수정된 관리자명 |
-| `email` | String | 수정된 관리자 이메일 |
-| `phone` | String | 수정된 관리자 전화번호 |
+| 필드         | 타입 | 설명                   |
+|--------------| --- |------------------------|
+| `adminName`  | String | 수정된 관리자명        |
+| `adminEmail` | String | 수정된 관리자 이메일   |
+| `adminPhone` | String | 수정된 관리자 전화번호 |
+| `createdAt`  | LocalDateTime | 관리자 계정 생성 일시  |
+| `updatedAt`  | LocalDateTime | 관리자 정보 수정 일시  |
 
 ```json
 {
-  "name": "홍길동",
-  "email": "example@gmail.com",
-  "phone": "010-XXXX-XXXX"
+  "adminName": "TestMk2",
+  "adminEmail": "99@naver.com",
+  "adminPhone": "010-8999-9565",
+  "createdAt": "2026-11-01T16:50:44.220347",
+  "updatedAt": "2026-11-01T17:18:17.878991"
 }
 ```
 
@@ -394,7 +418,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/{adminId}"
 }
 ```
@@ -426,7 +450,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 ```json
 {
-  "message": "유저가 삭제되었습니다."
+  "message": "삭제에 성공하였습니다."
 }
 ```
 
@@ -436,7 +460,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/{adminId}"
 }
 ```
@@ -444,35 +468,40 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 </details>
 
 <details>
-<summary><code>GET</code> <b>/admins/{adminId}/me</b> — 내 프로필 조회</summary>
+<summary><code>GET</code> <b>/admins/me</b> — 내 프로필 조회</summary>
 
-**Path Parameter**
+**Path Parameter** - 없음
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `adminId` | Long | 관리자 고유 식별자 |
 
 **Request Headers**
 
-| Key | Value | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `Content-Type` | `application/json` | ✅ | 데이터 형식 |
+| Key            | Value | 필수 | 설명                          |
+|----------------| -- | :---: |-------------------------------|
+| `Content-Type` | `application/json` | ✅ | 데이터 형식                   |
+| `Cookie`       | `JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...' | ✅ | 로그인 시 발급 받은 세션 쿠키 |
+
+```
+Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
+```
 
 **Request Body** — 없음
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `name` | String | 관리자명 |
-| `email` | String | 관리자 이메일 (중복 불가) |
-| `phone` | String | 관리자 전화번호 (`010-XXXX-XXXX`) |
-
+| 필드         | 타입 | 설명 |
+|--------------| --- | --- |
+| `adminName`  | String | 관리자명 |
+| `adminEmail` | String | 관리자 이메일 (중복 불가) |
+| `adminPhone` | String | 관리자 전화번호 (`010-XXXX-XXXX`) |
+| `createdAt`   | LocalDateTime | 관리자 계정 생성 일시 |
+| `activatedAt` | LocalDateTime | 관리자 승인 일시 |
 ```json
 {
-  "name": "관리자명",
-  "email": "example@gmail.com",
-  "phone": "010-XXXX-XXXX"
+  "adminName": "테스트",
+  "adminEmail": "0@naver.com",
+  "adminPhone": "010-8965-6786",
+  "createdAt": "2026-11-01T16:50:19.307874",
+  "activatedAt": null
 }
 ```
 
@@ -482,57 +511,62 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/admins/{adminId}/me"
+  "message": "Invalid request",
+  "path": "/admins/me"
 }
 ```
 
 </details>
 
 <details>
-<summary><code>PATCH</code> <b>/admins/{adminId}/me</b> — 내 프로필 수정</summary>
+<summary><code>PATCH</code> <b>/admins/me</b> — 내 프로필 수정</summary>
 
-**Path Parameter**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `adminId` | Long | 관리자 고유 식별자 |
+**Path Parameter** - 없음
 
 **Request Headers**
 
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 데이터 형식 |
+| `Cookie`       | `JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...' | ✅ | 로그인 시 발급 받은 세션 쿠키 |
+
+```
+Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
+```
 
 **Request Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `name` | String | 변경할 관리자명 |
-| `email` | String | 변경할 관리자 이메일 (중복 불가) |
-| `phone` | String | 변경할 관리자 전화번호 (`010-XXXX-XXXX`) |
+| 필드         | 타입 | 설명 |
+|--------------| --- | --- |
+| `adminName`  | String | 변경할 관리자명 |
+| `adminEmail` | String | 변경할 관리자 이메일 (중복 불가) |
+| `adminPhone` | String | 변경할 관리자 전화번호 (`010-XXXX-XXXX`) |
 
 ```json
 {
-  "name": "관리자 이름",
-  "email": "example@gmail.com",
-  "phone": "010-XXXX-XXXX"
+  "admibName": "관리자 이름",
+  "adminEmail": "example@gmail.com",
+  "adminPhone": "010-XXXX-XXXX"
 }
 ```
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `name` | String | 변경된 관리자명 |
-| `email` | String | 변경된 관리자 이메일 |
-| `phone` | String | 변경된 관리자 전화번호 |
+| 필드         | 타입 | 설명                   |
+|--------------| --- |------------------------|
+| `adminName`  | String | 변경된 관리자명        |
+| `adminEmail` | String | 변경된 관리자 이메일   |
+| `adminPhone` | String | 변경된 관리자 전화번호 |
+| `createdAt`  | LocalDateTime | 관리자 계정 생성 일시  |
+| `updatedAt`  | LocalDateTime | 내 정보 수정 일시      |
 
 ```json
 {
-  "name": "관리자 이름",
-  "email": "example@gmail.com",
-  "phone": "010-XXXX-XXXX"
+  "adminName": "정재원",
+  "adminEmail": "3@naver.com",
+  "adminPhone": "010-8889-9968",
+  "createdAt": "2026-11-01T16:50:19.307874",
+  "updatedAt": "2026-11-01T17:05:32.045439"
 }
 ```
 
@@ -542,37 +576,41 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/admins/{adminId}/me"
+  "message": "Invalid request",
+  "path": "/admins/me"
 }
 ```
 
 </details>
 
 <details>
-<summary><code>PATCH</code> <b>/admins/{adminId}/password</b> — 비밀번호 변경</summary>
+<summary><code>PATCH</code> <b>/admins/me/password</b> — 비밀번호 변경</summary>
 
-**Path Parameter**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `adminId` | Long | 관리자 고유 식별자 |
+**Path Parameter** - 없음
 
 **Request Headers**
 
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 데이터 형식 |
+| `Cookie`       | `JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...' | ✅ | 로그인 시 발급 받은 세션 쿠키 |
+
+```
+Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
+```
 
 **Request Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `password` | String | 변경할 관리자 비밀번호 (최소 8자 이상) |
-
+| 필드                 | 타입 | 설명                                        |
+|----------------------| --- |---------------------------------------------|
+| `oldPassword`        | String | 현재 관리자 비밀번호 (최소 8자 이상)        |
+| `newPassword`        | String | 변경할 관리자 비밀번호 (최소 8자 이상)      |
+| `newPasswordConfirm` | String | 변경할 관리자 비밀번호 확인 (최소 8자 이상) |
 ```json
 {
-  "password": "123456789a!"
+  "oldPassword": "12345678",
+  "newPassword": "123456789",
+  "newPasswordConfirm" : "123456789"
 }
 ```
 
@@ -584,7 +622,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 ```json
 {
-  "message": "비밀번호가 변경되었습니다."
+  "message": "비밀번호 변경에 성공하였습니다."
 }
 ```
 
@@ -594,8 +632,8 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/admins/{adminId}/password"
+  "message": "Invalid request",
+  "path": "/admins/me/password"
 }
 ```
 
@@ -624,19 +662,24 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 ```json
 {
-  "role": "OPERATION_ADMIN"
+  "role": "CS_ADMIN"
 }
 ```
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `role` | String | 변경된 관리자 역할 |
-
+| 필드         | 타입   | 설명                       |
+|--------------|--------|----------------------------|
+| `adminId`    | Long   | 관리자  고유 식별자 |
+| `adminName`  | String | 관리자명            |
+| `role`       | String | 변경된 관리자 역할         |
+|  `updatedAt` | LocalDateTime | 관리자 역할 수정 일시      |      
 ```json
 {
-  "role": "OPERATION_ADMIN"
+  "adminId": 2,
+  "adminName": "테스트",
+  "role": "CS_ADMIN",
+  "updatedAt": "2026-11-01T16:50:44.220347"
 }
 ```
 
@@ -646,7 +689,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/{adminId}/role"
 }
 ```
@@ -670,25 +713,33 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Request Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 변경할 관리자 상태 |
+| 필드          | 타입 | 설명                                   |
+|---------------| --- |----------------------------------------|
+| `adminStatus` | String | 변경할 관리자 상태                     |
+| `rejectReason` | String | 거부 시 사유 입력(거부 시엔 입력 필수) |
 
 ```json
 {
-  "status": "SUSPENDED"
+  "adminStatus": "REJECTED",
+  "rejectReason": "테스트 입니다."
 }
 ```
 
 **Response Body**
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 변경된 관리자 상태 |
+| 필드          | 타입          | 설명                  |
+|---------------|---------------|-----------------------|
+| `adminId`     | Long          | 관리자 고유 식별자    |
+| `adminName`   | String        | 관리자명              |
+| `adminStatus` | String        | 변경된 관리자 상태    |
+| `updatedAt`   | LocalDateTime | 관리자 상태 수정 일시 |
 
 ```json
 {
-  "status": "SUSPENDED"
+  "adminId": 3,
+  "adminName": "테스트",
+  "adminStatus": "REJECTED",
+  "updatedAt": "2026-11-01T16:50:51.897"
 }
 ```
 
@@ -698,7 +749,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
   "path": "/admins/{adminId}/status"
 }
 ```

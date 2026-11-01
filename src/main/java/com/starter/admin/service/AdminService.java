@@ -55,7 +55,7 @@ public class AdminService {
         AdminRole role = createRequest.getRole();
 
         // 2. 데이터 검증 (중복 이메일 확인)
-        if (adminRepository.existsByEmail(adminEmail)) {
+        if (adminRepository.existsByAdminEmail(adminEmail)) {
             throw new AdminException(AdminErrorCode.ALREADY_EXISTS);
         }
 
@@ -89,7 +89,7 @@ public class AdminService {
         String password = loginRequest.getPassword();
 
         // 2. DB 유저 이메일로 조회 -> Admin 엔티티
-        Admin admin = adminRepository.findByEmail(adminEmail)
+        Admin admin = adminRepository.findByAdminEmail(adminEmail)
                 .orElseThrow(() -> new AdminException(AdminErrorCode.UNAUTHORIZED_USER));
 
         // 3. 비밀번호 비교 검증

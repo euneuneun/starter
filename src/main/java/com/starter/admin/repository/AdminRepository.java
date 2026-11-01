@@ -22,14 +22,14 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
      * @param adminEmail 확인할 관리자 이메일
      * @return 존재 여부
      */
-    boolean existsByEmail(String adminEmail);
+    boolean existsByAdminEmail(String adminEmail);
 
     /**
      * 이메일로 관리자 조회
      * @param adminEmail 조회할 이메일
      * @return 관리자 Optional 객체
      */
-    Optional<Admin> findByEmail(String adminEmail);
+    Optional<Admin> findByAdminEmail(String adminEmail);
 
     /**
      * 관리자 역할로 조회
