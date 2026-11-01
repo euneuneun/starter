@@ -1,14 +1,12 @@
-package com.starter.admin.dto.requestDto;
+package com.starter.admin.dto.request;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import lombok.Getter;
+import com.starter.admin.enums.AdminRole;
+import jakarta.validation.constraints.*;
 
-@Getter
-public class AdminCreateRequestDto {
-
+/**
+ * 관리자 회원가입 요청 DTO
+ */
+public class AdminCreateRequest {
     //속성
     @NotBlank(message = "이름은 필수입니다.")
     private String name;
@@ -25,12 +23,17 @@ public class AdminCreateRequestDto {
     @Pattern(regexp = "010-?\\d{3,4}-?\\d{4}$", message = "올바른 휴대폰 번호 형식이 아닙니다.")
     private String phone;
 
-    @NotBlank(message = "권한은 필수 선택입니다.")
-    private String role;
+    @NotNull(message = "권한은 필수 선택입니다.")
+    private AdminRole role;
 
     //생성자
-
-    public AdminCreateRequestDto(String name, String email, String password, String phone, String role) {
+    public AdminCreateRequest(
+            String name,
+            String email,
+            String password,
+            String phone,
+            AdminRole role
+    ) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -39,6 +42,23 @@ public class AdminCreateRequestDto {
     }
 
     //기능
+    public String getName() {
+        return name;
+    }
 
+    public String getEmail() {
+        return email;
+    }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public AdminRole getRole() {
+        return role;
+    }
 }
