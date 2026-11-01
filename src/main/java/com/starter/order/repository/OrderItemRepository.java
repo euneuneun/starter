@@ -5,32 +5,34 @@ import com.starter.order.enums.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
-    // SELECT order_items.* FROM order_items
-    // JOIN orders ON order_items.order_id = orders.order_id
-    // JOIN customers ON orders.customer_id = customer.id
-    // WHERE (orders.order_number LIKE '%keyword% AND orders.status = 'status')
-    // OR (customers.customer_name LIKE '%keyword2%' AND order.status = 'status')
-    // ex) page = 2, size = 10, sortBy = createdAt, direction = DESC
-    // ORDER BY order.created_at DESC
-    // LIMIT 10
-    // OFFSET 10; // page * size = 1 * 10 // 앞의 10개 (1페이지)를 건너 뛴다. 11~20번째 데이터가 나온다.
-    Page<OrderItem> findByOrder_OrderNumberContainingAndOrder_StatusOrOrder_Customer_NameContainingAndOrder_Status(
-            String keyword, OrderStatus status, String keyword2, OrderStatus status2, Pageable pageable);
-
-    // SELECT * FROM order_items
-    // JOIN orders ON order_items.order_id = orders.order_id
-    // JOIN customers ON order_items_order.customer_id = customers.customer_id
-    // WHERE (orders.order_number LIKE '%keyword')
-    // OR (customers.customer_name LIKE 'keyword1')
-    Page<OrderItem> findByOrder_OrderNumberContainingOrOrder_Customer_NameContaining(
-            String keyword, String keyword2, Pageable pageable);
-
-    // SELECT * FROM order_items
-    // JOIN orders ON orders.order_id = order_items.order_id
-    // WHERE  orders.status = 'status'
-    Page<OrderItem> findByOrder_Status(OrderStatus status, Pageable pageable);
+    // 주문 목록 조회 (검색어, 상태 필터 + 페이징)
+    // - keyword가 null이면 검색어 조건 생략, status가 null이면 상태 조건 생략
+    // - JOIN FETCH로 주문, 고객, 관리자를 한 번에 가져온다. (N+1 방지)
+    // - 관리자는 없을 수 있어서 LEFT JOIN
+    // - countQuery: 페이징용 전체 개수 조회 (개수만 세므로 FETCH 없음)
+    @Query(value = """
+            SELECT oi FROM OrderItem oi
+            JOIN FETCH oi.order o
+            JOIN FETCH o.customer c
+            LEFT JOIN FETCH o.registerAdmin a
+            WHERE (:keyword IS NULL OR o.orderNumber LIKE %:keyword% OR c.name LIKE %:keyword%)
+              AND (:status IS NULL OR o.status = :status)
+            """,
+            countQuery = """
+            SELECT COUNT(oi) FROM OrderItem oi
+            JOIN oi.order o
+            JOIN o.customer c
+            WHERE (:keyword IS NULL OR o.orderNumber LIKE %:keyword% OR c.name LIKE %:keyword%)
+              AND (:status IS NULL OR o.status = :status)
+            """)
+    Page<OrderItem> searchOrders(
+            @Param("keyword") String keyword,
+            @Param("status") OrderStatus status,
+            Pageable pageable);
 }
