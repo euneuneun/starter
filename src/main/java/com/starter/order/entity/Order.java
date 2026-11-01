@@ -15,20 +15,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 
-@Getter
 @Entity
-@NoArgsConstructor
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
+    // 속성
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
@@ -55,6 +52,10 @@ public class Order extends BaseEntity {
     @Column(nullable = true, length = 255)
     private String cancelReason;
 
+    // 생성자
+    protected Order() {
+    }
+
     public Order(Customer customer, Admin registerAdmin, String orderNumber, Long totalPrice) {
         this.customer = customer;
         this.registerAdmin = registerAdmin;
@@ -62,6 +63,8 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.PREPARING;
         this.totalPrice = totalPrice;
     }
+
+    // 기능
 
     /**
      * 주문 상태를 다음 단계로 바꾼다.
@@ -103,4 +106,31 @@ public class Order extends BaseEntity {
         this.cancelReason = cancelReason;
     }
 
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public Admin getRegisterAdmin() {
+        return registerAdmin;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public Long getTotalPrice() {
+        return totalPrice;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
 }

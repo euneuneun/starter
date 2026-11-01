@@ -7,7 +7,6 @@ import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.enums.OrderStatus;
 import com.starter.order.service.OrderService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -24,11 +23,18 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/order")
 public class OrderController {
 
+    // 속성
     private final OrderService orderService;
+
+    // 생성자
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    // 기능
 
     /**
      * CS 주문 생성 API
@@ -123,5 +129,4 @@ public class OrderController {
 
         return ResponseEntity.ok().build();
     }
-
 }
