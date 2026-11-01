@@ -13,10 +13,11 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(name="order_items")
+@Table(name = "order_items")
 public class OrderItem {
 
     @Id
@@ -40,7 +41,7 @@ public class OrderItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    public OrderItem(Order order, Product product, String productName, Long productPrice, Integer quantity){
+    public OrderItem(Order order, Product product, String productName, Long productPrice, Integer quantity) {
         this.order = order;
         this.product = product;
         this.productName = productName;

@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+
 @Getter
 public class OrderDetailResponse {
 
@@ -31,7 +32,7 @@ public class OrderDetailResponse {
             OrderStatus orderStatus,
             String adminEmail,
             Admin.AdminRole adminRole
-    ){
+    ) {
         this.orderNumber = orderNumber;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
