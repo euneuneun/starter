@@ -194,7 +194,7 @@ public class OrderService {
         String sortProperty = switch (sortBy) {
             case "orderNumber" -> "order.orderNumber";
             case "customerName" -> "order.customer.name";
-            case "produdctName" -> "productName";
+            case "productName" -> "productName";
             case "quantity" -> "quantity";
             case "totalPrice" -> "order.totalPrice";
             case "createdAt" -> "order.createdAt";
