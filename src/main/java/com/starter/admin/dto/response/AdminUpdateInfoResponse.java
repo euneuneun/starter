@@ -9,38 +9,38 @@ import java.time.LocalDateTime;
  */
 public class AdminUpdateInfoResponse {
     //속성
-    private String name;
-    private String email;
-    private String phone;
+    private String adminName;
+    private String adminEmail;
+    private String adminPhone;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     //생성자
     public AdminUpdateInfoResponse(
-            String name,
-            String email,
-            String phone,
+            String adminName,
+            String adminEmail,
+            String adminPhone,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
+        this.adminName = adminName;
+        this.adminEmail = adminEmail;
+        this.adminPhone = adminPhone;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
     //기능
-    public String getName() {
-        return name;
+    public String getAdminName() {
+        return adminName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getAdminEmail() {
+        return adminEmail;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getAdminPhone() {
+        return adminPhone;
     }
 
     public LocalDateTime getCreatedAt() {

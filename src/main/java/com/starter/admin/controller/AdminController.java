@@ -103,7 +103,7 @@ public class AdminController {
      * @param sortBy    정렬 기준
      * @param sortOrder 정렬 방향
      * @param role      관리자 역할 필터
-     * @param status    관리자 상태 필터
+     * @param adminStatus    관리자 상태 필터
      * @param session   HTTP 세션
      * @return 관리자 목록 응답
      */
@@ -115,7 +115,7 @@ public class AdminController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortOrder,
             @RequestParam(required = false) AdminRole role,
-            @RequestParam(required = false) AdminStatus status,
+            @RequestParam(required = false) AdminStatus adminStatus,
             HttpSession session
     ) {
         // 1. 세션에 로그인한 관리자 ID 추출
@@ -134,7 +134,7 @@ public class AdminController {
                 sortBy,
                 sortOrder,
                 role,
-                status,
+                adminStatus,
                 loginAdminId
         );
 

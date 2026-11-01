@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 public class AdminUpdateStatusResponse {
     // 속성
     private Long adminId;
-    private String name;
-    private AdminStatus status;
+    private String adminName;
+    private AdminStatus adminStatus;
     private LocalDateTime updatedAt;
 
     //생성자
-    public AdminUpdateStatusResponse(Long adminId, String name, AdminStatus status, LocalDateTime updateAt) {
+    public AdminUpdateStatusResponse(Long adminId, String adminName, AdminStatus adminStatus, LocalDateTime updateAt) {
         this.adminId = adminId;
-        this.name = name;
-        this.status = status;
+        this.adminName = adminName;
+        this.adminStatus = adminStatus;
         this.updatedAt = updateAt;
     }
 
@@ -27,12 +27,12 @@ public class AdminUpdateStatusResponse {
         return adminId;
     }
 
-    public String getName() {
-        return name;
+    public String getAdminName() {
+        return adminName;
     }
 
-    public AdminStatus getStatus() {
-        return status;
+    public AdminStatus getAdminStatus() {
+        return adminStatus;
     }
 
     public LocalDateTime getUpdatedAt() {

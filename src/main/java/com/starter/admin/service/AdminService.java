@@ -48,14 +48,14 @@ public class AdminService {
     @Transactional
     public AdminMessageResponse createAdmin(AdminCreateRequest createRequest) {
         // 1. 데이터 준비
-        String name = createRequest.getName();
-        String email = createRequest.getEmail();
+        String adminName = createRequest.getAdminName();
+        String adminEmail = createRequest.getAdminEmail();
         String password = createRequest.getPassword();
-        String phone = createRequest.getPhone();
+        String adminPhone = createRequest.getAdminPhone();
         AdminRole role = createRequest.getRole();
 
         // 2. 데이터 검증 (중복 이메일 확인)
-        if (adminRepository.existsByEmail(email)) {
+        if (adminRepository.existsByEmail(adminEmail)) {
             throw new AdminException(AdminErrorCode.ALREADY_EXISTS);
         }
 
@@ -63,7 +63,7 @@ public class AdminService {
         String encryptionPassword = passwordEncoder.encode(password);
 
         // 4. 엔티티 준비
-        Admin admin = new Admin(name, email, encryptionPassword, phone, role);
+        Admin admin = new Admin(adminName, adminEmail, encryptionPassword, adminPhone, role);
 
         // 5. 관리자 저장
         adminRepository.save(admin);
@@ -85,11 +85,11 @@ public class AdminService {
     @Transactional(readOnly = true)
     public AdminMessageResponse loginAdmin(AdminLoginRequest loginRequest, HttpSession session) {
         // 1. 데이터 준비
-        String email = loginRequest.getEmail();
+        String adminEmail = loginRequest.getAdminEmail();
         String password = loginRequest.getPassword();
 
         // 2. DB 유저 이메일로 조회 -> Admin 엔티티
-        Admin admin = adminRepository.findByEmail(email)
+        Admin admin = adminRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new AdminException(AdminErrorCode.UNAUTHORIZED_USER));
 
         // 3. 비밀번호 비교 검증
@@ -98,7 +98,7 @@ public class AdminService {
         }
 
         // 4. 계정 상태 검증 (활성 상태에만 통과)
-        switch (admin.getStatus()) {
+        switch (admin.getAdminStatus()) {
             case PENDING:
                 throw new AdminException(AdminErrorCode.UNAUTHORIZED_USER);
             case REJECTED:
@@ -116,7 +116,7 @@ public class AdminService {
 
         // 5. 세션에 관리자 정보 데이터 생성(식별자 ID, 이메일, 역할)
         session.setAttribute("ADMIN_ID", admin.getAdminId());
-        session.setAttribute("ADMIN_EMAIL", admin.getEmail());
+        session.setAttribute("ADMIN_EMAIL", admin.getAdminEmail());
         session.setAttribute("ADMIN_ROLE", admin.getRole());
 
         // 6. 응답 생성
@@ -155,7 +155,7 @@ public class AdminService {
      * @param sortBy       정렬 기준 필드
      * @param sortOrder    정렬 방향 (asc/desc)
      * @param role         관리자 역할 필터
-     * @param status       관리자 상태 필터
+     * @param adminStatus       관리자 상태 필터
      * @param loginAdminId 로그인한 관리자 ID
      * @return 관리자 목록 응답 DTO
      */
@@ -167,7 +167,7 @@ public class AdminService {
             String sortBy,
             String sortOrder,
             AdminRole role,
-            AdminStatus status,
+            AdminStatus adminStatus,
             Long loginAdminId
     ) {
         // 1. 로그인한 관리자 조회
@@ -192,17 +192,17 @@ public class AdminService {
         String searchKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
 
         // 7. 페이징이 적용된 관리자 목록  조회
-        Page<Admin> adminPage = adminRepository.findByConditions(searchKeyword, role, status, pageableConditions);
+        Page<Admin> adminPage = adminRepository.findByConditions(searchKeyword, role, adminStatus, pageableConditions);
 
         // 8. 내부 Dto 생성
         List<AdminListResponse.AdminResponse> adminResponseList = adminPage.getContent().stream()
                 .map((admin) -> new AdminListResponse.AdminResponse(
                         admin.getAdminId(),
-                        admin.getName(),
-                        admin.getEmail(),
-                        admin.getPhone(),
+                        admin.getAdminName(),
+                        admin.getAdminEmail(),
+                        admin.getAdminPhone(),
                         admin.getRole(),
-                        admin.getStatus(),
+                        admin.getAdminStatus(),
                         admin.getCreatedAt(),
                         admin.getActivatedAt()
                 ))
@@ -244,21 +244,21 @@ public class AdminService {
                 .orElseThrow(() -> new AdminException(AdminErrorCode.RESOURCE_NOT_FOUND));
 
         // 4. 조회된 관리자 데이터 준비
-        String name = foundAdmin.getName();
-        String email = foundAdmin.getEmail();
-        String phone = foundAdmin.getPhone();
+        String adminName = foundAdmin.getAdminName();
+        String adminEmail = foundAdmin.getAdminEmail();
+        String adminPhone = foundAdmin.getAdminPhone();
         AdminRole role = foundAdmin.getRole();
-        AdminStatus status = foundAdmin.getStatus();
+        AdminStatus adminStatus = foundAdmin.getAdminStatus();
         LocalDateTime createdAt = foundAdmin.getCreatedAt();
         LocalDateTime activatedAt = foundAdmin.getActivatedAt();
 
         // 5. 응답(dto) 생성
         AdminGetInfoResponse response = new AdminGetInfoResponse(
-                name,
-                email,
-                phone,
+                adminName,
+                adminEmail,
+                adminPhone,
                 role,
-                status,
+                adminStatus,
                 createdAt,
                 activatedAt
         );
@@ -296,17 +296,17 @@ public class AdminService {
                 .orElseThrow(() -> new AdminException(AdminErrorCode.RESOURCE_NOT_FOUND));
 
         // 4. 데이터 준비
-        String newName = adminUpdateInfoRequest.getName();
-        String newEmail = adminUpdateInfoRequest.getEmail();
-        String newPhone = adminUpdateInfoRequest.getPhone();
+        String newAdminName = adminUpdateInfoRequest.getAdminName();
+        String newAdminEmail = adminUpdateInfoRequest.getAdminEmail();
+        String newAdminPhone = adminUpdateInfoRequest.getAdminPhone();
 
         // 5. 수정하기
-        Admin updateAdmin = foundAdmin.changeInfo(newName, newEmail, newPhone);
+        Admin updateAdmin = foundAdmin.changeInfo(newAdminName, newAdminEmail, newAdminPhone);
 
         // 6. 수정 데이터 준비
-        String updateAdminName = updateAdmin.getName();
-        String updateAdminEmail = updateAdmin.getEmail();
-        String updateAdminPhone = updateAdmin.getPhone();
+        String updateAdminName = updateAdmin.getAdminName();
+        String updateAdminEmail = updateAdmin.getAdminEmail();
+        String updateAdminPhone = updateAdmin.getAdminPhone();
         LocalDateTime updateAdminCreatedAt = updateAdmin.getCreatedAt();
         LocalDateTime updateAdminUpdateAT = updateAdmin.getUpdatedAt();
 
@@ -358,14 +358,14 @@ public class AdminService {
 
         // 6. 수정된 데이터 준비
         Long updateAdminId = updateAdminRole.getAdminId();
-        String name = updateAdminRole.getName();
+        String adminName = updateAdminRole.getAdminName();
         AdminRole updateAdminNewRole = updateAdminRole.getRole();
         LocalDateTime updateAt = updateAdminRole.getUpdatedAt();
 
         // 7. 응답(dto) 생성
         AdminUpdateRoleResponse response = new AdminUpdateRoleResponse(
                 updateAdminId,
-                name,
+                adminName,
                 updateAdminNewRole,
                 updateAt
         );
@@ -403,7 +403,7 @@ public class AdminService {
                 .orElseThrow(() -> new AdminException(AdminErrorCode.PERMISSION_DENIED));
 
         // 4. 바꿀 상태와 거부 사유 준비
-        AdminStatus newStatus = adminUpdatestatusRequest.getStatus();
+        AdminStatus newStatus = adminUpdatestatusRequest.getAdminStatus();
         String rejectReason = adminUpdatestatusRequest.getRejectReason();
 
         // 5. 변경 상태가 거부일 때
@@ -419,14 +419,14 @@ public class AdminService {
 
         // 7. 수정 데이터 준비
         Long updateAdminId = updateAdminStatus.getAdminId();
-        String name = updateAdminStatus.getName();
-        AdminStatus updateAdminNewStatus = updateAdminStatus.getStatus();
+        String adminName = updateAdminStatus.getAdminName();
+        AdminStatus updateAdminNewStatus = updateAdminStatus.getAdminStatus();
         LocalDateTime updateAt = updateAdminStatus.getUpdatedAt();
 
         // 8. 응답(dto) 생성
         AdminUpdateStatusResponse response = new AdminUpdateStatusResponse(
                 updateAdminId,
-                name,
+                adminName,
                 updateAdminNewStatus,
                 updateAt
         );
@@ -480,17 +480,17 @@ public class AdminService {
                 .orElseThrow(() -> new AdminException(AdminErrorCode.RESOURCE_NOT_FOUND));
 
         // 2. 데이터 준비
-        String name = foundLoginAdmin.getName();
-        String email = foundLoginAdmin.getEmail();
-        String phone = foundLoginAdmin.getPhone();
+        String adminName = foundLoginAdmin.getAdminName();
+        String adminEmail = foundLoginAdmin.getAdminEmail();
+        String adminPhone = foundLoginAdmin.getAdminPhone();
         LocalDateTime createdAt = foundLoginAdmin.getCreatedAt();
         LocalDateTime activatedAt = foundLoginAdmin.getActivatedAt();
 
         // 3. 응답 (dto) 생성
         AdminGetMyInfoResponse response = new AdminGetMyInfoResponse(
-                name,
-                email,
-                phone,
+                adminName,
+                adminEmail,
+                adminPhone,
                 createdAt,
                 activatedAt
         );
@@ -517,17 +517,17 @@ public class AdminService {
                 .orElseThrow(() -> new AdminException(AdminErrorCode.RESOURCE_NOT_FOUND));
 
         // 2. 데이터 준비
-        String newName = adminUpdateInfoRequest.getName();
-        String newEmail = adminUpdateInfoRequest.getEmail();
-        String newPhone = adminUpdateInfoRequest.getPhone();
+        String newAdminName = adminUpdateInfoRequest.getAdminName();
+        String newAdminEmail = adminUpdateInfoRequest.getAdminEmail();
+        String newAdminPhone = adminUpdateInfoRequest.getAdminPhone();
 
         // 3. 수정하기
-        Admin updateAdminInfo = foundLoginAdmin.changeInfo(newName, newEmail, newPhone);
+        Admin updateAdminInfo = foundLoginAdmin.changeInfo(newAdminName, newAdminEmail, newAdminPhone);
 
         // 4. 수정 데이터 준비
-        String updateAdminName = updateAdminInfo.getName();
-        String updateAdminEmail = updateAdminInfo.getEmail();
-        String updateAdminPhone = updateAdminInfo.getPhone();
+        String updateAdminName = updateAdminInfo.getAdminName();
+        String updateAdminEmail = updateAdminInfo.getAdminEmail();
+        String updateAdminPhone = updateAdminInfo.getAdminPhone();
         LocalDateTime updateAdminCreatedAt = updateAdminInfo.getCreatedAt();
         LocalDateTime updateAdminUpdateAT = updateAdminInfo.getUpdatedAt();
 

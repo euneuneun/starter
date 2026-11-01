@@ -19,17 +19,17 @@ import java.util.Optional;
 public interface AdminRepository extends JpaRepository<Admin, Long> {
     /**
      * 이메일 중복 확인
-     * @param email 확인할 이메일
+     * @param adminEmail 확인할 관리자 이메일
      * @return 존재 여부
      */
-    boolean existsByEmail(String email);
+    boolean existsByEmail(String adminEmail);
 
     /**
      * 이메일로 관리자 조회
-     * @param email 조회할 이메일
+     * @param adminEmail 조회할 이메일
      * @return 관리자 Optional 객체
      */
-    Optional<Admin> findByEmail(String email);
+    Optional<Admin> findByEmail(String adminEmail);
 
     /**
      * 관리자 역할로 조회
@@ -43,14 +43,14 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
      */
     @Query("SELECT a FROM Admin a WHERE " +
             // 검색 키워드 조건
-            "(:keyword IS NULL OR :keyword = '' OR a.name LIKE %:keyword% OR a.email LIKE %:keyword%) AND " +
+            "(:keyword IS NULL OR :keyword = '' OR a.adminName LIKE %:keyword% OR a.adminEmail LIKE %:keyword%) AND " +
             // 역할 및 상태 필터 조건
             "(:role IS NULL OR a.role = :role) AND " +
-            "(:status IS NULL OR a.status = :status)")
+            "(:adminStatus IS NULL OR a.adminStatus = :adminStatus)")
     Page<Admin> findByConditions(
             @Param("keyword") String keyword,
             @Param("role") AdminRole role,
-            @Param("status") AdminStatus status,
+            @Param("adminStatus") AdminStatus adminStatus,
             Pageable pageable
     );
 
