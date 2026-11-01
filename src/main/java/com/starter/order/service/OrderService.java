@@ -4,6 +4,8 @@ import com.starter.admin.entity.Admin;
 import com.starter.admin.repository.AdminRepository;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
+import com.starter.order.dto.request.OrderCancelRequest;
+import com.starter.order.dto.request.OrderCreateRequest;
 import com.starter.order.dto.response.OrderDetailResponse;
 import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.entity.Order;
@@ -72,22 +74,20 @@ public class OrderService {
      *     <li>주문 번호가 자동 생성되어 부여된다. (ex: 20260901-003)</li>
      * </ul>
      *
-     * @param adminId    주문을 등록한 CS 관리자 ID
-     * @param customerId 주문한 고객 ID
-     * @param productId  주문한 상품 ID
-     * @param quantity   주문 수량
+     * @param adminId 주문을 등록한 CS 관리자 ID
+     * @param request 주문 고객 ID, 주문 상품 ID, 주문 수량
      */
     @Transactional
-    public void createOrder(Long adminId, Long customerId, Long productId, Integer quantity) {
+    public void createOrder(Long adminId, OrderCreateRequest request) {
 
         // 1. admin, customer, product 객체 꺼내기
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."));
 
-        Customer customer = customerRepository.findById(customerId)
+        Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 고객입니다."));
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."));
 
         // 2. 검증
@@ -99,20 +99,20 @@ public class OrderService {
         }
 
         // 2-2. 주문 수량만큼 상품 재고 검증 처리
-        if (product.getStock() < quantity) {
+        if (product.getStock() < request.getQaunitity()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "주문 수량이 재고 수량보다 많습니다.");
         }
 
         // 3. 재고 차감
         // 3-1. 재고 계산
-        Integer stock = product.getStock() - quantity;
+        Integer stock = product.getStock() - request.getQaunitity();
         // 3-2. 재고 저장 ( 품절 처리 자동 변환)
         product.changeStock(stock);
 
         // 4. 엔티티 생성
         // 4-1. 엔티티에 넣을 값 계산
         // 4-1-1.( 총 금액 = 상품 단가 * 수량)
-        Long totalPrice = product.getPrice() * quantity;
+        Long totalPrice = product.getPrice() * request.getQaunitity();
         // 4-1-2. 주문 번호 생성
         // TODO: 메서드로 빼기
         String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);                 // 20261029
@@ -127,7 +127,7 @@ public class OrderService {
                 product,
                 product.getName(),  // 주문한 순간의 상품 이름
                 product.getPrice(), // 주문한 순간의 상품 가격
-                quantity
+                request.getQaunitity()
         );
 
         // 5. 저장
@@ -283,16 +283,16 @@ public class OrderService {
     /**
      * 주문을 취소한다.
      *
-     * @param orderId      취소할 주문 ID
-     * @param cancelReason 취소 사유
+     * @param orderId 취소할 주문 ID
+     * @param request 주문 취소 요청 (취소 사유)
      */
     @Transactional
-    public void cancelOrder(Long orderId, String cancelReason) {
+    public void cancelOrder(Long orderId, OrderCancelRequest request) {
 
         // 1. orderId에 해당하는 엔티티 찾기
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
-        order.cancelOrder(cancelReason);
+        order.cancelOrder(request.getCancelReason());
     }
 }
