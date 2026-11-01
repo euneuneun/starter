@@ -143,7 +143,7 @@ public class OrderService {
                 order.getTotalPrice(),
                 order.getCreatedAt(),
                 order.getStatus(),
-                order.getRegisterAdmin().getEmail(),
+                order.getRegisterAdmin().getAdminEmail(),
                 order.getRegisterAdmin().getRole()
         );
 
@@ -228,7 +228,7 @@ public class OrderService {
                     order.getTotalPrice(),
                     order.getCreatedAt(),
                     order.getStatus(),
-                    order.getRegisterAdmin().getName()
+                    order.getRegisterAdmin().getAdminName()
             );
 
             // 3-2. dto -> list <dto>

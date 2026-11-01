@@ -32,8 +32,8 @@ public class ProductDetailResponse {
         this.status = product.getStatus();
         this.createdAt = product.getCreatedAt();
         if(product.getAdmin() != null) {
-            this.adminName = product.getAdmin().getName();
-            this.adminEmail = product.getAdmin().getEmail();
+            this.adminName = product.getAdmin().getAdminName();
+            this.adminEmail = product.getAdmin().getAdminEmail();
         }
     }
     // 기능

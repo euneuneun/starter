@@ -9,11 +9,11 @@ import jakarta.validation.constraints.*;
 public class AdminCreateRequest {
     //속성
     @NotBlank(message = "이름은 필수입니다.")
-    private String name;
+    private String adminName;
 
     @NotBlank(message = "이메일은 필수 입력입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.")
-    private String email;
+    private String adminEmail;
 
     @NotBlank(message = "비밀번호는 필수 입력입니다.")
     @Size(min = 8, message = "비밀번호는 최소 8자 이상입니다.")
@@ -21,41 +21,41 @@ public class AdminCreateRequest {
 
     @NotBlank(message = "전화번호는 필수 입력입니다.")
     @Pattern(regexp = "010-?\\d{3,4}-?\\d{4}$", message = "올바른 휴대폰 번호 형식이 아닙니다.")
-    private String phone;
+    private String adminPhone;
 
     @NotNull(message = "권한은 필수 선택입니다.")
     private AdminRole role;
 
     //생성자
     public AdminCreateRequest(
-            String name,
-            String email,
+            String adminName,
+            String adminEmail,
             String password,
-            String phone,
+            String adminPhone,
             AdminRole role
     ) {
-        this.name = name;
-        this.email = email;
+        this.adminName = adminName;
+        this.adminEmail = adminEmail;
         this.password = password;
-        this.phone = phone;
+        this.adminPhone = adminPhone;
         this.role = role;
     }
 
     //기능
-    public String getName() {
-        return name;
+    public String getAdminName() {
+        return adminName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getAdminEmail() {
+        return adminEmail;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getAdminPhone() {
+        return adminPhone;
     }
 
     public AdminRole getRole() {
