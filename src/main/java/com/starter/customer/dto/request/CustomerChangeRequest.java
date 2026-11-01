@@ -6,9 +6,6 @@ public class CustomerChangeRequest {
     private String customerName;
     private String customerEmail;
     private String customerPhone;
-    /**
-     * 고객 정보 수정 요청 객체를 생성한다.
-     */
     public CustomerChangeRequest() {
     }
     /**
