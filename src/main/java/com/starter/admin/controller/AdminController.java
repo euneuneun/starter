@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -403,36 +404,83 @@ public class AdminController {
     }
 
     /**
-     * 예외 처리 메서드
+     * 런타임 예외 및 커스텀 비즈니스 예외 처리
+     *
+     * @param runtimeException 발생한 런타임 예외 객체
+     * @return 에러 메시지와 HTTP 상태 코드가 담긴 ResponseEntity
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handlerRuntimeException(RuntimeException runtimeException) {
-        HttpStatus status = HttpStatus.BAD_REQUEST; // 기본값 400
+        // 1. HttpStatus 상태 데이터 준비(기본값 400)
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        // 2. 검증 메시지 준비
         String message = runtimeException.getMessage();
 
+        // 3. 예외 확인 후 상태 코드 밑 메시지 재설정
         if (runtimeException instanceof AdminException) {
             AdminException adminException = (AdminException) runtimeException;
             status = adminException.getErrorCode().getStatus();
-            message = adminException.getMessage();
+            message = adminException.getErrorCode().getMessage();
         }
 
-        return ResponseEntity
+        //4. 응답 생성
+        ResponseEntity<String> response = ResponseEntity
                 .status(status)
                 .body("요청 오류: " + message);
+
+        // 5. 응답 반환
+        return response;
     }
 
     /**
-     * 예외 처리 2
+     * @Valid 유효성 검증 실패 예외 처리
+     *
+     * @param methodArgumentNotValidException DTO 유효성 검증 실패 시 발생하는 예외 객체
+     * @return 필드별 검증 실패 메시지와 400 Bad Request 상태 코드가 담긴 ResponseEntity
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException e) {
-        // 발생한 모든 에러 메시지를 수집해서 이어붙이기
-        String errorMessage = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.joining(", ")); // 쉼표로 구분
+    public ResponseEntity<String> handleValidationExceptions(
+            MethodArgumentNotValidException methodArgumentNotValidException
+    ) {
+        // 1. HttpStatus 상태 데이터 준비(기본값 400)
+        HttpStatus status = AdminErrorCode.INVALID_REQUEST.getStatus();
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("요청 오류: " + errorMessage);
+        // 2. 검증 메시지 준비
+        String message = AdminErrorCode.INVALID_REQUEST.getMessage();
+
+        // 3. 응답 생성
+        ResponseEntity<String> response = ResponseEntity
+                .status(status)
+                .body("요청 오류: " + message);
+
+        // 4. 응답 반환
+        return response;
+    }
+
+    /**
+     * JSON 데이터 변환 및 Enum 매핑 실패 예외 처리
+     * (클라이언트가 잘못된 형식의 데이터나 빈 문자열을 보냈을 때 발생)
+     *
+     * @param httpMessageNotReadableException JSON 데이터 변환 실패 시 발생하는 예외 객체
+     * @return 잘못된 요청(400 Bad Request) 에러 메시지가 담긴 ResponseEntity
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException httpMessageNotReadableException
+    ) {
+        // 1. HttpStatus 상태 데이터 준비(기본값 400)
+        HttpStatus status = AdminErrorCode.INVALID_REQUEST.getStatus();
+
+        // 2. 검증 메시지 준비
+        String message = AdminErrorCode.INVALID_REQUEST.getMessage();
+
+        // 3. 응답 생성
+        ResponseEntity<String> response = ResponseEntity
+                .status(status)
+                .body("요청 오류: " + message);
+
+        // 4. 응답 반환
+        return response;
     }
 }

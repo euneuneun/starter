@@ -31,14 +31,12 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
 
     //생성자
-
     public AdminService(AdminRepository adminRepository, PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     //기능
-
     /**
      * 관리자 회원가입 처리
      *
