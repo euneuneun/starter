@@ -117,10 +117,7 @@ public class OrderService {
         // 4-1-1.( 총 금액 = 상품 단가 * 수량)
         Long totalPrice = product.getPrice() * request.getQuantity();
         // 4-1-2. 주문 번호 생성
-        // TODO: 메서드로 빼기
-        String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);                 // 20261029
-        long todayCount = orderRepository.countByOrderNumberStartingWith(today + "-") + 1; // 3
-        String orderNumber = String.format("%s-%03d", today, todayCount);                        // 20261029-003
+        String orderNumber = generateOrderNumber();
 
         // 4-2. Order 엔티티 생성
         Order order = new Order(customer, admin, orderNumber, totalPrice);
@@ -295,5 +292,23 @@ public class OrderService {
         Product product = orderItem.getProduct();
 
         product.changeStock(product.getStock() + orderItem.getQuantity());
+    }
+
+    /**
+     * 오늘 날짜 기준으로 주문 번호를 생성한다.
+     * <p>형식: {@code yyyyMMdd-NNN} (예: 20261029-003)</p>
+     *
+     * @return 생성된 주문 번호
+     */
+    private String generateOrderNumber() {
+
+        // 1. 오늘 날짜 (예: 20261029)
+        String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+
+        // 2. 오늘 생성된 주문 수 + 1 = 이번 주문 순번 (예: 3)
+        long todayCount = orderRepository.countByOrderNumberStartingWith(today + "-") + 1;
+
+        // 3. 주문 번호 조합 (예: 20261029-003)
+        return String.format("%s-%03d", today, todayCount);
     }
 }
