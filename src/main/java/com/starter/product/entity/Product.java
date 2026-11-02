@@ -188,26 +188,35 @@ public class Product {
             String productCategory,
             Long price) {
 
-        if (productName == null || productName.isBlank()
-                || productName.length() > 100) {
-            throw new IllegalArgumentException(
-                    "상품명은 null 이거나 100자를 넘을 수 없습니다.");
+        // 1. 상품명이 전달된 경우에만 검증 및 수정
+        if (productName != null) {
+            if (productName.isBlank() || productName.length() > 100) {
+                throw new IllegalArgumentException(
+                        "상품명은 공백이거나 100자를 넘을 수 없습니다.");
+            }
+
+            this.productName = productName;
         }
 
-        if (productCategory == null || productCategory.isBlank()
-                || productCategory.length() > 15) {
-            throw new IllegalArgumentException(
-                    "카테고리는 null 이거나 15자를 넘을 수 없습니다.");
+        // 2. 카테고리가 전달된 경우에만 검증 및 수정
+        if (productCategory != null) {
+            if (productCategory.isBlank() || productCategory.length() > 15) {
+                throw new IllegalArgumentException(
+                        "카테고리는 공백이거나 15자를 넘을 수 없습니다.");
+            }
+
+            this.productCategory = productCategory;
         }
 
-        if (price == null || price < 0) {
-            throw new IllegalArgumentException(
-                    "가격은 null 이거나 음수일 수 없습니다.");
-        }
+        // 3. 가격이 전달된 경우에만 검증 및 수정
+        if (price != null) {
+            if (price < 0) {
+                throw new IllegalArgumentException(
+                        "가격은 음수일 수 없습니다.");
+            }
 
-        this.productName = productName;
-        this.productCategory = productCategory;
-        this.price = price;
+            this.price = price;
+        }
     }
     /**
      * 상품을 소프트 삭제 처리한다.
