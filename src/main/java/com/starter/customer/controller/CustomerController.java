@@ -27,9 +27,16 @@ import java.util.Map;
 public class CustomerController {
 
     private final CustomerService customerService;
+
+    /**
+     * 고객 컨트롤러를 생성한다.
+     *
+     * @param customerService 고객 관리 서비스
+     */
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
+
     /**
      * 고객 상세 정보를 조회한다.
      *
@@ -45,12 +52,13 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 검색 및 필터 조건에 따라 고객 목록을 조회한다.
      *
      * @param keyword 고객 검색 키워드
      * @param page 조회할 페이지 번호
-     * @param size 페이지당 조회할 고객 수
+     * @param size 페이지당 고객 수
      * @param sortBy 정렬 기준
      * @param sortDirection 정렬 방향
      * @param customerStatus 고객 상태 필터
@@ -77,6 +85,7 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 정보를 수정한다.
      *
@@ -95,6 +104,7 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 상태를 변경한다.
      *
@@ -113,6 +123,7 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 정보를 삭제 처리한다.
      *

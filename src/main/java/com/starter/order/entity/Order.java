@@ -15,20 +15,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 
-@Getter
 @Entity
-@NoArgsConstructor
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
+    // 속성
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
@@ -55,7 +52,11 @@ public class Order extends BaseEntity {
     @Column(nullable = true, length = 255)
     private String cancelReason;
 
-    public Order(Customer customer, Admin registerAdmin, String orderNumber, Long totalPrice){
+    // 생성자
+    protected Order() {
+    }
+
+    public Order(Customer customer, Admin registerAdmin, String orderNumber, Long totalPrice) {
         this.customer = customer;
         this.registerAdmin = registerAdmin;
         this.orderNumber = orderNumber;
@@ -63,46 +64,73 @@ public class Order extends BaseEntity {
         this.totalPrice = totalPrice;
     }
 
-    /**
-     * 주문 상태 수정 메서드
-     * <li> 상태 변경 순서: 준비중 → 배송중 → 배송완료 </li>
-     */
-    public void updateOrderStatus(){
+    // 기능
 
-        if(this.status==OrderStatus.PREPARING){
+    /**
+     * 주문 상태를 다음 단계로 바꾼다.
+     * <ul>
+     *     <li>상태 변경 순서: 준비중 → 배송중 → 배송완료</li>
+     * </ul>
+     */
+    public void updateOrderStatus() {
+
+        if (this.status == OrderStatus.PREPARING) {
             this.status = OrderStatus.SHIPPING;
-        }
-        else if(this.status==OrderStatus.SHIPPING){
+        } else if (this.status == OrderStatus.SHIPPING) {
             this.status = OrderStatus.DELIVERED;
-        }
-        else{
+        } else {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "배송완료 또는 취소된 주문은 상태를 수정할 수 없습니다.");
         }
 
     }
 
     /**
-     * 주문 취소 메서드
+     * 주문 상태를 취소로 바꾼다.
      * <ul>
-     *   <li>준비중(PREPARING) 상태만 취소 가능</li>
-     *   <li>배송중(SHIPPING) / 배송완료(DELIVERED)는 취소 불가</li>
+     *     <li>준비중(PREPARING) 상태만 취소 가능</li>
+     *     <li>배송중(SHIPPING) / 배송완료(DELIVERED)는 취소 불가</li>
      * </ul>
      *
      * @param cancelReason 취소 사유
      */
-    public void cancelOrder(String cancelReason){
+    public void cancelOrder(String cancelReason) {
 
-        if(this.status==OrderStatus.PREPARING){
+        if (this.status == OrderStatus.PREPARING) {
             this.status = OrderStatus.CANCELLED;
-        }
-        else if(this.status==OrderStatus.CANCELLED){
+        } else if (this.status == OrderStatus.CANCELLED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 취소된 주문입니다.");
-        }
-        else{
+        } else {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "배송중 또는 배송완료된 주문은 취소할 수 없습니다.");
         }
 
         this.cancelReason = cancelReason;
     }
 
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public Admin getRegisterAdmin() {
+        return registerAdmin;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public Long getTotalPrice() {
+        return totalPrice;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
 }

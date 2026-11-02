@@ -10,15 +10,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
+
 @Entity
-@NoArgsConstructor
-@Table(name="order_items")
+@Table(name = "order_items")
 public class OrderItem {
 
+    // 속성
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemId;
@@ -40,7 +38,11 @@ public class OrderItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    public OrderItem(Order order, Product product, String productName, Long productPrice, Integer quantity){
+    // 생성자
+    protected OrderItem() {
+    }
+
+    public OrderItem(Order order, Product product, String productName, Long productPrice, Integer quantity) {
         this.order = order;
         this.product = product;
         this.productName = productName;
@@ -48,4 +50,28 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
+    // 기능
+    public Long getOrderItemId() {
+        return orderItemId;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public Long getProductPrice() {
+        return productPrice;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
 }
