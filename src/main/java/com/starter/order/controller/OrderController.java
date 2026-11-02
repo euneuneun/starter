@@ -6,6 +6,8 @@ import com.starter.order.dto.response.OrderDetailResponse;
 import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.enums.OrderStatus;
 import com.starter.order.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -39,53 +41,62 @@ public class OrderController {
     /**
      * CS 주문 생성 API
      *
-     * @param adminId 로그인하고 있는 사용자 ID(= CS 관리자)
-     * @param request 주문 고객 ID, 주문 상품 ID, 주문 상품 수량
+     * @param request     주문 고객 ID, 주문 상품 ID, 주문 상품 수량
+     * @param httpRequest HTTP 요청 (로그인 세션 확인용)
      * @return 201 CREATED, body 없음
      */
     @PostMapping
     public ResponseEntity<Void> createOrder(
-            @SessionAttribute(name = "ADMIN_ID", required = false) Long adminId,
-            @Valid @RequestBody OrderCreateRequest request) {
+            @Valid @RequestBody OrderCreateRequest request,
+            HttpServletRequest httpRequest) {
 
-        // 1. 서비스 처리
+        // 1. 로그인 확인 (주문 등록 관리자 ID)
+        Long adminId = getLoginAdminId(httpRequest);
+
+        // 2. 서비스 처리
         orderService.createOrder(adminId, request);
 
-        // 2. Http
+        // 3. Http
         ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.CREATED);
 
-        // 3. 반환
+        // 4. 반환
         return response;
     }
 
     /**
      * 주문 상세 조회 API
      *
-     * @param orderId 조회할 주문 ID
+     * @param orderId     조회할 주문 ID
+     * @param httpRequest HTTP 요청 (로그인 세션 확인용)
      * @return 200 OK, 주문 상세 정보 (주문번호, 고객 정보, 주문 상품, 상태 등)
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrderDetail(
-            @PathVariable Long orderId) {
+            @PathVariable Long orderId,
+            HttpServletRequest httpRequest) {
 
-        // 1. 서비스 처리
+        // 1. 로그인 확인
+        getLoginAdminId(httpRequest);
+
+        // 2. 서비스 처리
         OrderDetailResponse orderDetailResponse = orderService.getOrderDetail(orderId);
 
-        // 2. Http
+        // 3. Http
         ResponseEntity<OrderDetailResponse> response = new ResponseEntity<>(orderDetailResponse, HttpStatus.OK);
 
-        // 3. 반환
+        // 4. 반환
         return response;
     }
 
     /**
      * 주문 목록 조회 API
      *
-     * @param keyword   검색어 (주문번호, 고객명)
-     * @param status    주문 상태 필터 (준비중, 배송중, 배송완료, 취소됨)/ null 값 = 전체 상태
-     * @param sortBy    정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
-     * @param direction ASC, DESC
-     * @param page      조회할 페이지 번호 (1부터)
+     * @param keyword     검색어 (주문번호, 고객명)
+     * @param status      주문 상태 필터 (준비중, 배송중, 배송완료, 취소됨)/ null 값 = 전체 상태
+     * @param sortBy      정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
+     * @param direction   ASC, DESC
+     * @param page        조회할 페이지 번호 (1부터)
+     * @param httpRequest HTTP 요청 (로그인 세션 확인용)
      * @return 200 OK, 주문 목록 (페이징 정보 포함)
      */
     @GetMapping
@@ -94,59 +105,94 @@ public class OrderController {
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction, // Spring이 제공하는 enum 값 (ASC, DESC)
-            @RequestParam(defaultValue = "1") int page // defaultValue의 모든 값은 String으로 받아 필요시 int 처리한다.
+            @RequestParam(defaultValue = "1") int page, // defaultValue의 모든 값은 String으로 받아 필요시 int 처리한다.
+            HttpServletRequest httpRequest
     ) {
 
-        // 1. 서비스 처리
+        // 1. 로그인 확인
+        getLoginAdminId(httpRequest);
+
+        // 2. 서비스 처리
         Page<OrderSummaryResponse> orderListResponse = orderService.getOrderList(
                 keyword, status, sortBy, direction, page);
 
-        // 2. Http
+        // 3. Http
         ResponseEntity<Page<OrderSummaryResponse>> response = new ResponseEntity<>(orderListResponse, HttpStatus.OK);
 
-        // 3. 반환
+        // 4. 반환
         return response;
     }
 
     /**
      * 주문 상태 수정 API
      *
-     * @param orderId 수정할 주문 ID
+     * @param orderId     수정할 주문 ID
+     * @param httpRequest HTTP 요청 (로그인 세션 확인용)
      * @return 200 OK, body 없음
      */
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId) {
+    public ResponseEntity<Void> updateOrderStatus(
+            @PathVariable Long orderId,
+            HttpServletRequest httpRequest) {
 
-        // 1. 서비스 처리
+        // 1. 로그인 확인
+        getLoginAdminId(httpRequest);
+
+        // 2. 서비스 처리
         orderService.updateOrderStatus(orderId);
 
-        // 2. Http
+        // 3. Http
         ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.OK);
 
-        // 3. 반환
+        // 4. 반환
         return response;
     }
 
     /**
      * 주문 취소 API
      *
-     * @param orderId 취소할 주문 ID
-     * @param reqeust 주문 취소 요청 (취소 사유)
+     * @param orderId     취소할 주문 ID
+     * @param reqeust     주문 취소 요청 (취소 사유)
+     * @param httpRequest HTTP 요청 (로그인 세션 확인용)
      * @return 200 OK, body 없음
      */
     @PatchMapping("/{orderId}")
     public ResponseEntity<Void> cancelOrder(
             @PathVariable Long orderId,
-            @Valid @RequestBody OrderCancelRequest reqeust
+            @Valid @RequestBody OrderCancelRequest reqeust,
+            HttpServletRequest httpRequest
     ) {
 
-        // 1. 서비스 처리
+        // 1. 로그인 확인
+        getLoginAdminId(httpRequest);
+
+        // 2. 서비스 처리
         orderService.cancelOrder(orderId, reqeust);
 
-        // 2. Http
+        // 3. Http
         ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.OK);
 
-        // 3. 반환
+        // 4. 반환
         return response;
+    }
+
+    /**
+     * 세션에서 로그인한 관리자 ID를 꺼낸다.
+     *
+     * @param httpRequest HTTP 요청
+     * @return 로그인한 관리자 ID
+     */
+    private Long getLoginAdminId(HttpServletRequest httpRequest) {
+
+        // 1. 기존 세션 조회 (없으면 새로 만들지 않음)
+        HttpSession session = httpRequest.getSession(false);
+
+        // 2. 관리자 로그인 여부 확인
+        if (session == null || session.getAttribute("ADMIN_ID") == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+
+        // 3. 반환
+        return (Long) session.getAttribute("ADMIN_ID");
     }
 }
