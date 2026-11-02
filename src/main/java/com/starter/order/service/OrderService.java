@@ -7,6 +7,7 @@ import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
 import com.starter.order.dto.request.OrderCancelRequest;
 import com.starter.order.dto.request.OrderCreateRequest;
+import com.starter.order.dto.request.OrderItemRequest;
 import com.starter.order.dto.response.OrderDetailResponse;
 import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.entity.Order;
@@ -75,7 +76,6 @@ public class OrderService {
      * <ul>
      *     <li>주문 수량만큼 상품 재고가 차감된다.</li>
      *     <li>재고 변경에 따라 상품 상태가 자동 전환 처리된다.</li>
-     *     <li>주문 번호가 자동 생성되어 부여된다. (ex: 20260901-003)</li>
      * </ul>
      *
      * @param adminId 주문을 등록한 CS 관리자 ID
@@ -91,52 +91,79 @@ public class OrderService {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+        /*
+        request  (OrderCreateRequest)  ← 주문서 1장
+        ┌──────────────────────────────────────────────┐
+        │ customerId = 1                               │
+        │                                              │
+        │ items  (List<OrderItemRequest>)  ← 장바구니    │
+        │ ┌──────────────────────────────────────────┐ │
+        │ │ [0] OrderItemRequest                     │ │
+        │ │     productId = 3, quantity = 2          │ │
+        │ ├──────────────────────────────────────────┤ │
+        │ │ [1] OrderItemRequest                     │ │
+        │ │     productId = 7, quantity = 1          │ │
+        │ ├──────────────────────────────────────────┤ │
+        │ │ [2] OrderItemRequest                     │ │
+        │ │     productId = 9, quantity = 5          │ │
+        │ └──────────────────────────────────────────┘ │
+        └──────────────────────────────────────────────┘
+        */
+        Product product;
 
-        // 2. 검증
-        // 2-1. 주문한 상품 상태 확인
-        if (product.getProductStatus() == Product.ProductStatus.DISCONTINUED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 단종되어 주문할 수 없습니다.
-        } else if (product.getProductStatus() == Product.ProductStatus.OUT_OF_STOCK) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 품절되어 주문할 수 없습니다.
+        Long totalPrice = 0L; // 0은 int라서 Long에 바로 못 들어감
+
+        List<Product> productList = new ArrayList<>();
+
+        for (OrderItemRequest item : request.getItems()) {
+            product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+
+            // 2. 검증
+            // 2-1. 주문한 상품 상태 확인
+            if (product.getProductStatus() == ProductStatus.DISCONTINUED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 단종되어 주문할 수 없습니다.
+            } else if (product.getProductStatus() == ProductStatus.OUT_OF_STOCK) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 품절되어 주문할 수 없습니다.
+            }
+
+            // 2-2. 주문 수량만큼 상품 재고 검증 처리
+            if (product.getStock() < product.getStock()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 주문 수량이 재고 수량보다 많습니다.
+            }
+
+            // 3. 재고 차감
+            // 3-1. 재고 계산
+            Integer stock = product.getStock() - item.getQuantity();
+            // 3-2. 재고 저장 ( 품절 처리 자동 변환)
+            product.changeStock(stock);
+
+            // 4. 엔티티 생성
+            // 4-1. 엔티티에 넣을 값 계산
+            // 4-1-1.( 총 금액 = 상품 단가 * 수량)
+            totalPrice += product.getPrice() * item.getQuantity();
+
+            productList.add(product);
         }
 
-        // 2-2. 주문 수량만큼 상품 재고 검증 처리
-        if (product.getStock() < request.getQuantity()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 주문 수량이 재고 수량보다 많습니다.
-        }
-
-        // 3. 재고 차감
-        // 3-1. 재고 계산
-        Integer stock = product.getStock() - request.getQuantity();
-        // 3-2. 재고 저장 ( 품절 처리 자동 변환)
-        product.changeStock(stock);
-
-        // 4. 엔티티 생성
-        // 4-1. 엔티티에 넣을 값 계산
-        // 4-1-1.( 총 금액 = 상품 단가 * 수량)
-        Long totalPrice = product.getPrice() * request.getQuantity();
-        // 4-1-2. 주문 번호 생성
+        // 4-1. 주문 번호 생성
         String orderNumber = generateOrderNumber();
 
-        // 4-2. Order 엔티티 생성
+        // 4-2. Order 엔티티 생성 및 저장
         Order order = new Order(customer, admin, orderNumber, totalPrice);
-        // 4-3 OrderItem 엔티티 생성
-        OrderItem orderItem = new OrderItem(
-                order,
-                product,
-                product.getProductName(),  // 주문한 순간의 상품 이름
-                product.getPrice(), // 주문한 순간의 상품 가격
-                request.getQuantity()
-        );
-
-        // 5. 저장
-        // 5-1. 주문 저장
         orderRepository.save(order);
-        // 5-2. 주문 상품 저장
-        orderItemRepository.save(orderItem);
 
+        // 4-3. OrderItem 엔티티 생성 및 저장
+        for(int i = 0; i < productList.size(); i++) {
+            OrderItem orderItem = new OrderItem(
+                    order,
+                    productList.get(i),
+                    productList.get(i).getProductName(),
+                    productList.get(i).getPrice(),
+                    request.getItems().get(i).getQuantity()
+            );
+            orderItemRepository.save(orderItem);
+        }
     }
 
     /**
