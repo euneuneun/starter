@@ -1801,14 +1801,14 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Error Response**
 
-| 상태 코드 | 상황 |
-| --- | --- |
-| `400 Bad Request` | 필수 값 누락, 수량이 1 미만인 경우 |
-| `401 Unauthorized` | 로그인하지 않은 경우 |
-| `404 Not Found` | 존재하지 않는 관리자 / 고객 / 상품 |
-| `409 Conflict` | 단종된 상품 (`현재 상품이 단종되어 주문할 수 없습니다.`) |
-| `409 Conflict` | 품절된 상품 (`현재 상품이 품절되어 주문할 수 없습니다.`) |
-| `409 Conflict` | 주문 수량 > 재고 수량 (`주문 수량이 재고 수량보다 많습니다.`) |
+| 상태 코드 | 상황 | message |
+| --- | --- | --- |
+| `400 Bad Request` | 필수 값 누락, 수량이 1 미만인 경우 | `Invalid request` |
+| `401 Unauthorized` | 로그인하지 않은 경우 | `Unauthorized user` |
+| `404 Not Found` | 존재하지 않는 관리자 / 고객 / 상품 | `Resource Not Found` |
+| `400 Bad Request` | 단종된 상품 | `Invalid request` |
+| `400 Bad Request` | 품절된 상품 | `Invalid request` |
+| `400 Bad Request` | 주문 수량 > 재고 수량 | `Invalid request` |
 
 </details>
 
@@ -1885,10 +1885,10 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Error Response**
 
-| 상태 코드 | 상황 |
-| --- | --- |
-| `400 Bad Request` | 정렬할 수 없는 `sortBy` 값 (`정렬할 수 없는 항목입니다.`), 잘못된 `status` / `direction` 값 |
-| `401 Unauthorized` | 로그인하지 않은 경우 |
+| 상태 코드 | 상황 | message |
+| --- | --- | --- |
+| `400 Bad Request` | 정렬할 수 없는 `sortBy` 값, 잘못된 `status` / `direction` 값 | `Invalid request` |
+| `401 Unauthorized` | 로그인하지 않은 경우 | `Unauthorized user` |
 
 </details>
 
@@ -1941,10 +1941,10 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Error Response**
 
-| 상태 코드 | 상황 |
-| --- | --- |
-| `401 Unauthorized` | 로그인하지 않은 경우 |
-| `404 Not Found` | 존재하지 않는 주문 / 주문 상품 |
+| 상태 코드 | 상황 | message |
+| --- | --- | --- |
+| `401 Unauthorized` | 로그인하지 않은 경우 | `Unauthorized user` |
+| `404 Not Found` | 존재하지 않는 주문 / 주문 상품 | `Resource Not Found` |
 
 </details>
 
@@ -1975,11 +1975,11 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Error Response**
 
-| 상태 코드 | 상황 |
-| --- | --- |
-| `401 Unauthorized` | 로그인하지 않은 경우 |
-| `404 Not Found` | 존재하지 않는 주문 |
-| `409 Conflict` | 배송완료 또는 취소된 주문 (`배송완료 또는 취소된 주문은 상태를 수정할 수 없습니다.`) |
+| 상태 코드 | 상황 | message |
+| --- | --- | --- |
+| `401 Unauthorized` | 로그인하지 않은 경우 | `Unauthorized user` |
+| `404 Not Found` | 존재하지 않는 주문 | `Resource Not Found` |
+| `400 Bad Request` | 배송완료 또는 취소된 주문 | `Invalid request` |
 
 </details>
 
@@ -2017,12 +2017,12 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 **Error Response**
 
-| 상태 코드 | 상황 |
-| --- | --- |
-| `400 Bad Request` | 취소 사유 누락 또는 공백 |
-| `401 Unauthorized` | 로그인하지 않은 경우 |
-| `404 Not Found` | 존재하지 않는 주문 / 주문 상품 |
-| `409 Conflict` | 이미 취소된 주문 (`이미 취소된 주문입니다.`) |
-| `409 Conflict` | 배송중 또는 배송완료된 주문 (`배송중 또는 배송완료된 주문은 취소할 수 없습니다.`) |
+| 상태 코드 | 상황 | message |
+| --- | --- | --- |
+| `400 Bad Request` | 취소 사유 누락 또는 공백 | `Invalid request` |
+| `401 Unauthorized` | 로그인하지 않은 경우 | `Unauthorized user` |
+| `404 Not Found` | 존재하지 않는 주문 / 주문 상품 | `Resource Not Found` |
+| `400 Bad Request` | 이미 취소된 주문 | `Invalid request` |
+| `400 Bad Request` | 배송중 또는 배송완료된 주문 | `Invalid request` |
 
 </details>
