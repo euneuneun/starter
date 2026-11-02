@@ -76,8 +76,7 @@
 | `PATCH` | `/admins/me/password`       | 비밀번호 변경 |
 | `PATCH` | `/admins/{adminId}/role`    | 관리자 역할 변경 |
 | `PATCH` | `/admins/{adminId}/status`  | 관리자 상태 변경 |
-| `PATCH` | `/admins/{adminId}/approve` | 관리자 승인 |
-| `PATCH` | `/admins/{adminId}/reject`  | 관리자 거부 |
+
 
 <details>
 <summary><code>POST</code> <b>/admins/signup</b> — 관리자 회원가입</summary>
