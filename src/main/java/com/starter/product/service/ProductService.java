@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.starter.product.enums.ProductStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public class ProductService {
                     "stock은 null을 입력할 수 없습니다.");
         }
 
-        Product.ProductStatus productStatus =
+        ProductStatus productStatus =
                 productCreateRequest.getProductStatus();
 
         // 2. 관리자 id로 조회
@@ -224,7 +225,7 @@ public class ProductService {
             String sortBy,
             String sortDirection,
             String productCategory,
-            Product.ProductStatus productStatus) {
+            ProductStatus productStatus) {
 
         // 1. 검증
 

@@ -15,6 +15,7 @@ import com.starter.order.enums.OrderStatus;
 import com.starter.order.repository.OrderItemRepository;
 import com.starter.order.repository.OrderRepository;
 import com.starter.product.entity.Product;
+import com.starter.product.enums.ProductStatus;
 import com.starter.product.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -95,9 +96,9 @@ public class OrderService {
 
         // 2. 검증
         // 2-1. 주문한 상품 상태 확인
-        if (product.getProductStatus() == Product.ProductStatus.DISCONTINUED) {
+        if (product.getProductStatus() == ProductStatus.DISCONTINUED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 단종되어 주문할 수 없습니다.");
-        } else if (product.getProductStatus() == Product.ProductStatus.OUT_OF_STOCK) {
+        } else if (product.getProductStatus() == ProductStatus.OUT_OF_STOCK) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 품절되어 주문할 수 없습니다.");
         }
 

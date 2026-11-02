@@ -1,7 +1,7 @@
 
 package com.starter.product.dto.response;
 
-import com.starter.product.entity.Product;
+import com.starter.product.enums.ProductStatus;
 
 public class ProductCreateResponse {
 
@@ -9,7 +9,7 @@ public class ProductCreateResponse {
     private String productCategory;
     private String price;
     private Integer stock;
-    private Product.ProductStatus productStatus;
+    private ProductStatus productStatus;
     /**
      * 상품 등록 응답 DTO를 생성한다.
      *
@@ -24,7 +24,7 @@ public class ProductCreateResponse {
             String productCategory,
             Long price,
             Integer stock,
-            Product.ProductStatus productStatus) {
+            ProductStatus productStatus) {
         this.productName = productName;
         this.productCategory = productCategory;
         this.price = String.format("%,d원", price);
@@ -68,7 +68,7 @@ public class ProductCreateResponse {
      *
      * @return 상품 상태
      */
-    public Product.ProductStatus getProductStatus() {
+    public ProductStatus getProductStatus() {
         return productStatus;
     }
 }

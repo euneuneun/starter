@@ -2,6 +2,7 @@
 package com.starter.product.dto.request;
 
 import com.starter.product.entity.Product;
+import com.starter.product.enums.ProductStatus;
 
 public class ProductCreateRequest {
 
@@ -9,7 +10,7 @@ public class ProductCreateRequest {
     private String productCategory;
     private Long price;
     private Integer stock;
-    private Product.ProductStatus productStatus;
+    private ProductStatus productStatus;
 
     /**
      * 기본 생성자.
@@ -31,7 +32,7 @@ public class ProductCreateRequest {
             String productCategory,
             Long price,
             Integer stock,
-            Product.ProductStatus productStatus) {
+            ProductStatus productStatus) {
 
         this.productName = productName;
         this.productCategory = productCategory;
@@ -81,7 +82,7 @@ public class ProductCreateRequest {
      *
      * @return 상품 상태
      */
-    public Product.ProductStatus getProductStatus() {
+    public ProductStatus getProductStatus() {
         return productStatus;
     }
 }

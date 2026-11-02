@@ -3,6 +3,7 @@ package com.starter.product.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.starter.product.entity.Product;
+import com.starter.product.enums.ProductStatus;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +25,7 @@ public class ProductDetailResponse {
     private String productCategory;
     private String price;
     private Integer stock;
-    private Product.ProductStatus productStatus;
+    private ProductStatus productStatus;
     private LocalDateTime createdAt;
     private String adminName;
     private String adminEmail;
@@ -99,7 +100,7 @@ public class ProductDetailResponse {
      *
      * @return 상품 상태
      */
-    public Product.ProductStatus getProductStatus() {
+    public ProductStatus getProductStatus() {
         return productStatus;
     }
 
