@@ -197,7 +197,7 @@ public class OrderService {
         // 1. 정렬 및 페이징 처리
         String sortProperty = switch (sortBy) {
             case "orderNumber" -> "order.orderNumber";
-            case "customerName" -> "order.customer.name";
+            case "customerName" -> "order.customer.customerName";
             case "productName" -> "productName";
             case "quantity" -> "quantity";
             case "totalPrice" -> "order.totalPrice";
