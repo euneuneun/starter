@@ -9,6 +9,7 @@ import com.starter.order.dto.request.OrderCancelRequest;
 import com.starter.order.dto.request.OrderCreateRequest;
 import com.starter.order.dto.request.OrderItemRequest;
 import com.starter.order.dto.response.OrderDetailResponse;
+import com.starter.order.dto.response.OrderItemResponse;
 import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.entity.Order;
 import com.starter.order.entity.OrderItem;
@@ -166,6 +167,7 @@ public class OrderService {
         }
     }
 
+    // TODO total 가격 수정
     /**
      * 주문 상세 정보를 조회한다.
      *
@@ -179,21 +181,28 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
-        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+        List<OrderItem> orderItems = orderItemRepository.findByAllOrderId(orderId);
 
         // 2. 등록 관리자 정보 (관리자 없이 생성된 주문은 null)
         Admin registerAdmin = order.getRegisterAdmin();
         String adminEmail = (registerAdmin != null) ? registerAdmin.getAdminEmail() : null;
         AdminRole adminRole = (registerAdmin != null) ? registerAdmin.getRole() : null;
 
-        // 3. 응답 생성
+        List<OrderItemResponse> orderitemList = new ArrayList<>();
+        for (OrderItem orderItem: orderItems){
+            OrderItemResponse itemResponse = new OrderItemResponse(
+                    orderItem.getProductName(),
+                    orderItem.getProductPrice(),
+                    orderItem.getQuantity()
+            );
+            orderitemList.add(itemResponse);
+        }
+
         OrderDetailResponse response = new OrderDetailResponse(
                 order.getOrderNumber(),
                 order.getCustomer().getCustomerName(),
                 order.getCustomer().getCustomerEmail(),
-                orderItem.getProductName(),
-                orderItem.getQuantity(),
+                orderitemList,
                 order.getTotalPrice(),
                 order.getCreatedAt(),
                 order.getStatus(),
@@ -314,7 +323,7 @@ public class OrderService {
 
 
         // 3. 재고 복구
-        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
+        OrderItem orderItem = orderItemRepository.findByAllOrderId(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         Product product = orderItem.getProduct();

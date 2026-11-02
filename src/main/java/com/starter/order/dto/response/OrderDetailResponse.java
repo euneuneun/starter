@@ -4,6 +4,7 @@ import com.starter.admin.enums.AdminRole;
 import com.starter.order.enums.OrderStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 public class OrderDetailResponse {
@@ -12,8 +13,7 @@ public class OrderDetailResponse {
     private String orderNumber;
     private String customerName;
     private String customerEmail;
-    private String productName;
-    private Integer quantity;
+    private List<OrderItemResponse> items;
     private Long totalPrice;
     private LocalDateTime createdAt;
     private OrderStatus status;
@@ -25,8 +25,7 @@ public class OrderDetailResponse {
             String orderNumber,
             String customerName,
             String customerEmail,
-            String productName,
-            Integer quantity,
+            List<OrderItemResponse> items,
             Long totalPrice,
             LocalDateTime createdAt,
             OrderStatus orderStatus,
@@ -36,8 +35,7 @@ public class OrderDetailResponse {
         this.orderNumber = orderNumber;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
-        this.productName = productName;
-        this.quantity = quantity;
+        this.items = items;
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
         this.status = orderStatus;
@@ -58,12 +56,8 @@ public class OrderDetailResponse {
         return customerEmail;
     }
 
-    public String getProductName() {
-        return productName;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
+    public List<OrderItemResponse> getItems() {
+        return items;
     }
 
     public Long getTotalPrice() {
