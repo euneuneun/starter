@@ -86,7 +86,6 @@ public class OrderController {
      * @param sortBy    정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
      * @param direction ASC, DESC
      * @param page      조회할 페이지 번호 (1부터)
-     * @param size      한 페이지에 들어가는 주문 수
      * @return 200 OK, 주문 목록 (페이징 정보 포함)
      */
     @GetMapping
@@ -95,12 +94,12 @@ public class OrderController {
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction, // Spring이 제공하는 enum 값 (ASC, DESC)
-            @RequestParam(defaultValue = "1") int page, // defaultValue의 모든 값은 String으로 받아 필요시 int 처리한다.
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") int page // defaultValue의 모든 값은 String으로 받아 필요시 int 처리한다.
+    ) {
 
         // 1. 서비스 처리
         Page<OrderSummaryResponse> orderListResponse = orderService.getOrderList(
-                keyword, status, sortBy, direction, page, size);
+                keyword, status, sortBy, direction, page);
 
         // 2. Http
         ResponseEntity<Page<OrderSummaryResponse>> response = new ResponseEntity<>(orderListResponse, HttpStatus.OK);

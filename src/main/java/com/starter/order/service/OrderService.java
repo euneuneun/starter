@@ -37,6 +37,8 @@ import java.util.List;
 public class OrderService {
 
     // 속성
+    private static final int ORDER_PAGE_SIZE = 10; // 주문 목록 한 페이지 크기
+
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CustomerRepository customerRepository;
@@ -185,7 +187,6 @@ public class OrderService {
      * @param sortBy    정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
      * @param direction ASC, DESC
      * @param page      조회할 페이지 번호
-     * @param size      한 페이지에 들어가는 주문 수
      * @return 페이징된 주문 목록
      */
     @Transactional(readOnly = true)
@@ -194,8 +195,7 @@ public class OrderService {
             OrderStatus status,
             String sortBy,
             Sort.Direction direction,
-            int page,
-            int size) {
+            int page) {
 
         // 1. 정렬 및 페이징 처리
         String sortProperty = switch (sortBy) {
@@ -210,7 +210,7 @@ public class OrderService {
         };
 
         Sort sort = Sort.by(direction, sortProperty);
-        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
+        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), ORDER_PAGE_SIZE, sort);
 
         // 2. 조회
         // 2-1. 빈 검색어("")는 null로 바꿔서 검색어 조건 생략
