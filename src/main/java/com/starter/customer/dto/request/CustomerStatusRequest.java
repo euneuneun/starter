@@ -20,6 +20,7 @@ public class CustomerStatusRequest {
      */
     public CustomerStatusRequest(
             Customer.CustomerStatus customerStatus) {
+
         this.customerStatus = customerStatus;
     }
 

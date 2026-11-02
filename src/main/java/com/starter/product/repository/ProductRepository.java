@@ -12,9 +12,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // 조건 검색
     @Query("SELECT p FROM Product p WHERE " +
-            "(:keyword IS NULL OR p.name LIKE %:keyword%) "
-            + "AND (:category IS NULL OR p.category = :category) "
-            + "AND (:status IS NULL OR p.status = :status) "
+            "(:keyword IS NULL OR p.productName LIKE %:keyword%) "
+            + "AND (:category IS NULL OR p.productCategory = :category) "
+            + "AND (:status IS NULL OR p.productStatus = :status) "
             + "AND (p.deletedAt IS NULL)")
     Page<Product> searchProducts(
             @Param("keyword") String keyword,

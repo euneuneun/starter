@@ -40,7 +40,7 @@ public class ProductDetailResponse {
         this.productCategory = product.getProductCategory();
         this.price = String.format("%,d원", product.getPrice());
         this.stock = product.getStock();
-        this.productStatus = product.getStatus();
+        this.productStatus = product.getProductStatus();
         this.createdAt = product.getCreatedAt();
 
         if (product.getAdmin() != null) {
