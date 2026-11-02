@@ -76,8 +76,7 @@
 | `PATCH` | `/admins/me/password`       | 비밀번호 변경 |
 | `PATCH` | `/admins/{adminId}/role`    | 관리자 역할 변경 |
 | `PATCH` | `/admins/{adminId}/status`  | 관리자 상태 변경 |
-| `PATCH` | `/admins/{adminId}/approve` | 관리자 승인 |
-| `PATCH` | `/admins/{adminId}/reject`  | 관리자 거부 |
+
 
 <details>
 <summary><code>POST</code> <b>/admins/signup</b> — 관리자 회원가입</summary>
@@ -751,122 +750,6 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "error": "Bad Request",
   "message": "Invalid request",
   "path": "/admins/{adminId}/status"
-}
-```
-
-</details>
-
-<details>
-<summary><code>PATCH</code> <b>/admins/{adminId}/approve</b> — 관리자 승인</summary>
-
-**Path Parameter**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `adminId` | Long | 관리자 고유 식별자 |
-
-**Request Headers**
-
-| Key | Value | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `Content-Type` | `application/json` | ✅ | 데이터 형식 |
-
-**Request Body**
-
-| 필드           | 타입 | 설명                                |
-|----------------| --- |-------------------------------------|
-| `adminStatus`  | String | 관리자 상태 (계정 활성: `ACTIVATE`) |
-| `rejectReason` | String | 거부 메세지(거부 시 작성 필수)      |
-
-```json
-{
-  "adminStatus": "ACTIVATE",
-  "rejectReason": ""
-}
-```
-
-**Response Body**
-
-| 필드          | 타입   | 설명                  |
-|---------------|--------|-----------------------|
-| `adminId`     | Long   | 관리자 고유 식별자    |
-| `adminName`   | String | 관리자명              |
-| `adminStatus` | String | 변경된 관리자 상태    |
-| `updateAt`    | String | 관리자 상태 변경 일시 |
-
-```json
-{
-  "adminId": 3,
-  "adminName": "테스트",
-  "adminStatus": "ACTIVATE",
-  "updatedAt": "2026-11-01T16:50:51.897"
-}
-```
-
-**Error Response**
-
-```json
-{
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Invalid request",
-  "path": "/admins/{adminId}/status"
-}
-```
-
-</details>
-
-<details>
-<summary><code>PATCH</code> <b>/admins/{adminId}/reject</b> — 관리자 거부</summary>
-
-**Path Parameter**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `adminId` | Long | 관리자 고유 식별자 |
-
-**Request Headers**
-
-| Key | Value | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `Content-Type` | `application/json` | ✅ | 데이터 형식 |
-
-**Request Body**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 관리자 상태 (계정 거부: `REJECTED`) |
-| `reject_reason` | String | 승인 거부 이유 |
-
-```json
-{
-  "status": "REJECTED",
-  "reject_reason": "메세지 입력"
-}
-```
-
-**Response Body**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 관리자 상태 (`REJECTED`) |
-| `reject_reason` | String | 승인 거부 이유 |
-
-```json
-{
-  "status": "REJECTED",
-  "reject_reason": "메세지"
-}
-```
-
-**Error Response**
-
-```json
-{
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/admins/{adminId}/reject"
 }
 ```
 
