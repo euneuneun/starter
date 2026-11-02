@@ -16,6 +16,7 @@
 ## ERD
 
 ```mermaid
+%%{init: {"er": {"fontSize": 10, "minEntityWidth": 60, "minEntityHeight": 40, "entityPadding": 8, "diagramPadding": 10}, "themeVariables": {"fontSize": "10px"}}}%%
 erDiagram
     ADMINS |o--o{ PRODUCTS : "등록"
     ADMINS |o--o{ ORDERS : "CS 주문 등록"
