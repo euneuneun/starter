@@ -270,6 +270,9 @@ public class OrderService {
 
     /**
      * 주문을 취소한다.
+     * <ul>
+     *     <li>주문 취소 후, 취소 주문 수량만큼 상품 재고를 복구한다.</li>
+     * </ul>
      *
      * @param orderId 취소할 주문 ID
      * @param request 주문 취소 요청 (취소 사유)
@@ -281,6 +284,16 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
+        // 2. 주문 취소
         order.cancelOrder(request.getCancelReason());
+
+
+        // 3. 재고 복구
+        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
+
+        Product product = orderItem.getProduct();
+
+        product.changeStock(product.getStock() + orderItem.getQuantity());
     }
 }
