@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
@@ -21,18 +23,22 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             JOIN FETCH oi.order o
             JOIN FETCH o.customer c
             LEFT JOIN FETCH o.registerAdmin a
-            WHERE (:keyword IS NULL OR o.orderNumber LIKE %:keyword% OR c.name LIKE %:keyword%)
+            WHERE (:keyword IS NULL OR o.orderNumber LIKE %:keyword% OR c.customerName LIKE %:keyword%)
               AND (:status IS NULL OR o.status = :status)
             """,
             countQuery = """
             SELECT COUNT(oi) FROM OrderItem oi
             JOIN oi.order o
             JOIN o.customer c
-            WHERE (:keyword IS NULL OR o.orderNumber LIKE %:keyword% OR c.name LIKE %:keyword%)
+            WHERE (:keyword IS NULL OR o.orderNumber LIKE %:keyword% OR c.customerName LIKE %:keyword%)
               AND (:status IS NULL OR o.status = :status)
             """)
     Page<OrderItem> searchOrders(
             @Param("keyword") String keyword,
             @Param("status") OrderStatus status,
             Pageable pageable);
+
+    // 주문 ID로 해당 주문의 주문상품 조회
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.order.orderId = :orderId")
+    Optional<OrderItem> findByOrderId(@Param("orderId") Long orderId);
 }

@@ -1,6 +1,7 @@
 package com.starter.order.service;
 
 import com.starter.admin.entity.Admin;
+import com.starter.admin.enums.AdminRole;
 import com.starter.admin.repository.AdminRepository;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
@@ -36,6 +37,8 @@ import java.util.List;
 public class OrderService {
 
     // 속성
+    private static final int ORDER_PAGE_SIZE = 10; // 주문 목록 한 페이지 크기
+
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CustomerRepository customerRepository;
@@ -63,7 +66,7 @@ public class OrderService {
      * CS 관리자가 고객 대신 주문을 생성한다.
      * <p>다음 경우에는 주문을 생성하지 않는다.</p>
      * <ul>
-     *     <li>관리자 ID, 고객 ID, 주문 ID가 존재하지 않는 경우</li>
+     *     <li>관리자 ID, 고객 ID, 상품 ID가 존재하지 않는 경우</li>
      *     <li>상품 상태가 단종/품절인 경우</li>
      *     <li>주문수량이 재고수량보다 많은 경우</li>
      * </ul>
@@ -92,32 +95,29 @@ public class OrderService {
 
         // 2. 검증
         // 2-1. 주문한 상품 상태 확인
-        if (product.getStatus() == Product.ProductStatus.DISCONTINUED) {
+        if (product.getProductStatus() == Product.ProductStatus.DISCONTINUED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 단종되어 주문할 수 없습니다.");
-        } else if (product.getStatus() == Product.ProductStatus.OUT_OF_STOCK) {
+        } else if (product.getProductStatus() == Product.ProductStatus.OUT_OF_STOCK) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 품절되어 주문할 수 없습니다.");
         }
 
         // 2-2. 주문 수량만큼 상품 재고 검증 처리
-        if (product.getStock() < request.getQaunitity()) {
+        if (product.getStock() < request.getQuantity()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "주문 수량이 재고 수량보다 많습니다.");
         }
 
         // 3. 재고 차감
         // 3-1. 재고 계산
-        Integer stock = product.getStock() - request.getQaunitity();
+        Integer stock = product.getStock() - request.getQuantity();
         // 3-2. 재고 저장 ( 품절 처리 자동 변환)
         product.changeStock(stock);
 
         // 4. 엔티티 생성
         // 4-1. 엔티티에 넣을 값 계산
         // 4-1-1.( 총 금액 = 상품 단가 * 수량)
-        Long totalPrice = product.getPrice() * request.getQaunitity();
+        Long totalPrice = product.getPrice() * request.getQuantity();
         // 4-1-2. 주문 번호 생성
-        // TODO: 메서드로 빼기
-        String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);                 // 20261029
-        long todayCount = orderRepository.countByOrderNumberStartingWith(today + "-") + 1; // 3
-        String orderNumber = String.format("%s-%03d", today, todayCount);                        // 20261029-003
+        String orderNumber = generateOrderNumber();
 
         // 4-2. Order 엔티티 생성
         Order order = new Order(customer, admin, orderNumber, totalPrice);
@@ -125,9 +125,9 @@ public class OrderService {
         OrderItem orderItem = new OrderItem(
                 order,
                 product,
-                product.getName(),  // 주문한 순간의 상품 이름
+                product.getProductName(),  // 주문한 순간의 상품 이름
                 product.getPrice(), // 주문한 순간의 상품 가격
-                request.getQaunitity()
+                request.getQuantity()
         );
 
         // 5. 저장
@@ -151,20 +151,26 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
-        OrderItem orderItem = orderItemRepository.findById(orderId)
+        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
 
+        // 2. 등록 관리자 정보 (관리자 없이 생성된 주문은 null)
+        Admin registerAdmin = order.getRegisterAdmin();
+        String adminEmail = (registerAdmin != null) ? registerAdmin.getAdminEmail() : null;
+        AdminRole adminRole = (registerAdmin != null) ? registerAdmin.getRole() : null;
+
+        // 3. 응답 생성
         OrderDetailResponse response = new OrderDetailResponse(
                 order.getOrderNumber(),
-                order.getCustomer().getName(),
-                order.getCustomer().getEmail(),
+                order.getCustomer().getCustomerName(),
+                order.getCustomer().getCustomerEmail(),
                 orderItem.getProductName(),
                 orderItem.getQuantity(),
                 order.getTotalPrice(),
                 order.getCreatedAt(),
                 order.getStatus(),
-                order.getRegisterAdmin().getAdminEmail(),
-                order.getRegisterAdmin().getRole()
+                adminEmail,
+                adminRole
         );
 
         return response;
@@ -178,7 +184,6 @@ public class OrderService {
      * @param sortBy    정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
      * @param direction ASC, DESC
      * @param page      조회할 페이지 번호
-     * @param size      한 페이지에 들어가는 주문 수
      * @return 페이징된 주문 목록
      */
     @Transactional(readOnly = true)
@@ -187,14 +192,13 @@ public class OrderService {
             OrderStatus status,
             String sortBy,
             Sort.Direction direction,
-            int page,
-            int size) {
+            int page) {
 
         // 1. 정렬 및 페이징 처리
         String sortProperty = switch (sortBy) {
             case "orderNumber" -> "order.orderNumber";
-            case "customerName" -> "order.customer.name";
-            case "produdctName" -> "productName";
+            case "customerName" -> "order.customer.customerName";
+            case "productName" -> "productName";
             case "quantity" -> "quantity";
             case "totalPrice" -> "order.totalPrice";
             case "createdAt" -> "order.createdAt";
@@ -203,7 +207,7 @@ public class OrderService {
         };
 
         Sort sort = Sort.by(direction, sortProperty);
-        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
+        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), ORDER_PAGE_SIZE, sort);
 
         // 2. 조회
         // 2-1. 빈 검색어("")는 null로 바꿔서 검색어 조건 생략
@@ -216,12 +220,6 @@ public class OrderService {
         // 3-1. page안에 있는 entity 하나씩 뽑아서 dto로 변환
         List<OrderSummaryResponse> orderSummaryList = new ArrayList<>();
 
-        // orderItems (Page<OrderItem>)
-        // ├─ 데이터 목록       → getContent()        = [주문상품1, 주문상품2, ..., 주문상품10]
-        // ├─ 현재 페이지 번호   → getNumber()         = 1
-        // ├─ 페이지 크기       → getSize()           = 10
-        // ├─ 전체 데이터 개수   → getTotalElements()  = 37
-        // └─ 전체 페이지 수    → getTotalPages()      = 4
         for (OrderItem orderItem : orderItems.getContent()) {
 
             Order order = orderItem.getOrder();
@@ -229,13 +227,13 @@ public class OrderService {
             OrderSummaryResponse orderSummaryResponse = new OrderSummaryResponse(
                     order.getOrderId(),
                     order.getOrderNumber(),
-                    order.getCustomer().getName(),
+                    order.getCustomer().getCustomerName(),
                     orderItem.getProductName(),
                     orderItem.getQuantity(),
                     order.getTotalPrice(),
                     order.getCreatedAt(),
                     order.getStatus(),
-                    order.getRegisterAdmin().getAdminName()
+                    order.getRegisterAdmin() == null ? null : order.getRegisterAdmin().getAdminName()
             );
 
             // 3-2. dto -> list <dto>
@@ -269,6 +267,9 @@ public class OrderService {
 
     /**
      * 주문을 취소한다.
+     * <ul>
+     *     <li>주문 취소 후, 취소 주문 수량만큼 상품 재고를 복구한다.</li>
+     * </ul>
      *
      * @param orderId 취소할 주문 ID
      * @param request 주문 취소 요청 (취소 사유)
@@ -280,6 +281,34 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
+        // 2. 주문 취소
         order.cancelOrder(request.getCancelReason());
+
+
+        // 3. 재고 복구
+        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
+
+        Product product = orderItem.getProduct();
+
+        product.changeStock(product.getStock() + orderItem.getQuantity());
+    }
+
+    /**
+     * 오늘 날짜 기준으로 주문 번호를 생성한다.
+     * <p>형식: {@code yyyyMMdd-NNN} (예: 20261029-003)</p>
+     *
+     * @return 생성된 주문 번호
+     */
+    private String generateOrderNumber() {
+
+        // 1. 오늘 날짜 (예: 20261029)
+        String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+
+        // 2. 오늘 생성된 주문 수 + 1 = 이번 주문 순번 (예: 3)
+        long todayCount = orderRepository.countByOrderNumberStartingWith(today + "-") + 1;
+
+        // 3. 주문 번호 조합 (예: 20261029-003)
+        return String.format("%s-%03d", today, todayCount);
     }
 }

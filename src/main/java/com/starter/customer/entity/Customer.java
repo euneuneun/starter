@@ -1,3 +1,4 @@
+
 package com.starter.customer.entity;
 
 import com.starter.common.entity.BaseEntity;
@@ -5,91 +6,146 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-
 @Entity
 @Table(name = "customers")
 public class Customer extends BaseEntity {
 
-    // Enum 정의
-    // 고객 상태
+    /**
+     * 고객 상태를 정의한다.
+     */
     public enum CustomerStatus {
-        ACTIVE, INACTIVE, SUSPENDED
+        ACTIVE,
+        INACTIVE,
+        SUSPENDED
     }
-    // 속성
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    private Long customerId;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "name", nullable = false, length = 100)
+    private String customerName;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    @Column(name = "email", nullable = false, unique = true, length = 255)
+    private String customerEmail;
 
-    @Column(nullable = true, length = 15)
-    private String phone;
+    @Column(name = "phone", nullable = true, length = 15)
+    private String customerPhone;
 
-    @Column(nullable = false, length = 15)
+    @Column(name = "status", nullable = false, length = 15)
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    private CustomerStatus status;
+    private CustomerStatus customerStatus;
 
-
-    // 생성자
-    // JPA 기본 생성자
+    /**
+     * JPA에서 사용하는 기본 생성자이다.
+     */
     protected Customer() {
     }
 
+    /**
+     * 고객 정보를 수정한다.
+     *
+     * @param customerName 변경할 고객 이름
+     * @param customerEmail 변경할 고객 이메일
+     * @param customerPhone 변경할 고객 전화번호
+     * @throws IllegalArgumentException 유효하지 않은 고객 정보
+     */
+    public void changeCustomer(
+            String customerName,
+            String customerEmail,
+            String customerPhone) {
 
-    // 기능
-    // 고객 정보 수정
-    public void changeCustomer(String name, String email, String phone) {
-        if(name != null) {
-            if(name.isBlank() || name.length() > 100) {
+        if (customerName != null) {
+            if (customerName.isBlank() || customerName.length() > 100) {
                 throw new IllegalArgumentException("이름을 확인해주세요.");
             }
-            this.name = name;
+
+            this.customerName = customerName;
         }
-        if(email != null) {
-            if(email.isBlank() || email.length() > 255) {
+
+        if (customerEmail != null) {
+            if (customerEmail.isBlank() || customerEmail.length() > 255) {
                 throw new IllegalArgumentException("이메일을 확인해주세요.");
             }
-            this.email = email;
+
+            this.customerEmail = customerEmail;
         }
-        if(phone != null) {
-            if(phone.isBlank() || phone.length() > 15) {
+
+        if (customerPhone != null) {
+            if (customerPhone.isBlank() || customerPhone.length() > 15) {
                 throw new IllegalArgumentException("전화번호를 확인해주세요.");
             }
-            this.phone = phone;
+
+            this.customerPhone = customerPhone;
         }
     }
-    // 고객 상태 변경
-    public void changeStatus(CustomerStatus status) {
-        if(status == null) {
+
+    /**
+     * 고객 상태를 변경한다.
+     *
+     * @param customerStatus 변경할 고객 상태
+     * @throws IllegalArgumentException 고객 상태가 null인 경우
+     */
+    public void changeCustomerStatus(CustomerStatus customerStatus) {
+
+        if (customerStatus == null) {
             throw new IllegalArgumentException("상태값이 비어있습니다.");
-        } else {
-            this.status=status;
         }
+
+        this.customerStatus = customerStatus;
     }
-    // 고객 삭제 처리
+
+    /**
+     * 고객 정보를 논리적으로 삭제한다.
+     */
     public void deleteCustomer() {
         super.softDelete();
     }
 
-    public Long getId() {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public String getPhone() {
-        return phone;
-    }
-    public CustomerStatus getStatus() {
-        return status;
+    /**
+     * 고객 ID를 반환한다.
+     *
+     * @return 고객 ID
+     */
+    public Long getCustomerId() {
+        return customerId;
     }
 
+    /**
+     * 고객 이름을 반환한다.
+     *
+     * @return 고객 이름
+     */
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    /**
+     * 고객 이메일을 반환한다.
+     *
+     * @return 고객 이메일
+     */
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    /**
+     * 고객 전화번호를 반환한다.
+     *
+     * @return 고객 전화번호
+     */
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    /**
+     * 고객 상태를 반환한다.
+     *
+     * @return 고객 상태
+     */
+    public CustomerStatus getCustomerStatus() {
+        return customerStatus;
+    }
 }

@@ -1,62 +1,87 @@
+
 package com.starter.product.dto.request;
 
-
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.starter.product.entity.Product;
 
 public class ProductCreateRequest {
 
-    // 속성
-    private String name;
-    private String category;
+    private String productName;
+    private String productCategory;
     private Long price;
     private Integer stock;
-    private Product.ProductStatus status;
+    private Product.ProductStatus productStatus;
 
-    // 생성자
-    @JsonCreator
+    /**
+     * 기본 생성자.
+     */
     public ProductCreateRequest() {
     }
 
-    public ProductCreateRequest(String name, String category, Long price,
-                                Integer stock, Product.ProductStatus status) {
-        this.name = name;
-        this.category = category;
+    /**
+     * 상품 등록 요청 DTO를 생성한다.
+     *
+     * @param productName 상품명
+     * @param productCategory 상품 카테고리
+     * @param price 상품 가격
+     * @param stock 상품 재고
+     * @param productStatus 상품 상태
+     */
+    public ProductCreateRequest(
+            String productName,
+            String productCategory,
+            Long price,
+            Integer stock,
+            Product.ProductStatus productStatus) {
+
+        this.productName = productName;
+        this.productCategory = productCategory;
         this.price = price;
         this.stock = stock;
-        this.status = status;
+        this.productStatus = productStatus;
     }
 
-    // 기능
-    public String getName() {
-        return name;
+    /**
+     * 상품명을 반환한다.
+     *
+     * @return 상품명
+     */
+    public String getProductName() {
+        return productName;
     }
-    public String getCategory() {
-        return category;
+
+    /**
+     * 상품 카테고리를 반환한다.
+     *
+     * @return 상품 카테고리
+     */
+    public String getProductCategory() {
+        return productCategory;
     }
+
+    /**
+     * 상품 가격을 반환한다.
+     *
+     * @return 상품 가격
+     */
     public Long getPrice() {
         return price;
     }
+
+    /**
+     * 상품 재고를 반환한다.
+     *
+     * @return 상품 재고
+     */
     public Integer getStock() {
         return stock;
     }
-    public Product.ProductStatus getStatus() {
-        return status;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setCategory(String category) {
-        this.category = category;
-    }
-    public void setPrice(Long price) {
-        this.price = price;
-    }
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-    public void setStatus(Product.ProductStatus status) {
-        this.status = status;
+    /**
+     * 상품 상태를 반환한다.
+     *
+     * @return 상품 상태
+     */
+    public Product.ProductStatus getProductStatus() {
+        return productStatus;
     }
 }

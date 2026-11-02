@@ -76,8 +76,7 @@
 | `PATCH` | `/admins/me/password`       | 비밀번호 변경 |
 | `PATCH` | `/admins/{adminId}/role`    | 관리자 역할 변경 |
 | `PATCH` | `/admins/{adminId}/status`  | 관리자 상태 변경 |
-| `PATCH` | `/admins/{adminId}/approve` | 관리자 승인 |
-| `PATCH` | `/admins/{adminId}/reject`  | 관리자 거부 |
+
 
 <details>
 <summary><code>POST</code> <b>/admins/signup</b> — 관리자 회원가입</summary>
@@ -756,122 +755,6 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 </details>
 
-<details>
-<summary><code>PATCH</code> <b>/admins/{adminId}/approve</b> — 관리자 승인</summary>
-
-**Path Parameter**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `adminId` | Long | 관리자 고유 식별자 |
-
-**Request Headers**
-
-| Key | Value | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `Content-Type` | `application/json` | ✅ | 데이터 형식 |
-
-**Request Body**
-
-| 필드           | 타입 | 설명                                |
-|----------------| --- |-------------------------------------|
-| `adminStatus`  | String | 관리자 상태 (계정 활성: `ACTIVATE`) |
-| `rejectReason` | String | 거부 메세지(거부 시 작성 필수)      |
-
-```json
-{
-  "adminStatus": "ACTIVATE",
-  "rejectReason": ""
-}
-```
-
-**Response Body**
-
-| 필드          | 타입   | 설명                  |
-|---------------|--------|-----------------------|
-| `adminId`     | Long   | 관리자 고유 식별자    |
-| `adminName`   | String | 관리자명              |
-| `adminStatus` | String | 변경된 관리자 상태    |
-| `updateAt`    | String | 관리자 상태 변경 일시 |
-
-```json
-{
-  "adminId": 3,
-  "adminName": "테스트",
-  "adminStatus": "ACTIVATE",
-  "updatedAt": "2026-11-01T16:50:51.897"
-}
-```
-
-**Error Response**
-
-```json
-{
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Invalid request",
-  "path": "/admins/{adminId}/status"
-}
-```
-
-</details>
-
-<details>
-<summary><code>PATCH</code> <b>/admins/{adminId}/reject</b> — 관리자 거부</summary>
-
-**Path Parameter**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `adminId` | Long | 관리자 고유 식별자 |
-
-**Request Headers**
-
-| Key | Value | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `Content-Type` | `application/json` | ✅ | 데이터 형식 |
-
-**Request Body**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 관리자 상태 (계정 거부: `REJECTED`) |
-| `reject_reason` | String | 승인 거부 이유 |
-
-```json
-{
-  "status": "REJECTED",
-  "reject_reason": "메세지 입력"
-}
-```
-
-**Response Body**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 관리자 상태 (`REJECTED`) |
-| `reject_reason` | String | 승인 거부 이유 |
-
-```json
-{
-  "status": "REJECTED",
-  "reject_reason": "메세지"
-}
-```
-
-**Error Response**
-
-```json
-{
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/admins/{adminId}/reject"
-}
-```
-
-</details>
-
 ---
 
 
@@ -903,18 +786,24 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `sortDirection` | String | `asc`, `desc` (기본값 `desc`) |
 | `status` | String | 고객 상태 필터 (`ACTIVE`, `INACTIVE`, `SUSPENDED`, 선택) |
 
-**Request Headers / Body** — 별도 요구 없음
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
+
+**Request Body** — 없음
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
 | `content` | Array | 조회된 고객 목록 (논리 삭제된 고객 제외) |
-| `content[].id` | Long | 고객 고유 식별자 |
-| `content[].name` | String | 고객 이름 |
-| `content[].email` | String | 고객 이메일 |
-| `content[].phone` | String | 고객 전화번호 (null 가능) |
-| `content[].status` | String | 고객 상태 |
+| `content[].customerId` | Long | 고객 고유 식별자 |
+| `content[].customerName` | String | 고객 이름 |
+| `content[].customerEmail` | String | 고객 이메일 |
+| `content[].customerPhone` | String | 고객 전화번호 (null 가능) |
+| `content[].customerStatus` | String | 고객 상태 |
 | `content[].createdAt` | LocalDateTime | 고객 가입일 |
 | `page` | Integer | 현재 페이지 번호 |
 | `size` | Integer | 페이지당 개수 |
@@ -925,19 +814,19 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "content": [
     {
-      "id": 2,
-      "name": "수키",
-      "email": "sooky@sparta.com",
-      "phone": "010-7895-4564",
-      "status": "ACTIVE",
+      "customerId": 2,
+      "customerName": "수키",
+      "customerEmail": "sooky@sparta.com",
+      "customerPhone": "010-7895-4564",
+      "customerStatus": "ACTIVE",
       "createdAt": "2026-10-27T18:54:49"
     },
     {
-      "id": 1,
-      "name": "전영주",
-      "email": "youngju@sparta.com",
-      "phone": "010-1234-5678",
-      "status": "ACTIVE",
+      "customerId": 1,
+      "customerName": "전영주",
+      "customerEmail": "youngju@sparta.com",
+      "customerPhone": "010-1234-5678",
+      "customerStatus": "ACTIVE",
       "createdAt": "2026-10-27T18:52:17"
     }
   ],
@@ -948,13 +837,26 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`
+**Error Response** — `400`, `401`
+
+`400 Bad Request` — 잘못된 조회 조건
 
 ```json
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
+  "message": "Invalid request",
+  "path": "/customers"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized",
   "path": "/customers"
 }
 ```
@@ -970,37 +872,56 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 조회할 고객 ID |
 
-**Request Headers / Body** — 별도 요구 없음
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
+
+**Request Body** — 없음
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 고객 고유 식별자 |
-| `name` | String | 고객 이름 |
-| `email` | String | 고객 이메일 |
-| `phone` | String | 고객 전화번호 (null 가능) |
-| `status` | String | 고객 상태 |
+| `customerId` | Long | 고객 고유 식별자 |
+| `customerName` | String | 고객 이름 |
+| `customerEmail` | String | 고객 이메일 |
+| `customerPhone` | String | 고객 전화번호 (null 가능) |
+| `customerStatus` | String | 고객 상태 |
 | `createdAt` | LocalDateTime | 고객 가입일 |
 
 ```json
 {
-  "id": 1,
-  "name": "전영주",
-  "email": "youngju@sparta.com",
-  "phone": "010-1234-5678",
-  "status": "ACTIVE",
+  "customerId": 1,
+  "customerName": "전영주",
+  "customerEmail": "youngju@sparta.com",
+  "customerPhone": "010-1234-5678",
+  "customerStatus": "ACTIVE",
   "createdAt": "2026-10-27T18:52:17"
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized",
+  "path": "/customers/1"
+}
+```
+
+`404 Not Found` — 고객이 존재하지 않거나 논리 삭제된 경우
 
 ```json
 {
   "status": 404,
   "error": "Not Found",
-  "message": "해당 데이터를 찾을 수 없습니다.",
+  "message": "Resource Not Found",
   "path": "/customers/999"
 }
 ```
@@ -1021,20 +942,21 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
 
 **Request Body**
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 수정할 고객 이름 (선택, 공백 불가, 최대 100자) |
-| `email` | String | 수정할 고객 이메일 (선택, 공백 불가, 최대 255자) |
-| `phone` | String | 수정할 고객 전화번호 (선택, 공백 불가, 최대 15자) |
+| `customerName` | String | 수정할 고객 이름 (선택, 공백 불가, 최대 100자) |
+| `customerEmail` | String | 수정할 고객 이메일 (선택, 공백 불가, 최대 255자) |
+| `customerPhone` | String | 수정할 고객 전화번호 (선택, 공백 불가, 최대 15자) |
 
 ```json
 {
-  "name": "영주",
-  "email": "0zoo@sparta.com",
-  "phone": "010-4541-1212"
+  "customerName": "영주",
+  "customerEmail": "0zoo@sparta.com",
+  "customerPhone": "010-4541-1212"
 }
 ```
 
@@ -1042,33 +964,57 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 고객 고유 식별자 |
-| `name` | String | 수정된 고객 이름 |
-| `email` | String | 수정된 고객 이메일 |
-| `phone` | String | 수정된 고객 전화번호 |
-| `status` | String | 고객 상태 |
+| `customerId` | Long | 고객 고유 식별자 |
+| `customerName` | String | 수정된 고객 이름 |
+| `customerEmail` | String | 수정된 고객 이메일 |
+| `customerPhone` | String | 수정된 고객 전화번호 |
+| `customerStatus` | String | 고객 상태 |
 | `createdAt` | LocalDateTime | 고객 가입일 |
 | `updatedAt` | LocalDateTime | 고객 정보 수정일 |
 
 ```json
 {
-  "id": 1,
-  "name": "영주",
-  "email": "0zoo@sparta.com",
-  "phone": "010-4541-1212",
-  "status": "ACTIVE",
+  "customerId": 1,
+  "customerName": "영주",
+  "customerEmail": "0zoo@sparta.com",
+  "customerPhone": "010-4541-1212",
+  "customerStatus": "ACTIVE",
   "createdAt": "2026-10-27T18:52:17",
   "updatedAt": "2026-10-27T19:06:11"
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`400 Bad Request` — 유효하지 않은 수정 데이터
+
+```json
+{
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Invalid request",
+  "path": "/customers/1"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized",
+  "path": "/customers/1"
+}
+```
+
+`404 Not Found` — 고객이 존재하지 않거나 논리 삭제된 경우
 
 ```json
 {
   "status": 404,
   "error": "Not Found",
-  "message": "해당 데이터를 찾을 수 없습니다.",
+  "message": "Resource Not Found",
   "path": "/customers/999"
 }
 ```
@@ -1089,16 +1035,17 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
 
 **Request Body**
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `status` | String | 변경할 고객 상태 (`ACTIVE`, `INACTIVE`, `SUSPENDED`, 필수) |
+| `customerStatus` | String | 변경할 고객 상태 (`ACTIVE`, `INACTIVE`, `SUSPENDED`, 필수) |
 
 ```json
 {
-  "status": "SUSPENDED"
+  "customerStatus": "SUSPENDED"
 }
 ```
 
@@ -1106,26 +1053,50 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 고객 고유 식별자 |
-| `status` | String | 변경된 고객 상태 |
+| `customerId` | Long | 고객 고유 식별자 |
+| `customerStatus` | String | 변경된 고객 상태 |
 | `updatedAt` | LocalDateTime | 상태 변경일 |
 
 ```json
 {
-  "id": 1,
-  "status": "SUSPENDED",
+  "customerId": 1,
+  "customerStatus": "SUSPENDED",
   "updatedAt": "2026-10-27T19:18:25"
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`400 Bad Request` — 상태값이 없거나 유효하지 않은 경우
 
 ```json
 {
   "status": 400,
   "error": "Bad Request",
-  "message": "상태값이 비어있습니다.",
+  "message": "Invalid request",
   "path": "/customers/1/status"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized",
+  "path": "/customers/1/status"
+}
+```
+
+`404 Not Found` — 고객이 존재하지 않거나 논리 삭제된 경우
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "Resource Not Found",
+  "path": "/customers/999/status"
 }
 ```
 
@@ -1140,11 +1111,18 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 삭제할 고객 ID |
 
-**Request Headers / Body** — 별도 요구 없음
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
+
+**Request Body** — 없음
 
 **Response** `200 OK`
 
 고객을 DB에서 물리적으로 삭제하지 않고 논리 삭제 처리합니다.
+
 삭제된 고객은 목록에서 제외되며, 상세 조회 및 수정 시 조회되지 않은 고객으로 처리합니다.
 
 | 필드 | 타입 | 설명 |
@@ -1157,13 +1135,26 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized",
+  "path": "/customers/1"
+}
+```
+
+`404 Not Found` — 고객이 존재하지 않거나 이미 논리 삭제된 경우
 
 ```json
 {
   "status": 404,
   "error": "Not Found",
-  "message": "해당 데이터를 찾을 수 없습니다.",
+  "message": "Resource Not Found",
   "path": "/customers/999"
 }
 ```
@@ -1193,22 +1184,22 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
-| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
 
 **Request Body**
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 상품명 (필수, 공백 불가, 100자 이하) |
-| `category` | String | 상품 카테고리 (필수, 공백 불가, 15자 이하) |
+| `productName` | String | 상품명 (필수, 공백 불가, 100자 이하) |
+| `productCategory` | String | 상품 카테고리 (필수, 공백 불가, 15자 이하) |
 | `price` | Long | 상품 가격 (필수, 0원 이상) |
 | `stock` | Integer | 상품 재고 (필수, 0개 이상) |
-| `status` | String | 상품 상태 (선택, `DISCONTINUED` 지정 시 단종 처리) |
+| `productStatus` | String | 상품 상태 (선택, `DISCONTINUED` 지정 시 단종 처리) |
 
 ```json
 {
-  "name": "레고세트",
-  "category": "완구/취미",
+  "productName": "레고세트",
+  "productCategory": "완구/취미",
   "price": 89000,
   "stock": 32
 }
@@ -1218,29 +1209,53 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 등록된 상품명 |
-| `category` | String | 등록된 카테고리 |
+| `productName` | String | 등록된 상품명 |
+| `productCategory` | String | 등록된 카테고리 |
 | `price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `stock` | Integer | 상품 재고 |
-| `status` | String | 상품 상태 |
+| `productStatus` | String | 상품 상태 |
 
 ```json
 {
-  "name": "레고세트",
-  "category": "완구/취미",
+  "productName": "레고세트",
+  "productCategory": "완구/취미",
   "price": "89,000원",
   "stock": 32,
-  "status": "ON_SALE"
+  "productStatus": "ON_SALE"
 }
 ```
 
 **Error Response** — `400`, `401`, `404`
 
+`400 Bad Request` — 잘못된 상품 등록 정보
+
+```json
+{
+  "status": 400,
+  "error": "Bad Request",
+  "message": "잘못된 요청입니다.",
+  "path": "/products"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
 ```json
 {
   "status": 401,
   "error": "Unauthorized",
-  "message": "인증되지 않은 사용자입니다.",
+  "message": "Unauthorized user",
+  "path": "/products"
+}
+```
+
+`404 Not Found` — 세션에 저장된 관리자 ID에 해당하는 관리자가 없는 경우
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "해당 데이터를 찾을 수 없습니다.",
   "path": "/products"
 }
 ```
@@ -1266,19 +1281,25 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `category` | String | 카테고리 일치 검색 (선택) |
 | `status` | String | 상품 상태 필터 (`ON_SALE`, `OUT_OF_STOCK`, `DISCONTINUED`, 선택) |
 
-**Request Headers / Body** — 별도 요구 없음
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
+
+**Request Body** — 없음
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
 | `content` | Array | 조회된 상품 목록 (논리 삭제된 상품 제외) |
-| `content[].id` | Long | 상품 고유 식별자 |
-| `content[].name` | String | 상품명 |
-| `content[].category` | String | 상품 카테고리 |
+| `content[].productId` | Long | 상품 고유 식별자 |
+| `content[].productName` | String | 상품명 |
+| `content[].productCategory` | String | 상품 카테고리 |
 | `content[].price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `content[].stock` | Integer | 상품 재고 |
-| `content[].status` | String | 상품 상태 |
+| `content[].productStatus` | String | 상품 상태 |
 | `content[].createdAt` | LocalDateTime | 상품 등록일 |
 | `content[].adminName` | String | 상품 등록 관리자 이름 (관리자 정보 없으면 null) |
 | `content[].adminEmail` | String | 상품 등록 관리자 이메일 (관리자 정보 없으면 null) |
@@ -1291,23 +1312,23 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 {
   "content": [
     {
-      "id": 2,
-      "name": "직소퍼즐",
-      "category": "완구/취미",
+      "productId": 2,
+      "productName": "직소퍼즐",
+      "productCategory": "완구/취미",
       "price": "25,000원",
       "stock": 46,
-      "status": "ON_SALE",
+      "productStatus": "ON_SALE",
       "createdAt": "2026-10-27T23:15:38",
       "adminName": "김운영",
       "adminEmail": "manager@sparta.com"
     },
     {
-      "id": 1,
-      "name": "레고세트",
-      "category": "완구/취미",
+      "productId": 1,
+      "productName": "레고세트",
+      "productCategory": "완구/취미",
       "price": "89,000원",
       "stock": 32,
-      "status": "ON_SALE",
+      "productStatus": "ON_SALE",
       "createdAt": "2026-10-27T23:13:17",
       "adminName": "admin",
       "adminEmail": "admin@sparta.com"
@@ -1320,13 +1341,26 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`
+**Error Response** — `400`, `401`
+
+`400 Bad Request` — 잘못된 조회 조건
 
 ```json
 {
   "status": 400,
   "error": "Bad Request",
   "message": "잘못된 요청입니다.",
+  "path": "/products"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized user",
   "path": "/products"
 }
 ```
@@ -1342,37 +1376,56 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 조회할 상품 ID |
 
-**Request Headers / Body** — 별도 요구 없음
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
+
+**Request Body** — 없음
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 상품 고유 식별자 |
-| `name` | String | 상품명 |
-| `category` | String | 상품 카테고리 |
+| `productId` | Long | 상품 고유 식별자 |
+| `productName` | String | 상품명 |
+| `productCategory` | String | 상품 카테고리 |
 | `price` | String | 상품 가격 (천 단위 구분 및 원 표시) |
 | `stock` | Integer | 상품 재고 |
-| `status` | String | 상품 상태 |
+| `productStatus` | String | 상품 상태 |
 | `createdAt` | LocalDateTime | 상품 등록일 |
 | `adminName` | String | 상품 등록 관리자 이름 (관리자 정보 없으면 null) |
 | `adminEmail` | String | 상품 등록 관리자 이메일 (관리자 정보 없으면 null) |
 
 ```json
 {
-  "id": 1,
-  "name": "레고세트",
-  "category": "완구/취미",
+  "productId": 1,
+  "productName": "레고세트",
+  "productCategory": "완구/취미",
   "price": "89,000원",
   "stock": 32,
-  "status": "ON_SALE",
+  "productStatus": "ON_SALE",
   "createdAt": "2026-10-27T23:13:17",
   "adminName": "admin",
   "adminEmail": "admin@sparta.com"
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized user",
+  "path": "/products/1"
+}
+```
+
+`404 Not Found` — 상품이 존재하지 않거나 논리 삭제된 경우
 
 ```json
 {
@@ -1399,19 +1452,20 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
 
 **Request Body**
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `name` | String | 수정할 상품명 (선택, 공백 불가, 100자 이하) |
-| `category` | String | 수정할 상품 카테고리 (선택, 공백 불가, 15자 이하) |
+| `productName` | String | 수정할 상품명 (선택, 공백 불가, 100자 이하) |
+| `productCategory` | String | 수정할 상품 카테고리 (선택, 공백 불가, 15자 이하) |
 | `price` | Long | 수정할 상품 가격 (선택, 0원 이상) |
 
 ```json
 {
-  "name": "아이패드",
-  "category": "전자기기",
+  "productName": "아이패드",
+  "productCategory": "전자기기",
   "price": 790000
 }
 ```
@@ -1420,23 +1474,47 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 상품 고유 식별자 |
-| `name` | String | 수정된 상품명 |
-| `category` | String | 수정된 카테고리 |
+| `productId` | Long | 상품 고유 식별자 |
+| `productName` | String | 수정된 상품명 |
+| `productCategory` | String | 수정된 카테고리 |
 | `price` | String | 수정된 가격 (천 단위 구분 및 원 표시) |
 | `updatedAt` | LocalDateTime | 상품 정보 수정일 |
 
 ```json
 {
-  "id": 1,
-  "name": "아이패드",
-  "category": "전자기기",
+  "productId": 1,
+  "productName": "아이패드",
+  "productCategory": "전자기기",
   "price": "790,000원",
   "updatedAt": "2026-10-27T23:29:41"
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`400 Bad Request` — 유효하지 않은 수정 데이터
+
+```json
+{
+  "status": 400,
+  "error": "Bad Request",
+  "message": "잘못된 요청입니다.",
+  "path": "/products/1"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized user",
+  "path": "/products/1"
+}
+```
+
+`404 Not Found` — 상품이 존재하지 않거나 논리 삭제된 경우
 
 ```json
 {
@@ -1463,6 +1541,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
 
 **Request Body**
 
@@ -1480,21 +1559,23 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 상품 고유 식별자 |
+| `productId` | Long | 상품 고유 식별자 |
 | `stock` | Integer | 변경된 재고 수량 |
-| `status` | String | 변경 후 상품 상태 |
+| `productStatus` | String | 변경 후 상품 상태 |
 | `updatedAt` | LocalDateTime | 상품 정보 수정일 |
 
 ```json
 {
-  "id": 1,
+  "productId": 1,
   "stock": 0,
-  "status": "OUT_OF_STOCK",
+  "productStatus": "OUT_OF_STOCK",
   "updatedAt": "2026-10-27T23:32:32"
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`400 Bad Request` — 재고값이 없거나 음수인 경우
 
 ```json
 {
@@ -1502,6 +1583,28 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "error": "Bad Request",
   "message": "잘못된 요청입니다.",
   "path": "/products/1/stock"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized user",
+  "path": "/products/1/stock"
+}
+```
+
+`404 Not Found` — 상품이 존재하지 않거나 논리 삭제된 경우
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "해당 데이터를 찾을 수 없습니다.",
+  "path": "/products/999/stock"
 }
 ```
 
@@ -1521,6 +1624,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 데이터 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
 
 **Request Body**
 
@@ -1538,19 +1642,21 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `id` | Long | 상품 고유 식별자 |
-| `status` | String | 변경된 상품 상태 |
+| `productId` | Long | 상품 고유 식별자 |
+| `productStatus` | String | 변경된 상품 상태 |
 | `updatedAt` | LocalDateTime | 상품 정보 수정일 |
 
 ```json
 {
-  "id": 1,
-  "status": "DISCONTINUED",
+  "productId": 1,
+  "productStatus": "DISCONTINUED",
   "updatedAt": "2026-10-27T23:38:42"
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`400 Bad Request` — 단종 여부 값이 없는 경우
 
 ```json
 {
@@ -1558,6 +1664,28 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "error": "Bad Request",
   "message": "잘못된 요청입니다.",
   "path": "/products/1/status"
+}
+```
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized user",
+  "path": "/products/1/status"
+}
+```
+
+`404 Not Found` — 상품이 존재하지 않거나 논리 삭제된 경우
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "해당 데이터를 찾을 수 없습니다.",
+  "path": "/products/999/status"
 }
 ```
 
@@ -1572,12 +1700,23 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | --- |
 | `id` | Long | 삭제할 상품 ID |
 
-**Request Headers / Body** — 별도 요구 없음
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 관리자 로그인 세션 ID |
+
+**Request Body** — 없음
 
 **Response** `200 OK`
 
 상품을 DB에서 물리적으로 삭제하지 않고 논리 삭제 처리합니다.
+
 삭제된 상품은 목록 조회에서 제외되며, 상세 조회 및 수정 시 조회되지 않은 상품으로 처리합니다.
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `message` | String | 상품 삭제 처리 완료 메시지 |
 
 ```json
 {
@@ -1585,7 +1724,20 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 }
 ```
 
-**Error Response** — `400`, `404`
+**Error Response** — `400`, `401`, `404`
+
+`401 Unauthorized` — 관리자 로그인 세션 없음
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized user",
+  "path": "/products/1"
+}
+```
+
+`404 Not Found` — 상품이 존재하지 않거나 이미 논리 삭제된 경우
 
 ```json
 {
