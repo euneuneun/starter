@@ -86,25 +86,25 @@ public class OrderService {
 
         // 1. admin, customer, product 객체 꺼내기
         Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 고객입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         // 2. 검증
         // 2-1. 주문한 상품 상태 확인
-        if (product.getProductStatus() == ProductStatus.DISCONTINUED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 단종되어 주문할 수 없습니다.");
-        } else if (product.getProductStatus() == ProductStatus.OUT_OF_STOCK) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 품절되어 주문할 수 없습니다.");
+        if (product.getProductStatus() == Product.ProductStatus.DISCONTINUED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 단종되어 주문할 수 없습니다.
+        } else if (product.getProductStatus() == Product.ProductStatus.OUT_OF_STOCK) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 품절되어 주문할 수 없습니다.
         }
 
         // 2-2. 주문 수량만큼 상품 재고 검증 처리
         if (product.getStock() < request.getQuantity()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "주문 수량이 재고 수량보다 많습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 주문 수량이 재고 수량보다 많습니다.
         }
 
         // 3. 재고 차감
@@ -150,10 +150,10 @@ public class OrderService {
 
         // 1. 엔티티 준비
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         // 2. 등록 관리자 정보 (관리자 없이 생성된 주문은 null)
         Admin registerAdmin = order.getRegisterAdmin();
@@ -204,7 +204,7 @@ public class OrderService {
             case "totalPrice" -> "order.totalPrice";
             case "createdAt" -> "order.createdAt";
             case "status" -> "order.status";
-            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "정렬할 수 없는 항목입니다.");
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 정렬할 수 없는 항목입니다.
         };
 
         Sort sort = Sort.by(direction, sortProperty);
@@ -261,7 +261,7 @@ public class OrderService {
 
         // 1. orderId에 해당하는 엔티티 찾기
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         order.updateOrderStatus();
     }
@@ -280,7 +280,7 @@ public class OrderService {
 
         // 1. orderId에 해당하는 엔티티 찾기
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         // 2. 주문 취소
         order.cancelOrder(request.getCancelReason());
@@ -288,7 +288,7 @@ public class OrderService {
 
         // 3. 재고 복구
         OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
         Product product = orderItem.getProduct();
 
