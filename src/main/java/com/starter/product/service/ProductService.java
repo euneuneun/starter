@@ -2,7 +2,7 @@ package com.starter.product.service;
 
 import com.starter.admin.entity.Admin;
 import com.starter.admin.repository.AdminRepository;
-import com.starter.product.dto.*;
+//import com.starter.product.dto.*;
 import com.starter.product.dto.request.ProductChangeRequest;
 import com.starter.product.dto.request.ProductChangeStockRequest;
 import com.starter.product.dto.request.ProductCreateRequest;
