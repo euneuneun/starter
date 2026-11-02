@@ -110,14 +110,13 @@ public class OrderService {
         │ └──────────────────────────────────────────┘ │
         └──────────────────────────────────────────────┘
         */
-        Product product;
 
         Long totalPrice = 0L; // 0은 int라서 Long에 바로 못 들어감
 
         List<Product> productList = new ArrayList<>();
 
-        for (OrderItemRequest item : request.getItems()) {
-            product = productRepository.findById(item.getProductId())
+        for (int i = 0; i < request.getItems().size(); i++) {
+            Product product = productRepository.findById(request.getItems().get(i).getProductId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
             // 2. 검증
@@ -128,34 +127,37 @@ public class OrderService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 품절되어 주문할 수 없습니다.
             }
 
+            // 요청한 주문 수량
+            int requestQuantity = request.getItems().get(i).getQuantity();
+
             // 2-2. 주문 수량만큼 상품 재고 검증 처리
-            if (product.getStock() < product.getStock()) {
+            if (product.getStock() < requestQuantity) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 주문 수량이 재고 수량보다 많습니다.
             }
 
             // 3. 재고 차감
             // 3-1. 재고 계산
-            Integer stock = product.getStock() - item.getQuantity();
+            Integer stock = product.getStock() - requestQuantity;
+
             // 3-2. 재고 저장 ( 품절 처리 자동 변환)
             product.changeStock(stock);
 
-            // 4. 엔티티 생성
-            // 4-1. 엔티티에 넣을 값 계산
-            // 4-1-1.( 총 금액 = 상품 단가 * 수량)
-            totalPrice += product.getPrice() * item.getQuantity();
+            // 4. 전제 금액 계산
+            totalPrice += product.getPrice() * requestQuantity;
 
+            // 5. 주문 상품 목록에 상품 저장
             productList.add(product);
         }
 
-        // 4-1. 주문 번호 생성
+        // 6. 주문 번호 생성
         String orderNumber = generateOrderNumber();
 
-        // 4-2. Order 엔티티 생성 및 저장
+        // 7. Order 엔티티 생성 및 저장
         Order order = new Order(customer, admin, orderNumber, totalPrice);
         orderRepository.save(order);
 
-        // 4-3. OrderItem 엔티티 생성 및 저장
-        for(int i = 0; i < productList.size(); i++) {
+        // 8. OrderItem 엔티티 생성 및 저장
+        for (int i = 0; i < productList.size(); i++) {
             OrderItem orderItem = new OrderItem(
                     order,
                     productList.get(i),
@@ -168,6 +170,7 @@ public class OrderService {
     }
 
     // TODO total 가격 수정
+
     /**
      * 주문 상세 정보를 조회한다.
      *
@@ -189,7 +192,8 @@ public class OrderService {
         AdminRole adminRole = (registerAdmin != null) ? registerAdmin.getRole() : null;
 
         List<OrderItemResponse> orderitemList = new ArrayList<>();
-        for (OrderItem orderItem: orderItems){
+
+        for (OrderItem orderItem : orderItems) {
             OrderItemResponse itemResponse = new OrderItemResponse(
                     orderItem.getProductName(),
                     orderItem.getProductPrice(),
@@ -325,7 +329,7 @@ public class OrderService {
         // 3. 재고 복구
         List<OrderItem> orderItems = orderItemRepository.findByAllOrderId(orderId);
 
-        for (OrderItem orderItem : orderItems){
+        for (OrderItem orderItem : orderItems) {
             int change = orderItem.getQuantity() + orderItem.getProduct().getStock();
             orderItem.getProduct().changeStock(change);
         }
