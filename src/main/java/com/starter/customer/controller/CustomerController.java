@@ -25,7 +25,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
+
     private final CustomerService customerService;
+
     /**
      * 고객 컨트롤러를 생성한다.
      *
@@ -34,6 +36,7 @@ public class CustomerController {
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
+
     /**
      * 고객 상세 정보를 조회한다.
      *
@@ -49,15 +52,16 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 검색 및 필터 조건에 따라 고객 목록을 조회한다.
      *
      * @param keyword 고객 검색 키워드
      * @param page 조회할 페이지 번호
-     * @param size 페이지당 조회할 고객 수
+     * @param size 페이지당 고객 수
      * @param sortBy 정렬 기준
      * @param sortDirection 정렬 방향
-     * @param status 고객 상태 필터
+     * @param customerStatus 고객 상태 필터
      * @return 고객 목록과 페이징 정보 및 HTTP 응답
      */
     @GetMapping
@@ -67,8 +71,8 @@ public class CustomerController {
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
-            @RequestParam(required = false)
-            Customer.CustomerStatus status) {
+            @RequestParam(name = "status", required = false)
+            Customer.CustomerStatus customerStatus) {
 
         CustomerListResponse responseDto =
                 this.customerService.listCustomers(
@@ -77,10 +81,11 @@ public class CustomerController {
                         size,
                         sortBy,
                         sortDirection,
-                        status);
+                        customerStatus);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 정보를 수정한다.
      *
@@ -99,6 +104,7 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 상태를 변경한다.
      *
@@ -117,6 +123,7 @@ public class CustomerController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 정보를 삭제 처리한다.
      *

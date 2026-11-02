@@ -6,25 +6,28 @@ import com.starter.customer.entity.Customer;
 import java.time.LocalDateTime;
 
 public class CustomerStatusResponse {
+
     private Long customerId;
-    private Customer.CustomerStatus status;
+    private Customer.CustomerStatus customerStatus;
     private LocalDateTime updatedAt;
+
     /**
      * 고객 상태 변경 응답 객체를 생성한다.
      *
      * @param customerId 고객 ID
-     * @param status 변경된 고객 상태
+     * @param customerStatus 변경된 고객 상태
      * @param updatedAt 고객 상태 수정 일시
      */
     public CustomerStatusResponse(
             Long customerId,
-            Customer.CustomerStatus status,
+            Customer.CustomerStatus customerStatus,
             LocalDateTime updatedAt) {
 
         this.customerId = customerId;
-        this.status = status;
+        this.customerStatus = customerStatus;
         this.updatedAt = updatedAt;
     }
+
     /**
      * 고객 ID를 반환한다.
      *
@@ -33,14 +36,16 @@ public class CustomerStatusResponse {
     public Long getCustomerId() {
         return customerId;
     }
+
     /**
      * 고객 상태를 반환한다.
      *
      * @return 고객 상태
      */
-    public Customer.CustomerStatus getStatus() {
-        return status;
+    public Customer.CustomerStatus getCustomerStatus() {
+        return customerStatus;
     }
+
     /**
      * 고객 상태 수정 일시를 반환한다.
      *

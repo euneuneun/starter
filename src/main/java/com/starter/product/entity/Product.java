@@ -1,8 +1,7 @@
+
 package com.starter.product.entity;
 
-                                                                                            import com.starter.admin.entity.Admin;
 import com.starter.admin.entity.Admin;
-import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -17,26 +16,28 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
 
-    // Enum 정의
-    // 상품 상태
+    /**
+     * 상품 판매 상태.
+     */
     public enum ProductStatus {
-        ON_SALE, OUT_OF_STOCK, DISCONTINUED
+        ON_SALE,
+        OUT_OF_STOCK,
+        DISCONTINUED
     }
-
-    // 속성
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    private Long productId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id")
     private Admin admin;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "name", nullable = false, length = 100)
+    private String productName;
 
-    @Column(nullable = false, length = 15)
-    private String category;
+    @Column(name = "category", nullable = false, length = 15)
+    private String productCategory;
 
     @Column(nullable = false)
     private Long price;
@@ -44,10 +45,10 @@ public class Product {
     @Column(nullable = false)
     private Integer stock;
 
-    @Column(nullable = false, length = 15)
+    @Column(name = "status", nullable = false, length = 15)
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    private ProductStatus status;
+    private ProductStatus productStatus;
 
     @CreatedDate
     @Column(nullable = false)
@@ -56,124 +57,248 @@ public class Product {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
     @Column(nullable = true)
     private LocalDateTime deletedAt;
-
-    // 생성자
-    // JPA 기본 생성자
+    /**
+     * JPA에서 사용하는 기본 생성자.
+     */
     protected Product() {
     }
-    
-    // // 관리자 정보 없이 상품을 생성하는 생성자
-    public Product(String name, String category, Long price, Integer stock,
-                   ProductStatus status) {
-        this(name, category, price, stock, status, null); }
+    /**
+     * 관리자 정보 없이 상품을 생성한다.
+     *
+     * @param productName 상품명
+     * @param productCategory 상품 카테고리
+     * @param price 상품 가격
+     * @param stock 상품 재고
+     * @param productStatus 상품 상태
+     */
+    public Product(
+            String productName,
+            String productCategory,
+            Long price,
+            Integer stock,
+            ProductStatus productStatus) {
+        this(
+                productName,
+                productCategory,
+                price,
+                stock,
+                productStatus,
+                null);
+    }
+    /**
+     * 관리자 정보를 포함하여 상품을 생성한다.
+     *
+     * @param productName 상품명
+     * @param productCategory 상품 카테고리
+     * @param price 상품 가격
+     * @param stock 상품 재고
+     * @param productStatus 상품 상태
+     * @param admin 상품 등록 관리자
+     * @throws IllegalArgumentException 상품 정보가 유효하지 않은 경우
+     */
+    public Product(
+            String productName,
+            String productCategory,
+            Long price,
+            Integer stock,
+            ProductStatus productStatus,
+            Admin admin) {
 
-    // 관리자 정보 포함 상품을 생성하는 생성자
-    public Product(String name, String category, Long price, Integer stock,
-                   ProductStatus status, Admin admin) {
-        // 잘못입력한 데이터 차단
-        if(name == null || name.isBlank() || name.length() > 100) {
-            throw new IllegalArgumentException("상품명은 null 이거나 100자를 넘을 수 없습니다.");
+        if (productName == null || productName.isBlank()
+                || productName.length() > 100) {
+            throw new IllegalArgumentException(
+                    "상품명은 null 이거나 100자를 넘을 수 없습니다.");
         }
-        if(category == null || category.isBlank() || category.length() > 15) {
-            throw new IllegalArgumentException("카테고리는 null 이거나 15자를 넘을 수 없습니다.");
+
+        if (productCategory == null || productCategory.isBlank()
+                || productCategory.length() > 15) {
+            throw new IllegalArgumentException(
+                    "카테고리는 null 이거나 15자를 넘을 수 없습니다.");
         }
-        if(price == null || price < 0) {
-            throw new IllegalArgumentException("가격은 null 이거나 음수일 수 없습니다.");
+
+        if (price == null || price < 0) {
+            throw new IllegalArgumentException(
+                    "가격은 null 이거나 음수일 수 없습니다.");
         }
-        if(stock == null || stock < 0) {
-            throw new IllegalArgumentException("재고는 음수일 수 없습니다.");
+
+        if (stock == null || stock < 0) {
+            throw new IllegalArgumentException(
+                    "재고는 음수일 수 없습니다.");
         }
-        this.name = name;
-        this.category = category;
+
+        this.productName = productName;
+        this.productCategory = productCategory;
         this.price = price;
-        if(status == ProductStatus.DISCONTINUED) {
-            this.status = ProductStatus.DISCONTINUED;
-        } else if(stock == 0) {
-                this.status = ProductStatus.OUT_OF_STOCK;
+
+        if (productStatus == ProductStatus.DISCONTINUED) {
+            this.productStatus = ProductStatus.DISCONTINUED;
+        } else if (stock == 0) {
+            this.productStatus = ProductStatus.OUT_OF_STOCK;
         } else {
-            this.status = ProductStatus.ON_SALE;
-            }
+            this.productStatus = ProductStatus.ON_SALE;
+        }
+
         this.stock = stock;
         this.admin = admin;
     }
-
-    // 기능
-    // 재고 변경하기
+    /**
+     * 상품 재고를 변경하고 판매 상태를 갱신한다.
+     *
+     * @param stock 변경할 재고
+     * @throws IllegalArgumentException 재고가 음수인 경우
+     */
     public void changeStock(int stock) {
         if (stock < 0) {
-            throw new IllegalArgumentException("재고는 음수일 수 없습니다.");
+            throw new IllegalArgumentException(
+                    "재고는 음수일 수 없습니다.");
         }
+
         this.stock = stock;
-        if(this.status != ProductStatus.DISCONTINUED) {
-            if(stock == 0) {
-                status = ProductStatus.OUT_OF_STOCK;
+
+        if (productStatus != ProductStatus.DISCONTINUED) {
+            if (stock == 0) {
+                productStatus = ProductStatus.OUT_OF_STOCK;
             } else {
-                status = ProductStatus.ON_SALE;
+                productStatus = ProductStatus.ON_SALE;
             }
         }
     }
-    // 상품 단종 설정
+    /**
+     * 상품을 단종 상태로 변경한다.
+     */
     public void discontinued() {
-        this.status = ProductStatus.DISCONTINUED;
+        this.productStatus = ProductStatus.DISCONTINUED;
     }
-    // 상품 단종 해제
+    /**
+     * 상품 단종을 해제하고 재고에 따라 판매 상태를 변경한다.
+     */
     public void resumeSale() {
-        if(stock == 0) {
-            status = ProductStatus.OUT_OF_STOCK;
+        if (stock == 0) {
+            productStatus = ProductStatus.OUT_OF_STOCK;
         } else {
-            status = ProductStatus.ON_SALE;
+            productStatus = ProductStatus.ON_SALE;
         }
     }
-    // 상품 정보 수정
-    public void changeProduct(String name, String category, Long price) {
-        if(name == null || name.isBlank() || name.length() > 100) {
-            throw new IllegalArgumentException("상품명은 null 이거나 100자를 넘을 수 없습니다.");
+    /**
+     * 상품 정보를 수정한다.
+     *
+     * @param productName 변경할 상품명
+     * @param productCategory 변경할 카테고리
+     * @param price 변경할 가격
+     * @throws IllegalArgumentException 상품 정보가 유효하지 않은 경우
+     */
+    public void changeProduct(
+            String productName,
+            String productCategory,
+            Long price) {
+
+        if (productName == null || productName.isBlank()
+                || productName.length() > 100) {
+            throw new IllegalArgumentException(
+                    "상품명은 null 이거나 100자를 넘을 수 없습니다.");
         }
-        if(category == null || category.isBlank() || category.length() > 15) {
-            throw new IllegalArgumentException("카테고리는 null 이거나 15자를 넘을 수 없습니다.");
+
+        if (productCategory == null || productCategory.isBlank()
+                || productCategory.length() > 15) {
+            throw new IllegalArgumentException(
+                    "카테고리는 null 이거나 15자를 넘을 수 없습니다.");
         }
-        if(price == null || price < 0) {
-            throw new IllegalArgumentException("가격은 null 이거나 음수일 수 없습니다.");
+
+        if (price == null || price < 0) {
+            throw new IllegalArgumentException(
+                    "가격은 null 이거나 음수일 수 없습니다.");
         }
-        this.name = name;
-        this.category = category;
+
+        this.productName = productName;
+        this.productCategory = productCategory;
         this.price = price;
     }
-    // 상품 삭제 처리
+    /**
+     * 상품을 소프트 삭제 처리한다.
+     */
     public void deleteProduct() {
         this.deletedAt = LocalDateTime.now();
     }
-
-    // 응답에 필요한 getter
-    public Long getId() {
-        return id;
+    /**
+     * 상품 ID를 반환한다.
+     *
+     * @return 상품 ID
+     */
+    public Long getProductId() {
+        return productId;
     }
-    public String getName() {
-        return name;
+    /**
+     * 상품명을 반환한다.
+     *
+     * @return 상품명
+     */
+    public String getProductName() {
+        return productName;
     }
-    public String getCategory() {
-        return category;
+    /**
+     * 상품 카테고리를 반환한다.
+     *
+     * @return 상품 카테고리
+     */
+    public String getProductCategory() {
+        return productCategory;
     }
+    /**
+     * 상품 가격을 반환한다.
+     *
+     * @return 상품 가격
+     */
     public Long getPrice() {
         return price;
     }
+    /**
+     * 상품 재고를 반환한다.
+     *
+     * @return 상품 재고
+     */
     public Integer getStock() {
         return stock;
     }
-    public ProductStatus getStatus() {
-        return status;
+    /**
+     * 상품 상태를 반환한다.
+     *
+     * @return 상품 상태
+     */
+    public ProductStatus getProductStatus() {
+        return productStatus;
     }
+    /**
+     * 상품 등록 일시를 반환한다.
+     *
+     * @return 상품 등록 일시
+     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+    /**
+     * 상품 최종 수정 일시를 반환한다.
+     *
+     * @return 최종 수정 일시
+     */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+    /**
+     * 상품 삭제 일시를 반환한다.
+     *
+     * @return 상품 삭제 일시
+     */
     public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
+    /**
+     * 상품 등록 관리자를 반환한다.
+     *
+     * @return 상품 등록 관리자
+     */
     public Admin getAdmin() {
         return admin;
     }

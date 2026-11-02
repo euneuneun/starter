@@ -1,3 +1,4 @@
+
 package com.starter.product.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -5,65 +6,127 @@ import com.starter.product.entity.Product;
 
 import java.time.LocalDateTime;
 
-// 순서 고정
-@JsonPropertyOrder({"id", "name", "category", "price", "stock",
-        "status", "createdAt", "adminName", "adminEmail"})
-
+@JsonPropertyOrder({
+        "productId",
+        "productName",
+        "productCategory",
+        "price",
+        "stock",
+        "productStatus",
+        "createdAt",
+        "adminName",
+        "adminEmail"
+})
 public class ProductDetailResponse {
 
-    // 속성
-    private Long id;
-    private String name;
-    private String category;
+    private Long productId;
+    private String productName;
+    private String productCategory;
     private String price;
     private Integer stock;
-    private Product.ProductStatus status;
+    private Product.ProductStatus productStatus;
     private LocalDateTime createdAt;
     private String adminName;
     private String adminEmail;
 
-    // 생성자
+    /**
+     * 상품 엔티티를 상세 조회 응답 DTO로 변환한다.
+     *
+     * @param product 상품 엔티티
+     */
     public ProductDetailResponse(Product product) {
-        this.id = product.getId();
-        this.name = product.getName();
-        this.category = product.getCategory();
+        this.productId = product.getProductId();
+        this.productName = product.getProductName();
+        this.productCategory = product.getProductCategory();
         this.price = String.format("%,d원", product.getPrice());
         this.stock = product.getStock();
-        this.status = product.getStatus();
+        this.productStatus = product.getStatus();
         this.createdAt = product.getCreatedAt();
-        if(product.getAdmin() != null) {
+
+        if (product.getAdmin() != null) {
             this.adminName = product.getAdmin().getAdminName();
             this.adminEmail = product.getAdmin().getAdminEmail();
         }
     }
-    // 기능
-    // 응답에 필요한 getter
-    public Long getId() {
-        return id;
+
+    /**
+     * 상품 ID를 반환한다.
+     *
+     * @return 상품 ID
+     */
+    public Long getProductId() {
+        return productId;
     }
-    public String getName() {
-        return name;
+
+    /**
+     * 상품명을 반환한다.
+     *
+     * @return 상품명
+     */
+    public String getProductName() {
+        return productName;
     }
-    public String getCategory() {
-        return category;
+
+    /**
+     * 상품 카테고리를 반환한다.
+     *
+     * @return 상품 카테고리
+     */
+    public String getProductCategory() {
+        return productCategory;
     }
+
+    /**
+     * 상품 가격을 반환한다.
+     *
+     * @return 상품 가격
+     */
     public String getPrice() {
         return price;
     }
+
+    /**
+     * 상품 재고를 반환한다.
+     *
+     * @return 상품 재고
+     */
     public Integer getStock() {
         return stock;
     }
-    public Product.ProductStatus getStatus() {
-        return status;
+
+    /**
+     * 상품 상태를 반환한다.
+     *
+     * @return 상품 상태
+     */
+    public Product.ProductStatus getProductStatus() {
+        return productStatus;
     }
+
+    /**
+     * 상품 등록 일시를 반환한다.
+     *
+     * @return 상품 등록 일시
+     */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    /**
+     * 상품 등록 관리자 이름을 반환한다.
+     *
+     * @return 관리자 이름
+     */
     public String getAdminName() {
         return adminName;
     }
+
+    /**
+     * 상품 등록 관리자 이메일을 반환한다.
+     *
+     * @return 관리자 이메일
+     */
     public String getAdminEmail() {
         return adminEmail;
     }
-
 }

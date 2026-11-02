@@ -5,37 +5,40 @@ import com.starter.customer.entity.Customer;
 import java.time.LocalDateTime;
 
 public class CustomerDetailResponse {
+
     private Long customerId;
-    private String name;
-    private String email;
-    private String phone;
-    private Customer.CustomerStatus status;
+    private String customerName;
+    private String customerEmail;
+    private String customerPhone;
+    private Customer.CustomerStatus customerStatus;
     private LocalDateTime createdAt;
+
     /**
      * 고객 상세 조회 응답 객체를 생성한다.
      *
      * @param customerId 고객 ID
-     * @param name 고객 이름
-     * @param email 고객 이메일
-     * @param phone 고객 전화번호
-     * @param status 고객 상태
+     * @param customerName 고객 이름
+     * @param customerEmail 고객 이메일
+     * @param customerPhone 고객 전화번호
+     * @param customerStatus 고객 상태
      * @param createdAt 고객 가입 일시
      */
     public CustomerDetailResponse(
             Long customerId,
-            String name,
-            String email,
-            String phone,
-            Customer.CustomerStatus status,
+            String customerName,
+            String customerEmail,
+            String customerPhone,
+            Customer.CustomerStatus customerStatus,
             LocalDateTime createdAt) {
 
         this.customerId = customerId;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.status = status;
+        this.customerName = customerName;
+        this.customerEmail = customerEmail;
+        this.customerPhone = customerPhone;
+        this.customerStatus = customerStatus;
         this.createdAt = createdAt;
     }
+
     /**
      * 고객 ID를 반환한다.
      *
@@ -44,38 +47,43 @@ public class CustomerDetailResponse {
     public Long getCustomerId() {
         return customerId;
     }
+
     /**
      * 고객 이름을 반환한다.
      *
      * @return 고객 이름
      */
-    public String getName() {
-        return name;
+    public String getCustomerName() {
+        return customerName;
     }
+
     /**
      * 고객 이메일을 반환한다.
      *
      * @return 고객 이메일
      */
-    public String getEmail() {
-        return email;
+    public String getCustomerEmail() {
+        return customerEmail;
     }
+
     /**
      * 고객 전화번호를 반환한다.
      *
      * @return 고객 전화번호
      */
-    public String getPhone() {
-        return phone;
+    public String getCustomerPhone() {
+        return customerPhone;
     }
+
     /**
      * 고객 상태를 반환한다.
      *
      * @return 고객 상태
      */
-    public Customer.CustomerStatus getStatus() {
-        return status;
+    public Customer.CustomerStatus getCustomerStatus() {
+        return customerStatus;
     }
+
     /**
      * 고객 가입 일시를 반환한다.
      *

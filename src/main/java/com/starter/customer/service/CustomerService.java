@@ -22,7 +22,9 @@ import java.util.List;
 
 @Service
 public class CustomerService {
+
     private final CustomerRepository customerRepository;
+
     /**
      * 고객 서비스를 생성한다.
      *
@@ -31,6 +33,7 @@ public class CustomerService {
     public CustomerService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
+
     /**
      * 고객 상세 정보를 조회한다.
      *
@@ -58,15 +61,16 @@ public class CustomerService {
         // 3. Entity -> DTO 변환
         CustomerDetailResponse responseDto = new CustomerDetailResponse(
                 foundCustomer.getCustomerId(),
-                foundCustomer.getName(),
-                foundCustomer.getEmail(),
-                foundCustomer.getPhone(),
-                foundCustomer.getStatus(),
+                foundCustomer.getCustomerName(),
+                foundCustomer.getCustomerEmail(),
+                foundCustomer.getCustomerPhone(),
+                foundCustomer.getCustomerStatus(),
                 foundCustomer.getCreatedAt());
 
         // 4. 응답 반환
         return responseDto;
     }
+
     /**
      * 검색 및 필터 조건에 따라 고객 목록을 조회한다.
      *
@@ -75,7 +79,7 @@ public class CustomerService {
      * @param size 페이지당 고객 수
      * @param sortBy 정렬 기준
      * @param sortDirection 정렬 방향
-     * @param status 고객 상태 필터
+     * @param customerStatus 고객 상태 필터
      * @return 고객 목록과 페이징 정보
      * @throws ResponseStatusException 조회 조건이 잘못된 경우
      */
@@ -86,7 +90,7 @@ public class CustomerService {
             Integer size,
             String sortBy,
             String sortDirection,
-            Customer.CustomerStatus status) {
+            Customer.CustomerStatus customerStatus) {
 
         // 1. page 검증
         if (page == null || page < 1) {
@@ -130,31 +134,38 @@ public class CustomerService {
         Sort.Direction direction =
                 Sort.Direction.fromString(sortDirection);
 
-        // 7. 정렬 조건 생성
-        Sort sort = Sort.by(direction, sortBy);
+        // 7. API 정렬 기준을 Entity 필드명으로 변환
+        String sortProperty = switch (sortBy) {
+            case "name" -> "customerName";
+            case "email" -> "customerEmail";
+            default -> "createdAt";
+        };
 
-        // 8. 페이징 조건 생성
+        // 8. 정렬 조건 생성
+        Sort sort = Sort.by(direction, sortProperty);
+
+        // 9. 페이징 조건 생성
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        // 9. 검색 조건에 따라 고객 목록 조회
+        // 10. 검색 조건에 따라 고객 목록 조회
         Page<Customer> pageCustomer =
                 customerRepository.searchCustomers(
-                        keyword, status, pageable);
+                        keyword, customerStatus, pageable);
 
-        // 10. Entity -> DTO 목록 변환
+        // 11. Entity -> DTO 목록 변환
         List<CustomerDetailResponse> customerDtoList =
                 pageCustomer.getContent()
                         .stream()
                         .map(customer -> new CustomerDetailResponse(
                                 customer.getCustomerId(),
-                                customer.getName(),
-                                customer.getEmail(),
-                                customer.getPhone(),
-                                customer.getStatus(),
+                                customer.getCustomerName(),
+                                customer.getCustomerEmail(),
+                                customer.getCustomerPhone(),
+                                customer.getCustomerStatus(),
                                 customer.getCreatedAt()))
                         .toList();
 
-        // 11. 응답 DTO 생성
+        // 12. 응답 DTO 생성
         CustomerListResponse responseDto = new CustomerListResponse(
                 customerDtoList,
                 page,
@@ -162,9 +173,10 @@ public class CustomerService {
                 pageCustomer.getTotalElements(),
                 pageCustomer.getTotalPages());
 
-        // 12. 응답 반환
+        // 13. 응답 반환
         return responseDto;
     }
+
     /**
      * 고객 기본 정보를 수정한다.
      *
@@ -193,12 +205,15 @@ public class CustomerService {
         }
 
         // 3. Request DTO에서 변경할 정보 가져오기
-        String name = requestDto.getName();
-        String email = requestDto.getEmail();
-        String phone = requestDto.getPhone();
+        String customerName = requestDto.getCustomerName();
+        String customerEmail = requestDto.getCustomerEmail();
+        String customerPhone = requestDto.getCustomerPhone();
 
         // 4. 고객 정보 수정
-        foundCustomer.changeCustomer(name, email, phone);
+        foundCustomer.changeCustomer(
+                customerName,
+                customerEmail,
+                customerPhone);
 
         // 5. 변경된 정보 DB 동기화
         customerRepository.flush();
@@ -206,16 +221,17 @@ public class CustomerService {
         // 6. Entity -> DTO 변환
         CustomerChangeResponse responseDto = new CustomerChangeResponse(
                 foundCustomer.getCustomerId(),
-                foundCustomer.getName(),
-                foundCustomer.getEmail(),
-                foundCustomer.getPhone(),
-                foundCustomer.getStatus(),
+                foundCustomer.getCustomerName(),
+                foundCustomer.getCustomerEmail(),
+                foundCustomer.getCustomerPhone(),
+                foundCustomer.getCustomerStatus(),
                 foundCustomer.getCreatedAt(),
                 foundCustomer.getUpdatedAt());
 
         // 7. 응답 반환
         return responseDto;
     }
+
     /**
      * 고객 상태를 변경한다.
      *
@@ -244,11 +260,12 @@ public class CustomerService {
         }
 
         // 3. Request DTO에서 변경할 상태 가져오기
-        Customer.CustomerStatus status = requestDto.getStatus();
+        Customer.CustomerStatus customerStatus =
+                requestDto.getCustomerStatus();
 
         // 4. 고객 상태 변경 및 예외 처리
         try {
-            foundCustomer.changeCustomerStatus(status);
+            foundCustomer.changeCustomerStatus(customerStatus);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -261,12 +278,13 @@ public class CustomerService {
         // 6. Entity -> DTO 변환
         CustomerStatusResponse responseDto = new CustomerStatusResponse(
                 foundCustomer.getCustomerId(),
-                foundCustomer.getStatus(),
+                foundCustomer.getCustomerStatus(),
                 foundCustomer.getUpdatedAt());
 
         // 7. 응답 반환
         return responseDto;
     }
+
     /**
      * 고객 정보를 논리적으로 삭제한다.
      *
