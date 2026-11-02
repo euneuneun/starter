@@ -1,11 +1,11 @@
 
 package com.starter.customer.dto.request;
 
-import com.starter.customer.entity.Customer;
+import com.starter.customer.enums.CustomerStatus;
 
 public class CustomerStatusRequest {
 
-    private Customer.CustomerStatus customerStatus;
+    private CustomerStatus customerStatus;
 
     /**
      * 고객 상태 변경 요청 객체를 생성한다.
@@ -19,7 +19,7 @@ public class CustomerStatusRequest {
      * @param customerStatus 변경할 고객 상태
      */
     public CustomerStatusRequest(
-            Customer.CustomerStatus customerStatus) {
+            CustomerStatus customerStatus) {
 
         this.customerStatus = customerStatus;
     }
@@ -29,7 +29,7 @@ public class CustomerStatusRequest {
      *
      * @return 고객 상태
      */
-    public Customer.CustomerStatus getCustomerStatus() {
+    public CustomerStatus getCustomerStatus() {
         return customerStatus;
     }
 }

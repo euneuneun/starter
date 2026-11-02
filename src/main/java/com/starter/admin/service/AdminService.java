@@ -126,7 +126,6 @@ public class AdminService {
         return loginResponse;
     }
 
-
     /**
      * 관리자 로그아웃 처리
      *
@@ -373,7 +372,6 @@ public class AdminService {
         // 8. 반환
         return response;
     }
-
 
     /**
      * 관리자 상태 변경 처리

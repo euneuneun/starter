@@ -8,6 +8,7 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.starter.product.enums.ProductStatus;
 
 import java.time.LocalDateTime;
 
@@ -16,14 +17,6 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
 
-    /**
-     * 상품 판매 상태.
-     */
-    public enum ProductStatus {
-        ON_SALE,
-        OUT_OF_STOCK,
-        DISCONTINUED
-    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

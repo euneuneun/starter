@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.starter.customer.enums.CustomerStatus;
 
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class CustomerService {
             Integer size,
             String sortBy,
             String sortDirection,
-            Customer.CustomerStatus customerStatus) {
+            CustomerStatus customerStatus) {
 
         // 1. page 검증
         if (page == null || page < 1) {
@@ -260,7 +261,7 @@ public class CustomerService {
         }
 
         // 3. Request DTO에서 변경할 상태 가져오기
-        Customer.CustomerStatus customerStatus =
+        CustomerStatus customerStatus =
                 requestDto.getCustomerStatus();
 
         // 4. 고객 상태 변경 및 예외 처리

@@ -3,6 +3,7 @@ package com.starter.customer.dto.response;
 
 import com.starter.customer.entity.Customer;
 import java.time.LocalDateTime;
+import com.starter.customer.enums.CustomerStatus;
 
 public class CustomerChangeResponse {
 
@@ -10,7 +11,7 @@ public class CustomerChangeResponse {
     private String customerName;
     private String customerEmail;
     private String customerPhone;
-    private Customer.CustomerStatus customerStatus;
+    private CustomerStatus customerStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -30,7 +31,7 @@ public class CustomerChangeResponse {
             String customerName,
             String customerEmail,
             String customerPhone,
-            Customer.CustomerStatus customerStatus,
+            CustomerStatus customerStatus,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {
 
@@ -84,7 +85,7 @@ public class CustomerChangeResponse {
      *
      * @return 고객 상태
      */
-    public Customer.CustomerStatus getCustomerStatus() {
+    public CustomerStatus getCustomerStatus() {
         return customerStatus;
     }
 

@@ -15,6 +15,7 @@ import com.starter.order.enums.OrderStatus;
 import com.starter.order.repository.OrderItemRepository;
 import com.starter.order.repository.OrderRepository;
 import com.starter.product.entity.Product;
+import com.starter.product.enums.ProductStatus;
 import com.starter.product.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

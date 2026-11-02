@@ -1,14 +1,14 @@
 
 package com.starter.customer.dto.response;
 
-import com.starter.customer.entity.Customer;
+import com.starter.customer.enums.CustomerStatus;
 
 import java.time.LocalDateTime;
 
 public class CustomerStatusResponse {
 
     private Long customerId;
-    private Customer.CustomerStatus customerStatus;
+    private CustomerStatus customerStatus;
     private LocalDateTime updatedAt;
 
     /**
@@ -20,7 +20,7 @@ public class CustomerStatusResponse {
      */
     public CustomerStatusResponse(
             Long customerId,
-            Customer.CustomerStatus customerStatus,
+            CustomerStatus customerStatus,
             LocalDateTime updatedAt) {
 
         this.customerId = customerId;
@@ -42,7 +42,7 @@ public class CustomerStatusResponse {
      *
      * @return 고객 상태
      */
-    public Customer.CustomerStatus getCustomerStatus() {
+    public CustomerStatus getCustomerStatus() {
         return customerStatus;
     }
 

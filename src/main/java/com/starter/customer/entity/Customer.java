@@ -5,19 +5,11 @@ import com.starter.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import com.starter.customer.enums.CustomerStatus;
 
 @Entity
 @Table(name = "customers")
 public class Customer extends BaseEntity {
-
-    /**
-     * 고객 상태를 정의한다.
-     */
-    public enum CustomerStatus {
-        ACTIVE,
-        INACTIVE,
-        SUSPENDED
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
