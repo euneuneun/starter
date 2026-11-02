@@ -189,7 +189,7 @@ public class OrderController {
 
         // 2. 관리자 로그인 여부 확인
         if (session == null || session.getAttribute("ADMIN_ID") == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized user");
         }
 
         // 3. 반환

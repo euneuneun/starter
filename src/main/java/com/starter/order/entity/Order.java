@@ -79,7 +79,7 @@ public class Order extends BaseEntity {
         } else if (this.status == OrderStatus.SHIPPING) {
             this.status = OrderStatus.DELIVERED;
         } else {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "배송완료 또는 취소된 주문은 상태를 수정할 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 배송완료 또는 취소된 주문은 상태를 수정할 수 없습니다.
         }
 
     }
@@ -98,9 +98,9 @@ public class Order extends BaseEntity {
         if (this.status == OrderStatus.PREPARING) {
             this.status = OrderStatus.CANCELLED;
         } else if (this.status == OrderStatus.CANCELLED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 취소된 주문입니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 이미 취소된 주문입니다.
         } else {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "배송중 또는 배송완료된 주문은 취소할 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 배송중 또는 배송완료된 주문은 취소할 수 없습니다.
         }
 
         this.cancelReason = cancelReason;
