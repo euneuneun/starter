@@ -13,7 +13,7 @@ public class OrderDetailResponse {
     private String customerName;
     private String customerEmail;
     private String productName;
-    private Integer quanitity;
+    private Integer quantity;
     private Long totalPrice;
     private LocalDateTime createdAt;
     private OrderStatus status;
@@ -26,7 +26,7 @@ public class OrderDetailResponse {
             String customerName,
             String customerEmail,
             String productName,
-            Integer quanitity,
+            Integer quantity,
             Long totalPrice,
             LocalDateTime createdAt,
             OrderStatus orderStatus,
@@ -37,7 +37,7 @@ public class OrderDetailResponse {
         this.customerName = customerName;
         this.customerEmail = customerEmail;
         this.productName = productName;
-        this.quanitity = quanitity;
+        this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
         this.status = orderStatus;
@@ -62,8 +62,8 @@ public class OrderDetailResponse {
         return productName;
     }
 
-    public Integer getQuanitity() {
-        return quanitity;
+    public Integer getQuantity() {
+        return quantity;
     }
 
     public Long getTotalPrice() {

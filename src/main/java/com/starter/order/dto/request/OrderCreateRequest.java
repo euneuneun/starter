@@ -13,17 +13,18 @@ public class OrderCreateRequest {
     @NotNull
     private Long productId;
 
+    @NotNull
     @Min(1)
-    private Integer qaunitity;
+    private Integer quantity;
 
     // 생성자
     public OrderCreateRequest() {
     }
 
-    public OrderCreateRequest(Long customerId, Long productId, Integer qauntity) {
+    public OrderCreateRequest(Long customerId, Long productId, Integer quantity) {
         this.customerId = customerId;
         this.productId = productId;
-        this.qaunitity = qauntity;
+        this.quantity = quantity;
     }
 
     // 기능
@@ -35,7 +36,7 @@ public class OrderCreateRequest {
         return productId;
     }
 
-    public Integer getQaunitity() {
-        return qaunitity;
+    public Integer getQuantity() {
+        return quantity;
     }
 }
