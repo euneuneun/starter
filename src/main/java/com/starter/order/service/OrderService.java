@@ -1,6 +1,7 @@
 package com.starter.order.service;
 
 import com.starter.admin.entity.Admin;
+import com.starter.admin.enums.AdminRole;
 import com.starter.admin.repository.AdminRepository;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
@@ -151,9 +152,15 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
-        OrderItem orderItem = orderItemRepository.findById(orderId)
+        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문 상품입니다."));
 
+        // 2. 등록 관리자 정보 (관리자 없이 생성된 주문은 null)
+        Admin registerAdmin = order.getRegisterAdmin();
+        String adminEmail = (registerAdmin != null) ? registerAdmin.getEmail() : null;
+        AdminRole adminRole = (registerAdmin != null) ? registerAdmin.getRole() : null;
+
+        // 3. 응답 생성
         OrderDetailResponse response = new OrderDetailResponse(
                 order.getOrderNumber(),
                 order.getCustomer().getName(),
@@ -163,8 +170,8 @@ public class OrderService {
                 order.getTotalPrice(),
                 order.getCreatedAt(),
                 order.getStatus(),
-                order.getRegisterAdmin().getEmail(),
-                order.getRegisterAdmin().getRole()
+                adminEmail,
+                adminRole
         );
 
         return response;
@@ -235,7 +242,7 @@ public class OrderService {
                     order.getTotalPrice(),
                     order.getCreatedAt(),
                     order.getStatus(),
-                    order.getRegisterAdmin().getName()
+                    order.getRegisterAdmin() == null ? null :order.getRegisterAdmin().getName()
             );
 
             // 3-2. dto -> list <dto>
