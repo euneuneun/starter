@@ -92,25 +92,6 @@ public class OrderService {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
-        /*
-        request  (OrderCreateRequest)  ← 주문서 1장
-        ┌──────────────────────────────────────────────┐
-        │ customerId = 1                               │
-        │                                              │
-        │ items  (List<OrderItemRequest>)  ← 장바구니    │
-        │ ┌──────────────────────────────────────────┐ │
-        │ │ [0] OrderItemRequest                     │ │
-        │ │     productId = 3, quantity = 2          │ │
-        │ ├──────────────────────────────────────────┤ │
-        │ │ [1] OrderItemRequest                     │ │
-        │ │     productId = 7, quantity = 1          │ │
-        │ ├──────────────────────────────────────────┤ │
-        │ │ [2] OrderItemRequest                     │ │
-        │ │     productId = 9, quantity = 5          │ │
-        │ └──────────────────────────────────────────┘ │
-        └──────────────────────────────────────────────┘
-        */
-
         Long totalPrice = 0L; // 0은 int라서 Long에 바로 못 들어감
 
         List<Product> productList = new ArrayList<>();
@@ -168,8 +149,6 @@ public class OrderService {
             orderItemRepository.save(orderItem);
         }
     }
-
-    // TODO total 가격 수정
 
     /**
      * 주문 상세 정보를 조회한다.
