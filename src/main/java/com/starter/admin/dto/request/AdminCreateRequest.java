@@ -1,5 +1,6 @@
 package com.starter.admin.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.starter.admin.enums.AdminRole;
 import jakarta.validation.constraints.*;
 
@@ -8,22 +9,22 @@ import jakarta.validation.constraints.*;
  */
 public class AdminCreateRequest {
     //속성
-    @NotBlank(message = "이름은 필수입니다.")
+    @NotBlank
     private String adminName;
 
-    @NotBlank(message = "이메일은 필수 입력입니다.")
-    @Email(message = "올바른 이메일 형식이 아닙니다.")
+    @NotBlank
+    @Email
     private String adminEmail;
 
-    @NotBlank(message = "비밀번호는 필수 입력입니다.")
-    @Size(min = 8, message = "비밀번호는 최소 8자 이상입니다.")
+    @NotBlank
+    @Size(min = 8)
     private String password;
 
-    @NotBlank(message = "전화번호는 필수 입력입니다.")
-    @Pattern(regexp = "010-?\\d{3,4}-?\\d{4}$", message = "올바른 휴대폰 번호 형식이 아닙니다.")
+    @NotBlank
+    @Pattern(regexp = "010-\\d{4}-\\d{4}$")
     private String adminPhone;
 
-    @NotNull(message = "권한은 필수 선택입니다.")
+    @NotNull
     private AdminRole role;
 
     //생성자
