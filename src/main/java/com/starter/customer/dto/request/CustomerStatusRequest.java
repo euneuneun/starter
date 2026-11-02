@@ -5,7 +5,7 @@ import com.starter.customer.entity.Customer;
 
 public class CustomerStatusRequest {
 
-    private Customer.CustomerStatus status;
+    private Customer.CustomerStatus customerStatus;
     /**
      * 고객 상태 변경 요청 객체를 생성한다.
      */
@@ -14,25 +14,29 @@ public class CustomerStatusRequest {
     /**
      * 고객 상태 변경 요청 객체를 생성한다.
      *
-     * @param status 변경할 고객 상태
+     * @param customerStatus 변경할 고객 상태
      */
-    public CustomerStatusRequest(Customer.CustomerStatus status) {
-        this.status = status;
+    public CustomerStatusRequest(
+            Customer.CustomerStatus customerStatus) {
+
+        this.customerStatus = customerStatus;
     }
     /**
      * 고객 상태를 반환한다.
      *
      * @return 고객 상태
      */
-    public Customer.CustomerStatus getStatus() {
-        return status;
+    public Customer.CustomerStatus getCustomerStatus() {
+        return customerStatus;
     }
     /**
      * 고객 상태를 설정한다.
      *
-     * @param status 변경할 고객 상태
+     * @param customerStatus 변경할 고객 상태
      */
-    public void setStatus(Customer.CustomerStatus status) {
-        this.status = status;
+    public void setCustomerStatus(
+            Customer.CustomerStatus customerStatus) {
+
+        this.customerStatus = customerStatus;
     }
 }

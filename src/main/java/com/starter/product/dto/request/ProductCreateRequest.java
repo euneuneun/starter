@@ -9,7 +9,7 @@ public class ProductCreateRequest {
     private String productCategory;
     private Long price;
     private Integer stock;
-    private Product.ProductStatus status;
+    private Product.ProductStatus productStatus;
 
     /**
      * 기본 생성자.
@@ -23,19 +23,20 @@ public class ProductCreateRequest {
      * @param productCategory 상품 카테고리
      * @param price 상품 가격
      * @param stock 상품 재고
-     * @param status 상품 상태
+     * @param productStatus 상품 상태
      */
     public ProductCreateRequest(
             String productName,
             String productCategory,
             Long price,
             Integer stock,
-            Product.ProductStatus status) {
+            Product.ProductStatus productStatus) {
+
         this.productName = productName;
         this.productCategory = productCategory;
         this.price = price;
         this.stock = stock;
-        this.status = status;
+        this.productStatus = productStatus;
     }
     /**
      * 상품명을 반환한다.
@@ -74,8 +75,8 @@ public class ProductCreateRequest {
      *
      * @return 상품 상태
      */
-    public Product.ProductStatus getStatus() {
-        return status;
+    public Product.ProductStatus getProductStatus() {
+        return productStatus;
     }
     /**
      * 상품명을 설정한다.
@@ -112,9 +113,9 @@ public class ProductCreateRequest {
     /**
      * 상품 상태를 설정한다.
      *
-     * @param status 상품 상태
+     * @param productStatus 상품 상태
      */
-    public void setStatus(Product.ProductStatus status) {
-        this.status = status;
+    public void setProductStatus(Product.ProductStatus productStatus) {
+        this.productStatus = productStatus;
     }
 }
