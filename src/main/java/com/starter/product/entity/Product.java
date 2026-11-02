@@ -9,6 +9,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.starter.product.enums.ProductStatus;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -53,19 +55,21 @@ public class Product {
 
     @Column(nullable = true)
     private LocalDateTime deletedAt;
+
     /**
      * JPA에서 사용하는 기본 생성자.
      */
     protected Product() {
     }
+
     /**
      * 관리자 정보 없이 상품을 생성한다.
      *
-     * @param productName 상품명
+     * @param productName     상품명
      * @param productCategory 상품 카테고리
-     * @param price 상품 가격
-     * @param stock 상품 재고
-     * @param productStatus 상품 상태
+     * @param price           상품 가격
+     * @param stock           상품 재고
+     * @param productStatus   상품 상태
      */
     public Product(
             String productName,
@@ -81,16 +85,17 @@ public class Product {
                 productStatus,
                 null);
     }
+
     /**
      * 관리자 정보를 포함하여 상품을 생성한다.
      *
-     * @param productName 상품명
+     * @param productName     상품명
      * @param productCategory 상품 카테고리
-     * @param price 상품 가격
-     * @param stock 상품 재고
-     * @param productStatus 상품 상태
-     * @param admin 상품 등록 관리자
-     * @throws IllegalArgumentException 상품 정보가 유효하지 않은 경우
+     * @param price           상품 가격
+     * @param stock           상품 재고
+     * @param productStatus   상품 상태
+     * @param admin           상품 등록 관리자
+     * @throws ResponseStatusException 상품 정보가 유효하지 않은 경우
      */
     public Product(
             String productName,
@@ -102,24 +107,28 @@ public class Product {
 
         if (productName == null || productName.isBlank()
                 || productName.length() > 100) {
-            throw new IllegalArgumentException(
-                    "상품명은 null 이거나 100자를 넘을 수 없습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request");
         }
 
         if (productCategory == null || productCategory.isBlank()
                 || productCategory.length() > 15) {
-            throw new IllegalArgumentException(
-                    "카테고리는 null 이거나 15자를 넘을 수 없습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request");
         }
 
         if (price == null || price < 0) {
-            throw new IllegalArgumentException(
-                    "가격은 null 이거나 음수일 수 없습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request");
         }
 
         if (stock == null || stock < 0) {
-            throw new IllegalArgumentException(
-                    "재고는 음수일 수 없습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request");
         }
 
         this.productName = productName;
@@ -137,16 +146,18 @@ public class Product {
         this.stock = stock;
         this.admin = admin;
     }
+
     /**
      * 상품 재고를 변경하고 판매 상태를 갱신한다.
      *
      * @param stock 변경할 재고
-     * @throws IllegalArgumentException 재고가 음수인 경우
+     * @throws ResponseStatusException 재고가 음수인 경우
      */
     public void changeStock(int stock) {
         if (stock < 0) {
-            throw new IllegalArgumentException(
-                    "재고는 음수일 수 없습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Bad Request");
         }
 
         this.stock = stock;
@@ -159,12 +170,14 @@ public class Product {
             }
         }
     }
+
     /**
      * 상품을 단종 상태로 변경한다.
      */
     public void discontinued() {
         this.productStatus = ProductStatus.DISCONTINUED;
     }
+
     /**
      * 상품 단종을 해제하고 재고에 따라 판매 상태를 변경한다.
      */
@@ -175,13 +188,14 @@ public class Product {
             productStatus = ProductStatus.ON_SALE;
         }
     }
+
     /**
      * 상품 정보를 수정한다.
      *
-     * @param productName 변경할 상품명
+     * @param productName     변경할 상품명
      * @param productCategory 변경할 카테고리
-     * @param price 변경할 가격
-     * @throws IllegalArgumentException 상품 정보가 유효하지 않은 경우
+     * @param price           변경할 가격
+     * @throws ResponseStatusException 상품 정보가 유효하지 않은 경우
      */
     public void changeProduct(
             String productName,
@@ -191,8 +205,9 @@ public class Product {
         // 1. 상품명이 전달된 경우에만 검증 및 수정
         if (productName != null) {
             if (productName.isBlank() || productName.length() > 100) {
-                throw new IllegalArgumentException(
-                        "상품명은 공백이거나 100자를 넘을 수 없습니다.");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Bad Request");
             }
 
             this.productName = productName;
@@ -201,8 +216,9 @@ public class Product {
         // 2. 카테고리가 전달된 경우에만 검증 및 수정
         if (productCategory != null) {
             if (productCategory.isBlank() || productCategory.length() > 15) {
-                throw new IllegalArgumentException(
-                        "카테고리는 공백이거나 15자를 넘을 수 없습니다.");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Bad Request");
             }
 
             this.productCategory = productCategory;
@@ -211,19 +227,22 @@ public class Product {
         // 3. 가격이 전달된 경우에만 검증 및 수정
         if (price != null) {
             if (price < 0) {
-                throw new IllegalArgumentException(
-                        "가격은 음수일 수 없습니다.");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Bad Request");
             }
 
             this.price = price;
         }
     }
+
     /**
      * 상품을 소프트 삭제 처리한다.
      */
     public void deleteProduct() {
         this.deletedAt = LocalDateTime.now();
     }
+
     /**
      * 상품 ID를 반환한다.
      *
@@ -232,6 +251,7 @@ public class Product {
     public Long getProductId() {
         return productId;
     }
+
     /**
      * 상품명을 반환한다.
      *
@@ -240,6 +260,7 @@ public class Product {
     public String getProductName() {
         return productName;
     }
+
     /**
      * 상품 카테고리를 반환한다.
      *
@@ -248,6 +269,7 @@ public class Product {
     public String getProductCategory() {
         return productCategory;
     }
+
     /**
      * 상품 가격을 반환한다.
      *
@@ -256,6 +278,7 @@ public class Product {
     public Long getPrice() {
         return price;
     }
+
     /**
      * 상품 재고를 반환한다.
      *
@@ -264,6 +287,7 @@ public class Product {
     public Integer getStock() {
         return stock;
     }
+
     /**
      * 상품 상태를 반환한다.
      *
@@ -272,6 +296,7 @@ public class Product {
     public ProductStatus getProductStatus() {
         return productStatus;
     }
+
     /**
      * 상품 등록 일시를 반환한다.
      *
@@ -280,6 +305,7 @@ public class Product {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
     /**
      * 상품 최종 수정 일시를 반환한다.
      *
@@ -288,6 +314,7 @@ public class Product {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
     /**
      * 상품 삭제 일시를 반환한다.
      *
@@ -296,6 +323,7 @@ public class Product {
     public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
+
     /**
      * 상품 등록 관리자를 반환한다.
      *
