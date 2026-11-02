@@ -34,19 +34,19 @@
 
 <table>
   <tr>
-    <th align="center" width="180">재원</th>
-    <th align="center" width="180">영주</th>
-    <th align="center" width="180">다은</th>
+    <th align="center" width="180">정재원</th>
+    <th align="center" width="180">전영주</th>
+    <th align="center" width="180">김다은</th>
   </tr>
   <tr>
-    <td align="center"><img src="https://github.com/GITHUB_ID.png" width="120" alt="재원 프로필"/></td>
-    <td align="center"><img src="https://github.com/GITHUB_ID.png" width="120" alt="영주 프로필"/></td>
-    <td align="center"><img src="https://github.com/GITHUB_ID.png" width="120" alt="다은 프로필"/></td>
+    <td align="center"><img src="https://github.com/ApprendistaKR.png" width="120" alt="정재원 프로필"/></td>
+    <td align="center"><img src="https://github.com/youngju0zoo.png" width="120" alt="전영주 프로필"/></td>
+    <td align="center"><img src="https://github.com/euneuneun.png" width="120" alt="김다은 프로필"/></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/GITHUB_ID">@GITHUB_ID</a></td>
-    <td align="center"><a href="https://github.com/GITHUB_ID">@GITHUB_ID</a></td>
-    <td align="center"><a href="https://github.com/GITHUB_ID">@GITHUB_ID</a></td>
+    <td align="center"><a href="https://github.com/ApprendistaKR">@ApprendistaKR</a></td>
+    <td align="center"><a href="https://github.com/youngju0zoo">@youngju0zoo</a></td>
+    <td align="center"><a href="https://github.com/euneuneun">@euneuneun</a></td>
   </tr>
   <tr>
     <td align="center">백엔드<br/>관리자 · 인증</td>
