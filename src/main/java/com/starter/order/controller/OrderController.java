@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/order")
@@ -32,9 +33,9 @@ public class OrderController {
     /**
      * CS 주문 생성 API
      *
-     * @param adminId 로그인하고 있는 사용자(= CS 관리자)
+     * @param adminId 로그인하고 있는 사용자 ID(= CS 관리자)
      * @param request 주문 고객 ID, 주문 상품 ID, 주문 상품 수량
-     * @return 201 CREATED body 없음
+     * @return 201 CREATED, body 없음
      */
     @PostMapping
     public ResponseEntity<Void> createOrder(
@@ -55,7 +56,7 @@ public class OrderController {
      * 주문 상세 조회 API
      *
      * @param orderId 조회할 주문 ID
-     * @return  200 OK, 주문 상세 정보 (주문번호, 고객 정보, 주문 상품, 상태 등)
+     * @return 200 OK, 주문 상세 정보 (주문번호, 고객 정보, 주문 상품, 상태 등)
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrderDetail(
@@ -69,12 +70,12 @@ public class OrderController {
     /**
      * 주문 목록 조회 API
      *
-     * @param keyword 검색어 (주문번호, 고객명)
-     * @param status 주문 상태 필터 (준비중, 배송중, 배송완료, 취소됨)/ null 값 = 전체 상태
-     * @param sortBy 정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
+     * @param keyword   검색어 (주문번호, 고객명)
+     * @param status    주문 상태 필터 (준비중, 배송중, 배송완료, 취소됨)/ null 값 = 전체 상태
+     * @param sortBy    정렬 기준값 (주문번호, 고객명, 상품명, 수량, 금액, 주문일, 상태)
      * @param direction ASC, DESC
-     * @param page 조회할 페이지 수
-     * @param size 한 페이지에 들어가는 주문 수
+     * @param page      조회할 페이지 번호 (1부터)
+     * @param size      한 페이지에 들어가는 주문 수
      * @return 200 OK, 주문 목록 (페이징 정보 포함)
      */
     @GetMapping
@@ -94,29 +95,29 @@ public class OrderController {
     /**
      * 주문 상태 수정 API
      *
-     * @param orderId 수정할 주문ID
-     * @return 200 OK body 없음
+     * @param orderId 수정할 주문 ID
+     * @return 200 OK, body 없음
      */
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId){
+    public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId) {
 
         orderService.updateOrderStatus(orderId);
 
         return ResponseEntity.ok().build();
     }
 
-
     /**
      * 주문 취소 API
      *
-     * @param orderId
-     * @return 200 OK body 없음
+     * @param orderId 취소할 주문 ID
+     * @param reqeust 주문 취소 요청 (취소 사유)
+     * @return 200 OK, body 없음
      */
     @PatchMapping("/{orderId}")
     public ResponseEntity<Void> cancelOrder(
             @PathVariable Long orderId,
             @Valid @RequestBody OrderCancelRequest reqeust
-    ){
+    ) {
 
         orderService.cancelOrder(orderId, reqeust.getCancelReason());
 

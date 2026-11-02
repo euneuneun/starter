@@ -1,5 +1,6 @@
 package com.starter.order.enums;
 
+
 public enum OrderStatus {
 
     PREPARING, // 준비중

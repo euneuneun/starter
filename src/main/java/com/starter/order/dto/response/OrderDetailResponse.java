@@ -1,11 +1,11 @@
 package com.starter.order.dto.response;
 
-import com.starter.admin.entity.Admin;
 import com.starter.admin.enums.AdminRole;
 import com.starter.order.enums.OrderStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+
 
 @Getter
 public class OrderDetailResponse {
@@ -32,7 +32,7 @@ public class OrderDetailResponse {
             OrderStatus orderStatus,
             String adminEmail,
             AdminRole adminRole
-    ){
+    ) {
         this.orderNumber = orderNumber;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
