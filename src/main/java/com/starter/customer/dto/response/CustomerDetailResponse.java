@@ -2,7 +2,6 @@
 package com.starter.customer.dto.response;
 
 import com.starter.customer.entity.Customer;
-
 import java.time.LocalDateTime;
 
 public class CustomerDetailResponse {
@@ -13,6 +12,7 @@ public class CustomerDetailResponse {
     private String customerPhone;
     private Customer.CustomerStatus customerStatus;
     private LocalDateTime createdAt;
+
     /**
      * 고객 상세 조회 응답 객체를 생성한다.
      *
@@ -38,6 +38,7 @@ public class CustomerDetailResponse {
         this.customerStatus = customerStatus;
         this.createdAt = createdAt;
     }
+
     /**
      * 고객 ID를 반환한다.
      *
@@ -46,6 +47,7 @@ public class CustomerDetailResponse {
     public Long getCustomerId() {
         return customerId;
     }
+
     /**
      * 고객 이름을 반환한다.
      *
@@ -54,6 +56,7 @@ public class CustomerDetailResponse {
     public String getCustomerName() {
         return customerName;
     }
+
     /**
      * 고객 이메일을 반환한다.
      *
@@ -62,6 +65,7 @@ public class CustomerDetailResponse {
     public String getCustomerEmail() {
         return customerEmail;
     }
+
     /**
      * 고객 전화번호를 반환한다.
      *
@@ -70,6 +74,7 @@ public class CustomerDetailResponse {
     public String getCustomerPhone() {
         return customerPhone;
     }
+
     /**
      * 고객 상태를 반환한다.
      *
@@ -78,6 +83,7 @@ public class CustomerDetailResponse {
     public Customer.CustomerStatus getCustomerStatus() {
         return customerStatus;
     }
+
     /**
      * 고객 가입 일시를 반환한다.
      *

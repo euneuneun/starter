@@ -24,6 +24,7 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+
     /**
      * 고객 서비스를 생성한다.
      *
@@ -32,6 +33,7 @@ public class CustomerService {
     public CustomerService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
+
     /**
      * 고객 상세 정보를 조회한다.
      *
@@ -68,6 +70,7 @@ public class CustomerService {
         // 4. 응답 반환
         return responseDto;
     }
+
     /**
      * 검색 및 필터 조건에 따라 고객 목록을 조회한다.
      *
@@ -173,6 +176,7 @@ public class CustomerService {
         // 13. 응답 반환
         return responseDto;
     }
+
     /**
      * 고객 기본 정보를 수정한다.
      *
@@ -227,6 +231,7 @@ public class CustomerService {
         // 7. 응답 반환
         return responseDto;
     }
+
     /**
      * 고객 상태를 변경한다.
      *
@@ -279,6 +284,7 @@ public class CustomerService {
         // 7. 응답 반환
         return responseDto;
     }
+
     /**
      * 고객 정보를 논리적으로 삭제한다.
      *

@@ -37,11 +37,13 @@ public class Customer extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private CustomerStatus customerStatus;
+
     /**
      * JPA에서 사용하는 기본 생성자이다.
      */
     protected Customer() {
     }
+
     /**
      * 고객 정보를 수정한다.
      *
@@ -79,6 +81,7 @@ public class Customer extends BaseEntity {
             this.customerPhone = customerPhone;
         }
     }
+
     /**
      * 고객 상태를 변경한다.
      *
@@ -93,12 +96,14 @@ public class Customer extends BaseEntity {
 
         this.customerStatus = customerStatus;
     }
+
     /**
      * 고객 정보를 논리적으로 삭제한다.
      */
     public void deleteCustomer() {
         super.softDelete();
     }
+
     /**
      * 고객 ID를 반환한다.
      *
@@ -107,6 +112,7 @@ public class Customer extends BaseEntity {
     public Long getCustomerId() {
         return customerId;
     }
+
     /**
      * 고객 이름을 반환한다.
      *
@@ -115,6 +121,7 @@ public class Customer extends BaseEntity {
     public String getCustomerName() {
         return customerName;
     }
+
     /**
      * 고객 이메일을 반환한다.
      *
@@ -123,6 +130,7 @@ public class Customer extends BaseEntity {
     public String getCustomerEmail() {
         return customerEmail;
     }
+
     /**
      * 고객 전화번호를 반환한다.
      *
@@ -131,6 +139,7 @@ public class Customer extends BaseEntity {
     public String getCustomerPhone() {
         return customerPhone;
     }
+
     /**
      * 고객 상태를 반환한다.
      *

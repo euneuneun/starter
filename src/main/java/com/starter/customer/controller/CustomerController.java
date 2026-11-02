@@ -31,9 +31,15 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+    /**
+     * 고객 컨트롤러를 생성한다.
+     *
+     * @param customerService 고객 관리 서비스
+     */
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
+
     /**
      * 고객 상세 정보를 조회한다.
      *
@@ -64,6 +70,7 @@ public class CustomerController {
         // 4. 응답 반환
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 검색 및 필터 조건에 따라 고객 목록을 조회한다.
      *
@@ -111,6 +118,7 @@ public class CustomerController {
         // 4. 응답 반환
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 정보를 수정한다.
      *
@@ -144,6 +152,7 @@ public class CustomerController {
         // 4. 응답 반환
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 상태를 변경한다.
      *
@@ -177,6 +186,7 @@ public class CustomerController {
         // 4. 응답 반환
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
     /**
      * 고객 정보를 삭제 처리한다.
      *

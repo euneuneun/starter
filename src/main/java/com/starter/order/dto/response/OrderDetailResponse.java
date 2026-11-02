@@ -1,14 +1,14 @@
 package com.starter.order.dto.response;
 
-import com.starter.admin.entity.Admin;
+import com.starter.admin.enums.AdminRole;
 import com.starter.order.enums.OrderStatus;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
+
 public class OrderDetailResponse {
 
+    // 속성
     private String orderNumber;
     private String customerName;
     private String customerEmail;
@@ -18,8 +18,9 @@ public class OrderDetailResponse {
     private LocalDateTime createdAt;
     private OrderStatus status;
     private String adminEmail;
-    private Admin.AdminRole adminRole;
+    private AdminRole adminRole;
 
+    // 생성자
     public OrderDetailResponse(
             String orderNumber,
             String customerName,
@@ -30,8 +31,8 @@ public class OrderDetailResponse {
             LocalDateTime createdAt,
             OrderStatus orderStatus,
             String adminEmail,
-            Admin.AdminRole adminRole
-    ){
+            AdminRole adminRole
+    ) {
         this.orderNumber = orderNumber;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
@@ -42,5 +43,46 @@ public class OrderDetailResponse {
         this.status = orderStatus;
         this.adminEmail = adminEmail;
         this.adminRole = adminRole;
+    }
+
+    // 기능
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public Integer getQuanitity() {
+        return quanitity;
+    }
+
+    public Long getTotalPrice() {
+        return totalPrice;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public String getAdminEmail() {
+        return adminEmail;
+    }
+
+    public AdminRole getAdminRole() {
+        return adminRole;
     }
 }

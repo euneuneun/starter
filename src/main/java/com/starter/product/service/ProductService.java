@@ -27,6 +27,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final AdminRepository adminRepository;
+
     public ProductService(
             ProductRepository productRepository,
             AdminRepository adminRepository) {
@@ -34,6 +35,8 @@ public class ProductService {
         this.productRepository = productRepository;
         this.adminRepository = adminRepository;
     }
+
+    // 기능
 
     /**
      * 상품을 등록한다.
@@ -101,6 +104,7 @@ public class ProductService {
         // 5. 응답 반환
         return responseDto;
     }
+
     /**
      * 상품 상세 정보를 조회한다.
      *
@@ -138,6 +142,7 @@ public class ProductService {
         // 5. 응답 반환
         return responseDto;
     }
+
     /**
      * 상품 재고를 변경한다.
      *
@@ -198,6 +203,7 @@ public class ProductService {
         // 6. 응답 반환
         return responseDto;
     }
+
     /**
      * 상품 목록을 조회한다.
      *
@@ -271,7 +277,7 @@ public class ProductService {
 
         // 2. 정렬 방향 변환
         Sort.Direction direction =
-                Sort.Direction.fromString(sortDirection);
+                Sort.Direction.fromString(sortDirection); // "asc" / "desc" 문자열을 변환
 
         // 3. 정렬 조건 만들기
         Sort sort = Sort.by(direction, sortBy);
@@ -305,6 +311,7 @@ public class ProductService {
         // 8. 응답 반환
         return responseDto;
     }
+
     /**
      * 상품 기본 정보를 수정한다.
      *
@@ -363,6 +370,7 @@ public class ProductService {
         // 6. 응답 반환
         return responseDto;
     }
+
     /**
      * 상품 상태를 변경한다.
      *
@@ -425,6 +433,7 @@ public class ProductService {
         // 7. 응답 반환
         return responseDto;
     }
+
     /**
      * 상품을 논리 삭제한다.
      *
@@ -453,6 +462,7 @@ public class ProductService {
                     HttpStatus.NOT_FOUND,
                     "해당 데이터를 찾을 수 없습니다.");
         }
+
         // 4. 논리 삭제 처리
         foundProduct.deleteProduct();
     }

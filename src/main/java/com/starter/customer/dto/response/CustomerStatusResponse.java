@@ -10,6 +10,7 @@ public class CustomerStatusResponse {
     private Long customerId;
     private Customer.CustomerStatus customerStatus;
     private LocalDateTime updatedAt;
+
     /**
      * 고객 상태 변경 응답 객체를 생성한다.
      *
@@ -26,6 +27,7 @@ public class CustomerStatusResponse {
         this.customerStatus = customerStatus;
         this.updatedAt = updatedAt;
     }
+
     /**
      * 고객 ID를 반환한다.
      *
@@ -34,6 +36,7 @@ public class CustomerStatusResponse {
     public Long getCustomerId() {
         return customerId;
     }
+
     /**
      * 고객 상태를 반환한다.
      *
@@ -42,6 +45,7 @@ public class CustomerStatusResponse {
     public Customer.CustomerStatus getCustomerStatus() {
         return customerStatus;
     }
+
     /**
      * 고객 상태 수정 일시를 반환한다.
      *

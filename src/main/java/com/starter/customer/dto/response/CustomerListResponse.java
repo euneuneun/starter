@@ -10,6 +10,7 @@ public class CustomerListResponse {
     private Integer size;
     private Long totalElements;
     private Integer totalPages;
+
     /**
      * 고객 목록 조회 응답 객체를 생성한다.
      *
@@ -32,6 +33,7 @@ public class CustomerListResponse {
         this.totalElements = totalElements;
         this.totalPages = totalPages;
     }
+
     /**
      * 고객 상세 정보 목록을 반환한다.
      *
@@ -40,6 +42,7 @@ public class CustomerListResponse {
     public List<CustomerDetailResponse> getContent() {
         return content;
     }
+
     /**
      * 현재 페이지 번호를 반환한다.
      *
@@ -48,6 +51,7 @@ public class CustomerListResponse {
     public Integer getPage() {
         return page;
     }
+
     /**
      * 페이지당 고객 수를 반환한다.
      *
@@ -56,6 +60,7 @@ public class CustomerListResponse {
     public Integer getSize() {
         return size;
     }
+
     /**
      * 전체 고객 수를 반환한다.
      *
@@ -64,6 +69,7 @@ public class CustomerListResponse {
     public Long getTotalElements() {
         return totalElements;
     }
+
     /**
      * 전체 페이지 수를 반환한다.
      *

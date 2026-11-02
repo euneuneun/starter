@@ -26,6 +26,7 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
+
     /**
      * 상품을 등록한다.
      *
@@ -64,6 +65,7 @@ public class ProductController {
         // 6. 반환
         return response;
     }
+
     /**
      * 상품 상세 정보를 조회한다.
      *
@@ -99,6 +101,7 @@ public class ProductController {
         // 5. 반환
         return response;
     }
+
     /**
      * 상품 재고를 변경한다.
      *
@@ -138,6 +141,7 @@ public class ProductController {
         // 5. 반환
         return response;
     }
+
     /**
      * 상품 목록을 조회한다.
      *
@@ -195,6 +199,7 @@ public class ProductController {
         // 5. 반환
         return response;
     }
+
     /**
      * 상품 기본 정보를 수정한다.
      *
@@ -232,6 +237,7 @@ public class ProductController {
         // 5. 반환
         return response;
     }
+
     /**
      * 상품 상태를 변경한다.
      *
@@ -269,6 +275,7 @@ public class ProductController {
         // 5. 반환
         return response;
     }
+
     /**
      * 상품을 삭제한다.
      *
