@@ -323,12 +323,12 @@ public class OrderService {
 
 
         // 3. 재고 복구
-        OrderItem orderItem = orderItemRepository.findByAllOrderId(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+        List<OrderItem> orderItems = orderItemRepository.findByAllOrderId(orderId);
 
-        Product product = orderItem.getProduct();
-
-        product.changeStock(product.getStock() + orderItem.getQuantity());
+        for (OrderItem orderItem : orderItems){
+            int change = orderItem.getQuantity() + orderItem.getProduct().getStock();
+            orderItem.getProduct().changeStock(change);
+        }
     }
 
     /**
