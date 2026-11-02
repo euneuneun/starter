@@ -7,7 +7,6 @@ import com.starter.customer.dto.response.CustomerChangeResponse;
 import com.starter.customer.dto.response.CustomerDetailResponse;
 import com.starter.customer.dto.response.CustomerListResponse;
 import com.starter.customer.dto.response.CustomerStatusResponse;
-import com.starter.customer.entity.Customer;
 import com.starter.customer.service.CustomerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.starter.customer.enums.CustomerStatus;
 
 import java.util.Map;
 
@@ -91,7 +91,7 @@ public class CustomerController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
             @RequestParam(name = "status", required = false)
-            Customer.CustomerStatus customerStatus,
+            CustomerStatus customerStatus,
             HttpServletRequest request) {
 
         // 1. 기존 세션 조회

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import com.starter.customer.enums.CustomerStatus;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
@@ -26,6 +27,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             + "OR c.customerStatus = :customerStatus)")
     Page<Customer> searchCustomers(
             @Param("keyword") String keyword,
-            @Param("customerStatus") Customer.CustomerStatus customerStatus,
+            @Param("customerStatus") CustomerStatus customerStatus,
             Pageable pageable);
 }
