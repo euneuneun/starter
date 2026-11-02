@@ -66,7 +66,7 @@ public class OrderService {
      * CS 관리자가 고객 대신 주문을 생성한다.
      * <p>다음 경우에는 주문을 생성하지 않는다.</p>
      * <ul>
-     *     <li>관리자 ID, 고객 ID, 주문 ID가 존재하지 않는 경우</li>
+     *     <li>관리자 ID, 고객 ID, 상품 ID가 존재하지 않는 경우</li>
      *     <li>상품 상태가 단종/품절인 경우</li>
      *     <li>주문수량이 재고수량보다 많은 경우</li>
      * </ul>
@@ -223,12 +223,6 @@ public class OrderService {
         // 3-1. page안에 있는 entity 하나씩 뽑아서 dto로 변환
         List<OrderSummaryResponse> orderSummaryList = new ArrayList<>();
 
-        // orderItems (Page<OrderItem>)
-        // ├─ 데이터 목록       → getContent()        = [주문상품1, 주문상품2, ..., 주문상품10]
-        // ├─ 현재 페이지 번호   → getNumber()         = 1
-        // ├─ 페이지 크기       → getSize()           = 10
-        // ├─ 전체 데이터 개수   → getTotalElements()  = 37
-        // └─ 전체 페이지 수    → getTotalPages()      = 4
         for (OrderItem orderItem : orderItems.getContent()) {
 
             Order order = orderItem.getOrder();
@@ -242,7 +236,7 @@ public class OrderService {
                     order.getTotalPrice(),
                     order.getCreatedAt(),
                     order.getStatus(),
-                    order.getRegisterAdmin() == null ? null :order.getRegisterAdmin().getName()
+                    order.getRegisterAdmin() == null ? null : order.getRegisterAdmin().getName()
             );
 
             // 3-2. dto -> list <dto>
