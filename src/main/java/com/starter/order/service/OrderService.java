@@ -4,6 +4,8 @@ import com.starter.admin.entity.Admin;
 import com.starter.admin.repository.AdminRepository;
 import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
+import com.starter.order.dto.request.OrderCancelRequest;
+import com.starter.order.dto.request.OrderCreateRequest;
 import com.starter.order.dto.response.OrderDetailResponse;
 import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.entity.Order;
@@ -13,7 +15,6 @@ import com.starter.order.repository.OrderItemRepository;
 import com.starter.order.repository.OrderRepository;
 import com.starter.product.entity.Product;
 import com.starter.product.repository.ProductRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,6 @@ import java.util.List;
 
 
 @Service
-@RequiredArgsConstructor
 public class OrderService {
 
     // 속성
@@ -43,6 +43,19 @@ public class OrderService {
     private final AdminRepository adminRepository;
 
     // 생성자
+    public OrderService(
+            OrderRepository orderRepository,
+            OrderItemRepository orderItemRepository,
+            CustomerRepository customerRepository,
+            ProductRepository productRepository,
+            AdminRepository adminRepository
+    ) {
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.customerRepository = customerRepository;
+        this.productRepository = productRepository;
+        this.adminRepository = adminRepository;
+    }
 
     // 기능
 
@@ -61,22 +74,20 @@ public class OrderService {
      *     <li>주문 번호가 자동 생성되어 부여된다. (ex: 20260901-003)</li>
      * </ul>
      *
-     * @param adminId    주문을 등록한 CS 관리자 ID
-     * @param customerId 주문한 고객 ID
-     * @param productId  주문한 상품 ID
-     * @param quantity   주문 수량
+     * @param adminId 주문을 등록한 CS 관리자 ID
+     * @param request 주문 고객 ID, 주문 상품 ID, 주문 수량
      */
     @Transactional
-    public void createOrder(Long adminId, Long customerId, Long productId, Integer quantity) {
+    public void createOrder(Long adminId, OrderCreateRequest request) {
 
         // 1. admin, customer, product 객체 꺼내기
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."));
 
-        Customer customer = customerRepository.findById(customerId)
+        Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 고객입니다."));
 
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."));
 
         // 2. 검증
@@ -88,20 +99,20 @@ public class OrderService {
         }
 
         // 2-2. 주문 수량만큼 상품 재고 검증 처리
-        if (product.getStock() < quantity) {
+        if (product.getStock() < request.getQaunitity()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "주문 수량이 재고 수량보다 많습니다.");
         }
 
         // 3. 재고 차감
         // 3-1. 재고 계산
-        Integer stock = product.getStock() - quantity;
+        Integer stock = product.getStock() - request.getQaunitity();
         // 3-2. 재고 저장 ( 품절 처리 자동 변환)
         product.changeStock(stock);
 
         // 4. 엔티티 생성
         // 4-1. 엔티티에 넣을 값 계산
         // 4-1-1.( 총 금액 = 상품 단가 * 수량)
-        Long totalPrice = product.getPrice() * quantity;
+        Long totalPrice = product.getPrice() * request.getQaunitity();
         // 4-1-2. 주문 번호 생성
         // TODO: 메서드로 빼기
         String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);                 // 20261029
@@ -116,7 +127,7 @@ public class OrderService {
                 product,
                 product.getName(),  // 주문한 순간의 상품 이름
                 product.getPrice(), // 주문한 순간의 상품 가격
-                quantity
+                request.getQaunitity()
         );
 
         // 5. 저장
@@ -194,24 +205,11 @@ public class OrderService {
         Sort sort = Sort.by(direction, sortProperty);
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
 
-        // 2. 경우에 따른 조회
-        Page<OrderItem> orderItems;
-        // 2-1. keyword O, status O
-        if (StringUtils.hasText(keyword) && status != null) {
-            orderItems = orderItemRepository.findByOrder_OrderNumberContainingAndOrder_StatusOrOrder_Customer_NameContainingAndOrder_Status(
-                    keyword, status, keyword, status, pageable);
-        } else if (StringUtils.hasText(keyword) || status != null) {
-            // 2-2. keyword O, status X
-            if (StringUtils.hasText(keyword)) {
-                orderItems = orderItemRepository.findByOrder_OrderNumberContainingOrOrder_Customer_NameContaining(
-                        keyword, keyword, pageable);
-            // 2-3 keyword X, status O
-            } else {
-                orderItems = orderItemRepository.findByOrder_Status(status, pageable);
-            }
-        } else {
-            orderItems = orderItemRepository.findAll(pageable);
-        }
+        // 2. 조회
+        // 2-1. 빈 검색어("")는 null로 바꿔서 검색어 조건 생략
+        String searchKeyword = StringUtils.hasText(keyword) ? keyword : null;
+        // 2-2. 검색어, 상태 조건으로 조회 (null인 조건은 쿼리에서 생략)
+        Page<OrderItem> orderItems = orderItemRepository.searchOrders(searchKeyword, status, pageable);
 
         // 3. Page<entity> -> Page<dto>
 
@@ -272,17 +270,16 @@ public class OrderService {
     /**
      * 주문을 취소한다.
      *
-     * @param orderId      취소할 주문 ID
-     * @param cancelReason 취소 사유
+     * @param orderId 취소할 주문 ID
+     * @param request 주문 취소 요청 (취소 사유)
      */
     @Transactional
-    public void cancelOrder(Long orderId, String cancelReason) {
+    public void cancelOrder(Long orderId, OrderCancelRequest request) {
 
         // 1. orderId에 해당하는 엔티티 찾기
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."));
 
-        order.cancelOrder(cancelReason);
+        order.cancelOrder(request.getCancelReason());
     }
-
 }

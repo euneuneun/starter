@@ -7,7 +7,6 @@ import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.enums.OrderStatus;
 import com.starter.order.service.OrderService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -24,11 +23,18 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 
 
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/order")
+@RequestMapping("/orders")
 public class OrderController {
 
+    // 속성
     private final OrderService orderService;
+
+    // 생성자
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    // 기능
 
     /**
      * CS 주문 생성 API
@@ -42,14 +48,14 @@ public class OrderController {
             @SessionAttribute(name = "ADMIN_ID", required = false) Long adminId,
             @Valid @RequestBody OrderCreateRequest request) {
 
-        orderService.createOrder(
-                adminId,
-                request.getCustomerId(),
-                request.getProductId(),
-                request.getQaunitity()
-        );
+        // 1. 서비스 처리
+        orderService.createOrder(adminId, request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        // 2. Http
+        ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.CREATED);
+
+        // 3. 반환
+        return response;
     }
 
     /**
@@ -62,9 +68,14 @@ public class OrderController {
     public ResponseEntity<OrderDetailResponse> getOrderDetail(
             @PathVariable Long orderId) {
 
-        OrderDetailResponse response = orderService.getOrderDetail(orderId);
+        // 1. 서비스 처리
+        OrderDetailResponse orderDetailResponse = orderService.getOrderDetail(orderId);
 
-        return ResponseEntity.ok(response);
+        // 2. Http
+        ResponseEntity<OrderDetailResponse> response = new ResponseEntity<>(orderDetailResponse, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
     }
 
     /**
@@ -87,9 +98,15 @@ public class OrderController {
             @RequestParam(defaultValue = "1") int page, // defaultValue의 모든 값은 String으로 받아 필요시 int 처리한다.
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<OrderSummaryResponse> response = orderService.getOrderList(keyword, status, sortBy, direction, page, size);
+        // 1. 서비스 처리
+        Page<OrderSummaryResponse> orderListResponse = orderService.getOrderList(
+                keyword, status, sortBy, direction, page, size);
 
-        return ResponseEntity.ok(response);
+        // 2. Http
+        ResponseEntity<Page<OrderSummaryResponse>> response = new ResponseEntity<>(orderListResponse, HttpStatus.OK);
+
+        // 3. 반환
+        return response;
     }
 
     /**
@@ -101,9 +118,14 @@ public class OrderController {
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<Void> updateOrderStatus(@PathVariable Long orderId) {
 
+        // 1. 서비스 처리
         orderService.updateOrderStatus(orderId);
 
-        return ResponseEntity.ok().build();
+        // 2. Http
+        ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.OK);
+
+        // 3. 반환
+        return response;
     }
 
     /**
@@ -119,9 +141,13 @@ public class OrderController {
             @Valid @RequestBody OrderCancelRequest reqeust
     ) {
 
-        orderService.cancelOrder(orderId, reqeust.getCancelReason());
+        // 1. 서비스 처리
+        orderService.cancelOrder(orderId, reqeust);
 
-        return ResponseEntity.ok().build();
+        // 2. Http
+        ResponseEntity<Void> response = new ResponseEntity<>(HttpStatus.OK);
+
+        // 3. 반환
+        return response;
     }
-
 }

@@ -7,5 +7,4 @@ public enum OrderStatus {
     SHIPPING,  // 배송중
     DELIVERED, // 배송완료
     CANCELLED  // 취소됨
-
 }
