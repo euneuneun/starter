@@ -50,7 +50,7 @@
 | 값 | 설명 |
 | --- | --- |
 | `PREPARING` | 준비중 |
-| `DELIVERING` | 배송중 |
+| `SHIPPING` | 배송중 |
 | `DELIVERED` | 배송완료 |
 | `CANCELLED` | 취소됨 |
 
@@ -1485,22 +1485,32 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 ## 🧾 주문 관리
 
+> 모든 주문 API는 로그인한 관리자 세션(`JSESSIONID`)이 필요합니다. 세션이 없으면 `401 Unauthorized`(`로그인이 필요합니다.`)를 반환합니다.
+
 | Method | Endpoint | 기능 |
 | :---: | --- | --- |
-| `POST` | `/orders` | 주문 생성 |
+| `POST` | `/orders` | 주문 생성 (CS 주문) |
 | `GET` | `/orders` | 주문 리스트 조회 |
 | `GET` | `/orders/{orderId}` | 주문 상세 조회 |
-| `PATCH` | `/orders/{orderId}/status` | 주문 상태 수정 |
-| `DELETE` | `/orders/{orderId}` | 주문 취소 |
+| `PATCH` | `/orders/{orderId}/status` | 주문 상태 수정 (다음 단계로 변경) |
+| `PATCH` | `/orders/{orderId}` | 주문 취소 |
 
 <details>
-<summary><code>POST</code> <b>/orders</b> — 주문 생성</summary>
+<summary><code>POST</code> <b>/orders</b> — 주문 생성 (CS 주문)</summary>
+
+> 로그인한 관리자가 고객 대신 주문을 생성합니다. 로그인한 관리자가 `등록 관리자`로 저장됩니다.
+>
+> - 주문 수량만큼 상품 재고가 차감되며, 재고가 0이 되면 상품 상태가 자동으로 `OUT_OF_STOCK`으로 전환됩니다.
+> - 주문 상태는 `PREPARING`으로 생성됩니다.
+> - 주문번호는 `yyyyMMdd-NNN` 형식으로 자동 생성됩니다. (예: `20261029-003`, 당일 주문 순번)
+> - 총 금액 = 상품 단가 × 수량
 
 **Request Headers**
 
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `Content-Type` | `application/json` | ✅ | 요청 본문 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
 
 **Request Body**
 
@@ -1508,43 +1518,28 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | --- | --- | :---: | --- |
 | `customerId` | Long | ✅ | 고객 ID |
 | `productId` | Long | ✅ | 상품 ID |
-| `quantity` | Integer | ✅ | 수량 |
+| `quantity` | Integer | ✅ | 주문 수량 (1 이상) |
 
 ```json
 {
-  "customerId": 12,
-  "productId": 7,
-  "quantity": 5
+  "customerId": "고객 ID",
+  "productId": "상품 ID",
+  "quantity": "주문 수량"
 }
 ```
 
-**Response** `201 Created`
+**Response** `201 Created` — 응답 본문 없음
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `id` | Long | 주문 ID |
-| `orderNumber` | String | 주문번호 |
-| `customerName` | String | 고객명 |
-| `productName` | String | 상품명 |
-| `quantity` | Integer | 수량 |
-| `totalPrice` | Long | 총 금액 |
-| `status` | String | 주문 상태 |
-| `registeredAdminName` | String | 등록 관리자명 |
-| `orderedAt` | LocalDateTime | 주문일 |
+**Error Response**
 
-```json
-{
-  "id": 101,
-  "orderNumber": "22",
-  "customerName": "고객명",
-  "productName": "상품명",
-  "quantity": 3,
-  "totalPrice": 87000,
-  "status": "PREPARING",
-  "registeredAdminName": "등록관리자명",
-  "orderedAt": "2026-10-27T19:10:00"
-}
-```
+| 상태 코드 | 상황 |
+| --- | --- |
+| `400 Bad Request` | 필수 값 누락, 수량이 1 미만인 경우 |
+| `401 Unauthorized` | 로그인하지 않은 경우 |
+| `404 Not Found` | 존재하지 않는 관리자 / 고객 / 상품 |
+| `409 Conflict` | 단종된 상품 (`현재 상품이 단종되어 주문할 수 없습니다.`) |
+| `409 Conflict` | 품절된 상품 (`현재 상품이 품절되어 주문할 수 없습니다.`) |
+| `409 Conflict` | 주문 수량 > 재고 수량 (`주문 수량이 재고 수량보다 많습니다.`) |
 
 </details>
 
@@ -1555,55 +1550,67 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
-| `Cookie` | `JSESSIONID={세션 ID}` | ✅ | 로그인 세션 ID |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
+
+**Query String**
+
+```text
+?keyword=20261029&status=PREPARING&sortBy=createdAt&direction=DESC&page=1
+```
+
+| 키 | 타입 | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `keyword` | String | | 주문번호 또는 고객명 부분 검색 (빈 값이면 전체) |
+| `status` | String | | 주문 상태 필터 (`PREPARING`, `SHIPPING`, `DELIVERED`, `CANCELLED`, 미입력 시 전체) |
+| `sortBy` | String | | `orderNumber`, `customerName`, `productName`, `quantity`, `totalPrice`, `createdAt`, `status` (기본값 `createdAt`) |
+| `direction` | String | | `ASC`, `DESC` (기본값 `DESC`) |
+| `page` | Integer | | 페이지 번호 (기본값 1, 1부터 시작) |
+
+> 페이지당 개수는 **10개로 고정**입니다.
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `orders` | Array | 주문 목록 |
-| `orders[].orderId` | Long | 주문 ID |
-| `orders[].orderNumber` | Integer | 주문번호 |
-| `orders[].customerName` | String | 고객명 |
-| `orders[].productName` | String | 상품명 |
-| `orders[].quantity` | Integer | 수량 |
-| `orders[].totalCount` | Long | 금액 |
-| `orders[].createdAt` | String | 주문일 |
-| `orders[].status` | String | 주문 상태 |
-| `orders[].adminName` | String | 등록 관리자명 |
-| `orders[].adminEmail` | String | 등록 관리자 이메일 |
-| `orders[].adminRole` | String | 등록 관리자 역할 |
+| `content` | Array | 주문 목록 |
+| `content[].orderId` | Long | 주문 ID |
+| `content[].orderNumber` | String | 주문번호 |
+| `content[].customerName` | String | 고객명 |
+| `content[].productName` | String | 상품명 (주문 시점) |
+| `content[].quantity` | Integer | 수량 |
+| `content[].totalPrice` | Long | 총 금액 |
+| `content[].createdAt` | LocalDateTime | 주문일 |
+| `content[].status` | String | 주문 상태 |
+| `content[].adminName` | String | 등록 관리자명 (등록 관리자가 없으면 `null`) |
+| `number` | Integer | 현재 페이지 번호 (**0부터 시작**, 요청 `page` - 1) |
+| `size` | Integer | 페이지당 개수 (10) |
+| `totalElements` | Long | 검색 및 필터 조건에 해당하는 주문 수 |
+| `totalPages` | Integer | 전체 페이지 수 |
+| `first` / `last` | Boolean | 첫 / 마지막 페이지 여부 |
+
+> Spring Data `Page` 객체가 그대로 직렬화되므로 `pageable`, `sort`, `numberOfElements`, `empty` 필드도 함께 응답됩니다.
 
 ```json
 {
-  "orders": [
+  "content": [
     {
-      "orderId": 2,
-      "orderNumber": 2,
+      "orderId": "주문 ID",
+      "orderNumber": "주문번호",
       "customerName": "고객명",
       "productName": "상품명",
-      "quantity": 2,
-      "totalCount": 16000,
-      "createdAt": "2026-10-27T19:10:00",
-      "status": "PREPARING",
-      "adminName": "등록 관리자명",
-      "adminEmail": "admin@sparta.com",
-      "adminRole": "CS_ADMIN"
-    },
-    {
-      "orderId": 1,
-      "orderNumber": 1,
-      "customerName": "고객명",
-      "productName": "상품명",
-      "quantity": 1,
-      "totalCount": 8000,
-      "createdAt": "2026-10-27T18:10:00",
-      "status": "DELIVERED",
-      "adminName": "등록 관리자명",
-      "adminEmail": "admin@sparta.com",
-      "adminRole": "CS_ADMIN"
+      "quantity": "수량",
+      "totalPrice": "총 금액",
+      "createdAt": "주문일",
+      "status": "주문 상태",
+      "adminName": "등록 관리자명"
     }
-  ]
+  ],
+  "number": "현재 페이지 번호",
+  "size": "페이지당 개수",
+  "totalElements": "검색 및 필터 조건에 해당하는 주문 수",
+  "totalPages": "전체 페이지 수",
+  "first": "첫 페이지 여부",
+  "last": "마지막 페이지 여부"
 }
 ```
 
@@ -1611,117 +1618,15 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 상태 코드 | 상황 |
 | --- | --- |
-| `404 Not Found` | 존재하지 않는 ID 요청 시 |
+| `400 Bad Request` | 정렬할 수 없는 `sortBy` 값 (`정렬할 수 없는 항목입니다.`), 잘못된 `status` / `direction` 값 |
+| `401 Unauthorized` | 로그인하지 않은 경우 |
 
 </details>
 
 <details>
 <summary><code>GET</code> <b>/orders/{orderId}</b> — 주문 상세 조회</summary>
 
-> `CS 주문`이 아닌 고객의 직접 주문인 경우 `등록 관리자 정보`는 존재하지 않습니다.
-
-**Request Headers**
-
-| Key | Value | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `Cookie` | `JSESSIONID={세션 ID}` | ✅ | 로그인 세션 ID |
-
-**Query Parameter**
-
-| 필드 | 타입 | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `userId` | Long | ✅ | 작성자 ID |
-
-**Response** `200 OK`
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `orderNumber` | Integer | 주문번호 |
-| `customerName` | String | 고객명 |
-| `productName` | String | 상품명 |
-| `quantity` | Integer | 수량 |
-| `totalCount` | Long | 금액 |
-| `createdAt` | String | 주문일 |
-| `status` | String | 주문 상태 |
-| `adminName` | String | 등록 관리자명 |
-| `adminEmail` | String | 등록 관리자 이메일 |
-| `adminRole` | String | 등록 관리자 역할 |
-
-```json
-{
-  "orderNumber": 2,
-  "customerName": "고객명",
-  "productName": "상품명",
-  "quantity": 2,
-  "totalCount": 8000,
-  "createdAt": "2026-10-27T19:10:00",
-  "status": "PREPARING",
-  "adminName": "등록 관리자명",
-  "adminEmail": "admin@sparta.com",
-  "adminRole": "CS_ADMIN"
-}
-```
-
-**Error Response**
-
-| 상태 코드 | 상황 |
-| --- | --- |
-| `404 Not Found` | 존재하지 않는 ID 요청 시 |
-
-</details>
-
-<details>
-<summary><code>PATCH</code> <b>/orders/{orderId}/status</b> — 주문 상태 수정</summary>
-
-> 상태 변경 순서: 준비중 → 배송중 → 배송완료
-
-**Request Headers**
-
-| Key | Value | 필수 | 설명 |
-| --- | --- | :---: | --- |
-| `Content-Type` | `application/json` | ✅ | 데이터 형식 |
-
-**Request Body**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 주문 상태 (`PREPARING`, `DELIVERING`, `DELIVERED`) |
-
-```json
-{
-  "status": "DELIVERING"
-}
-```
-
-**Response** `200 OK`
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 변경된 주문 상태 |
-
-```json
-{
-  "status": "DELIVERED"
-}
-```
-
-**Error Response**
-
-```json
-{
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/orders/1/status"
-}
-```
-
-</details>
-
-<details>
-<summary><code>DELETE</code> <b>/orders/{orderId}</b> — 주문 취소</summary>
-
-> 주문 취소는 `준비중(PREPARING)` 상태에서만 허용됩니다.
+> `CS 주문`이 아닌 고객의 직접 주문인 경우 등록 관리자 정보(`adminEmail`, `adminRole`)는 `null`입니다.
 
 **Path Parameter**
 
@@ -1733,41 +1638,122 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | Key | Value | 필수 | 설명 |
 | --- | --- | :---: | --- |
-| `Content-Type` | `application/json` | ✅ | 데이터 형식 |
-
-**Request Body**
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `status` | String | 주문 상태 (`PREPARING`) |
-
-```json
-{
-  "status": "PREPARING"
-}
-```
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
 
 **Response** `200 OK`
 
 | 필드 | 타입 | 설명 |
 | --- | --- | --- |
-| `message` | String | 전달 메시지 |
+| `orderNumber` | String | 주문번호 |
+| `customerName` | String | 고객명 |
+| `customerEmail` | String | 고객 이메일 |
+| `productName` | String | 상품명 (주문 시점) |
+| `quantity` | Integer | 수량 |
+| `totalPrice` | Long | 총 금액 |
+| `createdAt` | LocalDateTime | 주문일 |
+| `status` | String | 주문 상태 |
+| `adminEmail` | String | 등록 관리자 이메일 (없으면 `null`) |
+| `adminRole` | String | 등록 관리자 역할 (없으면 `null`) |
 
 ```json
 {
-  "message": "주문이 취소되었습니다."
+  "orderNumber": "주문번호",
+  "customerName": "고객명",
+  "customerEmail": "고객 이메일",
+  "productName": "상품명",
+  "quantity": "수량",
+  "totalPrice": "총 금액",
+  "createdAt": "주문일",
+  "status": "주문 상태",
+  "adminEmail": "등록 관리자 이메일",
+  "adminRole": "등록 관리자 역할"
 }
 ```
 
 **Error Response**
 
+| 상태 코드 | 상황 |
+| --- | --- |
+| `401 Unauthorized` | 로그인하지 않은 경우 |
+| `404 Not Found` | 존재하지 않는 주문 / 주문 상품 |
+
+</details>
+
+<details>
+<summary><code>PATCH</code> <b>/orders/{orderId}/status</b> — 주문 상태 수정</summary>
+
+> 요청 본문 없이 호출하면 주문 상태가 **다음 단계로 자동 변경**됩니다.
+>
+> `PREPARING`(준비중) → `SHIPPING`(배송중) → `DELIVERED`(배송완료)
+>
+> `DELIVERED`, `CANCELLED` 상태의 주문은 수정할 수 없습니다.
+
+**Path Parameter**
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `orderId` | Long | 주문 ID |
+
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
+
+**Request Body** — 없음
+
+**Response** `200 OK` — 응답 본문 없음
+
+**Error Response**
+
+| 상태 코드 | 상황 |
+| --- | --- |
+| `401 Unauthorized` | 로그인하지 않은 경우 |
+| `404 Not Found` | 존재하지 않는 주문 |
+| `409 Conflict` | 배송완료 또는 취소된 주문 (`배송완료 또는 취소된 주문은 상태를 수정할 수 없습니다.`) |
+
+</details>
+
+<details>
+<summary><code>PATCH</code> <b>/orders/{orderId}</b> — 주문 취소</summary>
+
+> 주문 취소는 `준비중(PREPARING)` 상태에서만 허용됩니다. 취소 시 상태가 `CANCELLED`로 변경되고, 취소 사유가 저장되며, 주문 수량만큼 상품 재고가 복구됩니다.
+
+**Path Parameter**
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `orderId` | Long | 주문 ID |
+
+**Request Headers**
+
+| Key | Value | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `Content-Type` | `application/json` | ✅ | 요청 본문 형식 |
+| `Cookie` | `JSESSIONID={sessionId}` | ✅ | 로그인한 관리자 세션 |
+
+**Request Body**
+
+| 필드 | 타입 | 필수 | 설명 |
+| --- | --- | :---: | --- |
+| `cancelReason` | String | ✅ | 취소 사유 (공백 불가) |
+
 ```json
 {
-  "status": 400,
-  "error": "Bad Request",
-  "message": "잘못된 요청입니다.",
-  "path": "/orders/1"
+  "cancelReason": "취소 사유"
 }
 ```
+
+**Response** `200 OK` — 응답 본문 없음
+
+**Error Response**
+
+| 상태 코드 | 상황 |
+| --- | --- |
+| `400 Bad Request` | 취소 사유 누락 또는 공백 |
+| `401 Unauthorized` | 로그인하지 않은 경우 |
+| `404 Not Found` | 존재하지 않는 주문 / 주문 상품 |
+| `409 Conflict` | 이미 취소된 주문 (`이미 취소된 주문입니다.`) |
+| `409 Conflict` | 배송중 또는 배송완료된 주문 (`배송중 또는 배송완료된 주문은 취소할 수 없습니다.`) |
 
 </details>
