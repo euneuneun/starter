@@ -1,14 +1,14 @@
 
 package com.starter.product.dto.response;
 
-import com.starter.product.entity.Product;
+import com.starter.product.enums.ProductStatus;
 
 import java.time.LocalDateTime;
 
 public class ProductStatusResponse {
 
     private Long productId;
-    private Product.ProductStatus productStatus;
+    private ProductStatus productStatus;
     private LocalDateTime updatedAt;
     /**
      * 상품 상태 변경 응답 DTO를 생성한다.
@@ -19,7 +19,7 @@ public class ProductStatusResponse {
      */
     public ProductStatusResponse(
             Long productId,
-            Product.ProductStatus productStatus,
+            ProductStatus productStatus,
             LocalDateTime updatedAt) {
         this.productId = productId;
         this.productStatus = productStatus;
@@ -38,7 +38,7 @@ public class ProductStatusResponse {
      *
      * @return 상품 상태
      */
-    public Product.ProductStatus getProductStatus() {
+    public ProductStatus getProductStatus() {
         return productStatus;
     }
     /**

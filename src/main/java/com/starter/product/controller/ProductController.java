@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.starter.product.enums.ProductStatus;
 
 import java.util.Map;
 
@@ -168,7 +169,7 @@ public class ProductController {
                     required = false) String productCategory,
             @RequestParam(
                     name = "status",
-                    required = false) Product.ProductStatus productStatus,
+                    required = false) ProductStatus productStatus,
             HttpServletRequest request) {
 
         // 1. 기존 세션 조회
