@@ -23,16 +23,16 @@ public class Admin extends BaseEntity {
     private Long adminId;
 
     @Column(nullable = false, length = 20)
-    private String name;
+    private String adminName;
 
     @Column(nullable = false, length = 20)
-    private String email;
+    private String adminEmail;
 
     @Column(nullable = false, length = 255)
     private String password;
 
     @Column(nullable = false, length = 20)
-    private String phone;
+    private String adminPhone;
 
     @Column(nullable = false, length = 30)
     @Enumerated(EnumType.STRING)
@@ -42,7 +42,7 @@ public class Admin extends BaseEntity {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    private AdminStatus status;
+    private AdminStatus adminStatus;
 
     @Column(nullable = true, length = 200)
     private String rejectReason;
@@ -59,18 +59,18 @@ public class Admin extends BaseEntity {
     }
 
     public Admin(
-            String name,
-            String email,
+            String adminName,
+            String adminEmail,
             String password,
-            String phone,
+            String adminPhone,
             AdminRole role
     ) {
-        this.name = name;
-        this.email = email;
+        this.adminName = adminName;
+        this.adminEmail = adminEmail;
         this.password = password;
-        this.phone = phone;
+        this.adminPhone = adminPhone;
         this.role = role;
-        this.status = AdminStatus.PENDING;
+        this.adminStatus = AdminStatus.PENDING;
     }
 
     //기능
@@ -81,28 +81,28 @@ public class Admin extends BaseEntity {
         return adminId;
     }
 
-    public String getName() {
-        return name;
+    public String getAdminName() {
+        return adminName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getAdminEmail() {
+        return adminEmail;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getAdminPhone() {
+        return adminPhone;
     }
 
     public AdminRole getRole() {
         return role;
     }
 
-    public AdminStatus getStatus() {
-        return status;
+    public AdminStatus getAdminStatus() {
+        return adminStatus;
     }
 
     public String getRejectReason() {
@@ -120,10 +120,10 @@ public class Admin extends BaseEntity {
     /**
      * 관리자 정보 수정 기능
      */
-    public Admin changeInfo(String newName, String newEmail, String newPhone) {
-        this.name = newName;
-        this.email = newEmail;
-        this.phone = newPhone;
+    public Admin changeInfo(String newAdminName, String newAdminEmail, String newAdminPhone) {
+        this.adminName = newAdminName;
+        this.adminEmail = newAdminEmail;
+        this.adminPhone = newAdminPhone;
         return this;
     }
 
@@ -139,7 +139,7 @@ public class Admin extends BaseEntity {
      *  관리자 상태 수정 기능
      */
     public Admin changeStatus(AdminStatus newStatus, String rejectReason) {
-        this.status = newStatus;
+        this.adminStatus = newStatus;
 
         // 가입 승인, 거부 시 시간 기록, 거부 사유 절차
         if (newStatus == AdminStatus.REJECTED) {

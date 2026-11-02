@@ -9,18 +9,18 @@ import jakarta.validation.constraints.NotNull;
 public class AdminUpdateStatusRequest {
     //속성
     @NotNull(message = "변경할 상태 선택은 필수입니다.")
-    private AdminStatus status;
+    private AdminStatus adminStatus;
     private String rejectReason;
 
     //생성자
-    public AdminUpdateStatusRequest(AdminStatus status, String rejectReason) {
-        this.status = status;
+    public AdminUpdateStatusRequest(AdminStatus adminStatus, String rejectReason) {
+        this.adminStatus = adminStatus;
         this.rejectReason = rejectReason;
     }
 
-    //기능
-    public AdminStatus getStatus() {
-        return status;
+    //기능SSSS
+    public AdminStatus getAdminStatus() {
+        return adminStatus;
     }
 
     public String getRejectReason() {

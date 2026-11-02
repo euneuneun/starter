@@ -10,19 +10,19 @@ import java.time.LocalDateTime;
 public class AdminUpdateRoleResponse {
     // 속성
     private Long adminId;
-    private String name;
+    private String adminName;
     private AdminRole role;
     private LocalDateTime updatedAt;
 
     // 생성자
     public AdminUpdateRoleResponse(
             Long adminId,
-            String name,
+            String adminName,
             AdminRole role,
             LocalDateTime updateAt
     ) {
         this.adminId = adminId;
-        this.name = name;
+        this.adminName = adminName;
         this.role = role;
         this.updatedAt = updateAt;
     }
@@ -32,8 +32,8 @@ public class AdminUpdateRoleResponse {
         return adminId;
     }
 
-    public String getName() {
-        return name;
+    public String getAdminName() {
+        return adminName;
     }
 
     public AdminRole getRole() {

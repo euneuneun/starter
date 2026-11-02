@@ -1,25 +1,35 @@
+
 package com.starter.customer.dto.request;
 
 import com.starter.customer.entity.Customer;
 
 public class CustomerStatusRequest {
 
-    // 속성
-    private Customer.CustomerStatus status;
+    private Customer.CustomerStatus customerStatus;
 
-    // 생성자
+    /**
+     * 고객 상태 변경 요청 객체를 생성한다.
+     */
     public CustomerStatusRequest() {
     }
-    public CustomerStatusRequest(Customer.CustomerStatus status) {
-        this.status = status;
+
+    /**
+     * 고객 상태 변경 요청 객체를 생성한다.
+     *
+     * @param customerStatus 변경할 고객 상태
+     */
+    public CustomerStatusRequest(
+            Customer.CustomerStatus customerStatus) {
+
+        this.customerStatus = customerStatus;
     }
 
-    // 기능
-    public Customer.CustomerStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(Customer.CustomerStatus status) {
-        this.status = status;
+    /**
+     * 고객 상태를 반환한다.
+     *
+     * @return 고객 상태
+     */
+    public Customer.CustomerStatus getCustomerStatus() {
+        return customerStatus;
     }
 }

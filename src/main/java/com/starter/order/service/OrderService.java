@@ -95,9 +95,9 @@ public class OrderService {
 
         // 2. 검증
         // 2-1. 주문한 상품 상태 확인
-        if (product.getStatus() == Product.ProductStatus.DISCONTINUED) {
+        if (product.getProductStatus() == Product.ProductStatus.DISCONTINUED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 단종되어 주문할 수 없습니다.");
-        } else if (product.getStatus() == Product.ProductStatus.OUT_OF_STOCK) {
+        } else if (product.getProductStatus() == Product.ProductStatus.OUT_OF_STOCK) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "현재 상품이 품절되어 주문할 수 없습니다.");
         }
 
@@ -128,7 +128,7 @@ public class OrderService {
         OrderItem orderItem = new OrderItem(
                 order,
                 product,
-                product.getName(),  // 주문한 순간의 상품 이름
+                product.getProductName(),  // 주문한 순간의 상품 이름
                 product.getPrice(), // 주문한 순간의 상품 가격
                 request.getQuantity()
         );
@@ -159,14 +159,14 @@ public class OrderService {
 
         // 2. 등록 관리자 정보 (관리자 없이 생성된 주문은 null)
         Admin registerAdmin = order.getRegisterAdmin();
-        String adminEmail = (registerAdmin != null) ? registerAdmin.getEmail() : null;
+        String adminEmail = (registerAdmin != null) ? registerAdmin.getAdminEmail() : null;
         AdminRole adminRole = (registerAdmin != null) ? registerAdmin.getRole() : null;
 
         // 3. 응답 생성
         OrderDetailResponse response = new OrderDetailResponse(
                 order.getOrderNumber(),
-                order.getCustomer().getName(),
-                order.getCustomer().getEmail(),
+                order.getCustomer().getCustomerName(),
+                order.getCustomer().getCustomerEmail(),
                 orderItem.getProductName(),
                 orderItem.getQuantity(),
                 order.getTotalPrice(),
@@ -230,13 +230,13 @@ public class OrderService {
             OrderSummaryResponse orderSummaryResponse = new OrderSummaryResponse(
                     order.getOrderId(),
                     order.getOrderNumber(),
-                    order.getCustomer().getName(),
+                    order.getCustomer().getCustomerName(),
                     orderItem.getProductName(),
                     orderItem.getQuantity(),
                     order.getTotalPrice(),
                     order.getCreatedAt(),
                     order.getStatus(),
-                    order.getRegisterAdmin() == null ? null : order.getRegisterAdmin().getName()
+                    order.getRegisterAdmin() == null ? null : order.getRegisterAdmin().getAdminName()
             );
 
             // 3-2. dto -> list <dto>
