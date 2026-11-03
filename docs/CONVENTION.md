@@ -6,12 +6,6 @@
 
 ---
 
-## 한 줄 요약
-
-Java 코드 컨벤션 + 도메인별 3계층 패키지 구조 + Javadoc 주석(`@param` · `@return`) + 공통 에러 메시지 규칙 + `[유형]/[이슈번호]-[이니셜]-[영문요약]` 브랜치 + `유형: 작업요약 (#이슈번호)` 커밋 + 이슈 / PR 템플릿 자동 적용 + **리뷰어 1명 이상 승인 후 `develop`에 머지**.
-
----
-
 ## 📌 Java 코드 컨벤션
 
 [Java 코드 컨벤션 (Oracle Code Conventions)](https://www.oracle.com/technetwork/java/codeconventions-150003.pdf)을 따릅니다.
@@ -23,7 +17,16 @@ Java 코드 컨벤션 + 도메인별 3계층 패키지 구조 + Javadoc 주석(`
 | 조건문 · 반복문 | 한 줄이어도 **중괄호 생략 금지** | `if (stock == 0) { ... }` |
 | 변수 선언 | 한 줄에 하나씩 | `int a, b;` ❌ → 두 줄로 나누기 |
 | 공백 | 키워드와 괄호 사이, 연산자 앞뒤에 한 칸 | `if (a == b)`, `for (int i = 0; i < n; i++)` |
----
+
+### Lombok 미사용
+
+Lombok 없이 생성자와 getter를 직접 작성합니다.
+
+| 대상 | 규칙 |
+|------|------|
+| 생성자 | 직접 작성, 엔티티에는 빈 생성자를 `protected`로 하나 둠 |
+| getter | 모든 필드에 직접 작성 |
+| setter | 만들지 않고, 값 변경은 의미 있는 메서드로 처리 (`changeStock()`, `cancelOrder()`) |
 
 ## 📌 패키지 구조
 

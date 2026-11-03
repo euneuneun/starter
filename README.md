@@ -34,19 +34,19 @@
 
 <table>
   <tr>
-    <th align="center" width="180">재원</th>
-    <th align="center" width="180">영주</th>
-    <th align="center" width="180">다은</th>
+    <th align="center" width="180">정재원</th>
+    <th align="center" width="180">전영주</th>
+    <th align="center" width="180">김다은</th>
   </tr>
   <tr>
-    <td align="center"><img src="https://github.com/GITHUB_ID.png" width="120" alt="재원 프로필"/></td>
-    <td align="center"><img src="https://github.com/GITHUB_ID.png" width="120" alt="영주 프로필"/></td>
-    <td align="center"><img src="https://github.com/GITHUB_ID.png" width="120" alt="다은 프로필"/></td>
+    <td align="center"><img src="https://github.com/ApprendistaKR.png" width="120" alt="정재원 프로필"/></td>
+    <td align="center"><img src="https://github.com/youngju0zoo.png" width="120" alt="전영주 프로필"/></td>
+    <td align="center"><img src="https://github.com/euneuneun.png" width="120" alt="김다은 프로필"/></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/GITHUB_ID">@GITHUB_ID</a></td>
-    <td align="center"><a href="https://github.com/GITHUB_ID">@GITHUB_ID</a></td>
-    <td align="center"><a href="https://github.com/GITHUB_ID">@GITHUB_ID</a></td>
+    <td align="center"><a href="https://github.com/ApprendistaKR">@ApprendistaKR</a></td>
+    <td align="center"><a href="https://github.com/youngju0zoo">@youngju0zoo</a></td>
+    <td align="center"><a href="https://github.com/euneuneun">@euneuneun</a></td>
   </tr>
   <tr>
     <td align="center">백엔드<br/>관리자 · 인증</td>
@@ -65,7 +65,7 @@
 | **Framework** | ![Spring Boot](https://img.shields.io/badge/Spring%20Boot%204.1.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white) ![Spring Data JPA](https://img.shields.io/badge/Spring%20Data%20JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white) |
 | **Database** | ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white) |
 | **Build** | ![Gradle](https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white) |
-| **Library** | ![Lombok](https://img.shields.io/badge/Lombok-BC4521?style=for-the-badge) ![Bean Validation](https://img.shields.io/badge/Bean%20Validation-6DB33F?style=for-the-badge) ![BCrypt](https://img.shields.io/badge/BCrypt-338033?style=for-the-badge) |
+| **Library** | ![Bean Validation](https://img.shields.io/badge/Bean%20Validation-6DB33F?style=for-the-badge) ![BCrypt](https://img.shields.io/badge/BCrypt-338033?style=for-the-badge) |
 | **Auth** | ![Session](https://img.shields.io/badge/Cookie%20%2F%20Session-555555?style=for-the-badge) |
 | **Tools** | ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ%20IDEA-000000?style=for-the-badge&logo=intellijidea&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white) |
 
