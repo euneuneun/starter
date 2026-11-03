@@ -1774,7 +1774,8 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 > - 주문 수량만큼 상품 재고가 차감되며, 재고가 0이 되면 상품 상태가 자동으로 `OUT_OF_STOCK`으로 전환됩니다.
 > - 주문 상태는 `PREPARING`으로 생성됩니다.
 > - 주문번호는 `yyyyMMdd-NNN` 형식으로 자동 생성됩니다. (예: `20261029-003`, 당일 주문 순번)
-> - 총 금액 = 상품 단가 × 수량
+> - 한 주문에 여러 상품을 담을 수 있습니다.
+> - 총 금액 = 각 상품의 (단가 × 수량) 합계
 
 **Request Headers**
 
@@ -1788,14 +1789,17 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | 필드 | 타입 | 필수 | 설명 |
 | --- | --- | :---: | --- |
 | `customerId` | Long | ✅ | 고객 ID |
-| `productId` | Long | ✅ | 상품 ID |
-| `quantity` | Integer | ✅ | 주문 수량 (1 이상) |
+| `items` | Array | ✅ | 주문 상품 목록 (1개 이상) |
+| `items[].productId` | Long | ✅ | 상품 ID |
+| `items[].quantity` | Integer | ✅ | 주문 수량 (1 이상) |
 
 ```json
 {
-  "customerId": "고객 ID",
-  "productId": "상품 ID",
-  "quantity": "주문 수량"
+  "customerId": 1,
+  "items": [
+    { "productId": 1, "quantity": 2 },
+    { "productId": 3, "quantity": 1 }
+  ]
 }
 ```
 
@@ -1805,7 +1809,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 
 | 상태 코드 | 상황 | message |
 | --- | --- | --- |
-| `400 Bad Request` | 필수 값 누락, 수량이 1 미만인 경우 | `Invalid request` |
+| `400 Bad Request` | 필수 값 누락, `items`가 비어 있는 경우, 수량이 1 미만인 경우 | `Invalid request` |
 | `401 Unauthorized` | 로그인하지 않은 경우 | `Unauthorized user` |
 | `404 Not Found` | 존재하지 않는 관리자 / 고객 / 상품 | `Resource Not Found` |
 | `400 Bad Request` | 단종된 상품 | `Invalid request` |
@@ -1838,6 +1842,8 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `page` | Integer | | 페이지 번호 (기본값 1, 1부터 시작) |
 
 > 페이지당 개수는 **10개로 고정**입니다.
+>
+> 목록은 **주문 상품 단위**로 조회됩니다. 상품 2개가 담긴 주문은 같은 `orderId`로 2줄이 응답되며, `totalPrice`는 상품별 금액이 아닌 **주문 전체 금액**입니다. `totalElements`도 주문 수가 아닌 주문 상품 줄 수입니다.
 
 **Response** `200 OK`
 
@@ -1918,9 +1924,12 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 | `orderNumber` | String | 주문번호 |
 | `customerName` | String | 고객명 |
 | `customerEmail` | String | 고객 이메일 |
-| `productName` | String | 상품명 (주문 시점) |
-| `quantity` | Integer | 수량 |
-| `totalPrice` | Long | 총 금액 |
+| `items` | Array | 주문 상품 목록 |
+| `items[].productName` | String | 상품명 (주문 시점) |
+| `items[].productPrice` | Long | 단가 (주문 시점) |
+| `items[].quantity` | Integer | 수량 |
+| `items[].subtotal` | Long | 소계 (단가 × 수량) |
+| `totalPrice` | Long | 총 금액 (소계 합계) |
 | `createdAt` | LocalDateTime | 주문일 |
 | `status` | String | 주문 상태 |
 | `adminEmail` | String | 등록 관리자 이메일 (없으면 `null`) |
@@ -1931,8 +1940,14 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
   "orderNumber": "주문번호",
   "customerName": "고객명",
   "customerEmail": "고객 이메일",
-  "productName": "상품명",
-  "quantity": "수량",
+  "items": [
+    {
+      "productName": "상품명",
+      "productPrice": "단가",
+      "quantity": "수량",
+      "subtotal": "소계"
+    }
+  ],
   "totalPrice": "총 금액",
   "createdAt": "주문일",
   "status": "주문 상태",
@@ -1988,7 +2003,7 @@ Cookie: JSESSIONID=AbCdEfGhIjKlMnOpQrStUvWxYz...
 <details>
 <summary><code>PATCH</code> <b>/orders/{orderId}</b> — 주문 취소</summary>
 
-> 주문 취소는 `준비중(PREPARING)` 상태에서만 허용됩니다. 취소 시 상태가 `CANCELLED`로 변경되고, 취소 사유가 저장되며, 주문 수량만큼 상품 재고가 복구됩니다.
+> 주문 취소는 `준비중(PREPARING)` 상태에서만 허용됩니다. 취소 시 상태가 `CANCELLED`로 변경되고, 취소 사유가 저장되며, 주문에 포함된 모든 상품의 재고가 각 주문 수량만큼 복구됩니다.
 
 **Path Parameter**
 
