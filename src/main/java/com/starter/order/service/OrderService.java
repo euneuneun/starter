@@ -8,7 +8,9 @@ import com.starter.customer.entity.Customer;
 import com.starter.customer.repository.CustomerRepository;
 import com.starter.order.dto.request.OrderCancelRequest;
 import com.starter.order.dto.request.OrderCreateRequest;
+import com.starter.order.dto.request.OrderItemRequest;
 import com.starter.order.dto.response.OrderDetailResponse;
+import com.starter.order.dto.response.OrderItemResponse;
 import com.starter.order.dto.response.OrderSummaryResponse;
 import com.starter.order.entity.Order;
 import com.starter.order.entity.OrderItem;
@@ -75,7 +77,6 @@ public class OrderService {
      * <ul>
      *     <li>주문 수량만큼 상품 재고가 차감된다.</li>
      *     <li>재고 변경에 따라 상품 상태가 자동 전환 처리된다.</li>
-     *     <li>주문 번호가 자동 생성되어 부여된다. (ex: 20260901-003)</li>
      * </ul>
      *
      * @param adminId 주문을 등록한 CS 관리자 ID
@@ -91,52 +92,62 @@ public class OrderService {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+        Long totalPrice = 0L; // 0은 int라서 Long에 바로 못 들어감
 
-        // 2. 검증
-        // 2-1. 주문한 상품 상태 확인
-        if (product.getProductStatus() == Product.ProductStatus.DISCONTINUED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 단종되어 주문할 수 없습니다.
-        } else if (product.getProductStatus() == Product.ProductStatus.OUT_OF_STOCK) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 품절되어 주문할 수 없습니다.
+        List<Product> productList = new ArrayList<>();
+
+        for (int i = 0; i < request.getItems().size(); i++) {
+            Product product = productRepository.findById(request.getItems().get(i).getProductId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+
+            // 2. 검증
+            // 2-1. 주문한 상품 상태 확인
+            if (product.getProductStatus() == ProductStatus.DISCONTINUED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 단종되어 주문할 수 없습니다.
+            } else if (product.getProductStatus() == ProductStatus.OUT_OF_STOCK) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 현재 상품이 품절되어 주문할 수 없습니다.
+            }
+
+            // 요청한 주문 수량
+            int requestQuantity = request.getItems().get(i).getQuantity();
+
+            // 2-2. 주문 수량만큼 상품 재고 검증 처리
+            if (product.getStock() < requestQuantity) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 주문 수량이 재고 수량보다 많습니다.
+            }
+
+            // 3. 재고 차감
+            // 3-1. 재고 계산
+            Integer stock = product.getStock() - requestQuantity;
+
+            // 3-2. 재고 저장 ( 품절 처리 자동 변환)
+            product.changeStock(stock);
+
+            // 4. 전제 금액 계산
+            totalPrice += product.getPrice() * requestQuantity;
+
+            // 5. 주문 상품 목록에 상품 저장
+            productList.add(product);
         }
 
-        // 2-2. 주문 수량만큼 상품 재고 검증 처리
-        if (product.getStock() < request.getQuantity()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request"); // 주문 수량이 재고 수량보다 많습니다.
-        }
-
-        // 3. 재고 차감
-        // 3-1. 재고 계산
-        Integer stock = product.getStock() - request.getQuantity();
-        // 3-2. 재고 저장 ( 품절 처리 자동 변환)
-        product.changeStock(stock);
-
-        // 4. 엔티티 생성
-        // 4-1. 엔티티에 넣을 값 계산
-        // 4-1-1.( 총 금액 = 상품 단가 * 수량)
-        Long totalPrice = product.getPrice() * request.getQuantity();
-        // 4-1-2. 주문 번호 생성
+        // 6. 주문 번호 생성
         String orderNumber = generateOrderNumber();
 
-        // 4-2. Order 엔티티 생성
+        // 7. Order 엔티티 생성 및 저장
         Order order = new Order(customer, admin, orderNumber, totalPrice);
-        // 4-3 OrderItem 엔티티 생성
-        OrderItem orderItem = new OrderItem(
-                order,
-                product,
-                product.getProductName(),  // 주문한 순간의 상품 이름
-                product.getPrice(), // 주문한 순간의 상품 가격
-                request.getQuantity()
-        );
-
-        // 5. 저장
-        // 5-1. 주문 저장
         orderRepository.save(order);
-        // 5-2. 주문 상품 저장
-        orderItemRepository.save(orderItem);
 
+        // 8. OrderItem 엔티티 생성 및 저장
+        for (int i = 0; i < productList.size(); i++) {
+            OrderItem orderItem = new OrderItem(
+                    order,
+                    productList.get(i),
+                    productList.get(i).getProductName(),
+                    productList.get(i).getPrice(),
+                    request.getItems().get(i).getQuantity()
+            );
+            orderItemRepository.save(orderItem);
+        }
     }
 
     /**
@@ -152,21 +163,29 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
 
-        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+        List<OrderItem> orderItems = orderItemRepository.findByAllOrderId(orderId);
 
         // 2. 등록 관리자 정보 (관리자 없이 생성된 주문은 null)
         Admin registerAdmin = order.getRegisterAdmin();
         String adminEmail = (registerAdmin != null) ? registerAdmin.getAdminEmail() : null;
         AdminRole adminRole = (registerAdmin != null) ? registerAdmin.getRole() : null;
 
-        // 3. 응답 생성
+        List<OrderItemResponse> orderitemList = new ArrayList<>();
+
+        for (OrderItem orderItem : orderItems) {
+            OrderItemResponse itemResponse = new OrderItemResponse(
+                    orderItem.getProductName(),
+                    orderItem.getProductPrice(),
+                    orderItem.getQuantity()
+            );
+            orderitemList.add(itemResponse);
+        }
+
         OrderDetailResponse response = new OrderDetailResponse(
                 order.getOrderNumber(),
                 order.getCustomer().getCustomerName(),
                 order.getCustomer().getCustomerEmail(),
-                orderItem.getProductName(),
-                orderItem.getQuantity(),
+                orderitemList,
                 order.getTotalPrice(),
                 order.getCreatedAt(),
                 order.getStatus(),
@@ -287,12 +306,12 @@ public class OrderService {
 
 
         // 3. 재고 복구
-        OrderItem orderItem = orderItemRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found"));
+        List<OrderItem> orderItems = orderItemRepository.findByAllOrderId(orderId);
 
-        Product product = orderItem.getProduct();
-
-        product.changeStock(product.getStock() + orderItem.getQuantity());
+        for (OrderItem orderItem : orderItems) {
+            int change = orderItem.getQuantity() + orderItem.getProduct().getStock();
+            orderItem.getProduct().changeStock(change);
+        }
     }
 
     /**

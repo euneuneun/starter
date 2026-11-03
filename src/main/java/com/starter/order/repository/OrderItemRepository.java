@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
+import java.util.List;
 
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
@@ -40,5 +40,5 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     // 주문 ID로 해당 주문의 주문상품 조회
     @Query("SELECT oi FROM OrderItem oi WHERE oi.order.orderId = :orderId")
-    Optional<OrderItem> findByOrderId(@Param("orderId") Long orderId);
+    List<OrderItem> findByAllOrderId(@Param("orderId") Long orderId);
 }

@@ -1,7 +1,10 @@
 package com.starter.order.dto.request;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 
 public class OrderCreateRequest {
@@ -10,21 +13,17 @@ public class OrderCreateRequest {
     @NotNull
     private Long customerId;
 
-    @NotNull
-    private Long productId;
-
-    @NotNull
-    @Min(1)
-    private Integer quantity;
+    @NotEmpty
+    @Valid
+    private List<OrderItemRequest> items;
 
     // 생성자
     public OrderCreateRequest() {
     }
 
-    public OrderCreateRequest(Long customerId, Long productId, Integer quantity) {
+    public OrderCreateRequest(Long customerId, List<OrderItemRequest> items) {
         this.customerId = customerId;
-        this.productId = productId;
-        this.quantity = quantity;
+        this.items = items;
     }
 
     // 기능
@@ -32,11 +31,7 @@ public class OrderCreateRequest {
         return customerId;
     }
 
-    public Long getProductId() {
-        return productId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
+    public List<OrderItemRequest> getItems() {
+        return items;
     }
 }
