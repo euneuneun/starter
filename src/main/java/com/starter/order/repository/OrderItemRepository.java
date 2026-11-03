@@ -39,6 +39,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             Pageable pageable);
 
     // 주문 ID로 해당 주문의 주문상품 조회
-    @Query("SELECT oi FROM OrderItem oi WHERE oi.order.orderId = :orderId")
+    // - JOIN FETCH로 상품을 한 번에 가져온다. (주문 취소 시 재고 복구 N+1 방지)
+    @Query("SELECT oi FROM OrderItem oi JOIN FETCH oi.product WHERE oi.order.orderId = :orderId")
     List<OrderItem> findByAllOrderId(@Param("orderId") Long orderId);
 }
