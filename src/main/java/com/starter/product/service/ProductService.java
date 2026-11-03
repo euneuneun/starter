@@ -61,7 +61,7 @@ public class ProductService {
         if (stock == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "stock은 null을 입력할 수 없습니다.");
+                    "Bad Request");
         }
 
         ProductStatus productStatus =
@@ -75,7 +75,7 @@ public class ProductService {
         if (optionalAdmin.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 2-2. 관리자가 있으면
@@ -123,7 +123,7 @@ public class ProductService {
         if (optionalProduct.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 3. 객체 꺼내기
@@ -133,7 +133,7 @@ public class ProductService {
         if (foundProduct.getDeletedAt() != null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 4. entity -> dto 변환
@@ -164,7 +164,7 @@ public class ProductService {
         if (optionalProduct.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 3. 객체 꺼내기
@@ -174,7 +174,7 @@ public class ProductService {
         if (foundProduct.getDeletedAt() != null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 4. RequestDto 에서 변경할 재고 가져오기
@@ -184,7 +184,7 @@ public class ProductService {
         if (stock == null || stock < 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "잘못된 요청입니다.");
+                    "Bad Request");
         }
 
         // 4-2. 재고 변경
@@ -233,14 +233,14 @@ public class ProductService {
         if (page == null || page < 1) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "잘못된 요청입니다.");
+                    "Bad Request");
         }
 
         // 1-2. size 검증
         if (size == null || size < 1) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "잘못된 요청입니다.");
+                    "Bad Request");
         }
 
         // 1-3. sortDirection 검증
@@ -250,7 +250,7 @@ public class ProductService {
 
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "잘못된 요청입니다.");
+                    "Bad Request");
         }
 
         // 1-4. sortBy 검증
@@ -261,7 +261,7 @@ public class ProductService {
 
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "잘못된 요청입니다.");
+                    "Bad Request");
         }
 
         // 1-5. keyword 검증
@@ -333,7 +333,7 @@ public class ProductService {
         if (optionalProduct.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 3. 객체 꺼내기
@@ -343,7 +343,7 @@ public class ProductService {
         if (foundProduct.getDeletedAt() != null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 4. RequestDto에서 변경할 정보 가져오기
@@ -392,7 +392,7 @@ public class ProductService {
         if (optionalProduct.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 3. 객체 꺼내기
@@ -402,7 +402,7 @@ public class ProductService {
         if (foundProduct.getDeletedAt() != null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 4. RequestDto에서 변경할 정보 가져오기
@@ -412,7 +412,7 @@ public class ProductService {
         if (discontinued == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "잘못된 요청입니다.");
+                    "Bad Request");
         }
 
         // 5. 단종 여부에 따라 상품 상태 변경
@@ -451,7 +451,7 @@ public class ProductService {
         if (optionalProduct.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 3. 객체 꺼내기
@@ -461,7 +461,7 @@ public class ProductService {
         if (foundProduct.getDeletedAt() != null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "해당 데이터를 찾을 수 없습니다.");
+                    "Resource Not Found");
         }
 
         // 4. 논리 삭제 처리
